@@ -1,0 +1,8 @@
+frontForDiplom/.git/
+testDiplom/media/*
+testDiplom/locale
+testDiplom/admin-interface
+testDiplom/static
+testDiplom/templates
+env/
+.idea/
