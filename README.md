@@ -1,0 +1,4 @@
+# djangoAdminDiplom
+
+Практика - диплом
+# DipomDjangoBack
