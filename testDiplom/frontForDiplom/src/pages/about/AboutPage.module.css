@@ -1,0 +1,64 @@
+.AboutPage {
+  margin: 5px 0 20px 20px;
+}
+
+.imgView {
+  width: 90%;
+  height: 150%;
+}
+
+.center {
+  text-align: center;
+}
+
+.textH {
+  font-size: 200%;
+  font-weight: 600;
+}
+
+table {
+  border-spacing: 0;
+  empty-cells: hide;
+  margin: auto;
+}
+td {
+  padding: 10px 20px;
+  text-align: center;
+  border-bottom: 1px solid #f4eee8;
+  transition: all 0.5s linear;
+  text-align: center;
+}
+td:first-child {
+  text-align: left;
+  color: #3d3511;
+  font-weight: bold;
+}
+th {
+  padding: 10px 20px;
+  color: #3d3511;
+  text-align: center;
+  border-bottom: 1px solid #f4eee8;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+td:nth-child(even) {
+  background: #ffffff;
+}
+td:nth-child(odd) {
+  background: #fafafa;
+}
+th:nth-child(even) {
+  background: #ffffff;
+}
+th:nth-child(odd) {
+  background: #fafafa;
+}
+.round-top {
+  border-top-left-radius: 5px;
+}
+.round-bottom {
+  border-bottom-left-radius: 5px;
+}
+tr:hover td {
+  background: #d1c7bf;
+}

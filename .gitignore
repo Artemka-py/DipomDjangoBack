@@ -1,0 +1,10 @@
+testDiplom/frontForDiplom/.git/
+testDiplom/frontForDiplom/node_modules/
+testDiplom/frontForDiplom/build/
+testDiplom/media/*
+testDiplom/locale
+testDiplom/admin-interface
+testDiplom/static
+testDiplom/templates
+env/
+.idea/
