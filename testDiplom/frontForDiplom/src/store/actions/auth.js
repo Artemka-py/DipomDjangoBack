@@ -35,13 +35,37 @@ export const checkAuthTimeout = (expirationDate) => {
   };
 };
 
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for ( let i = 0; i <ca.length; i++){
+    let c = ca[i];
+    while(c.charAt(0) === ' '){
+      c = c.substring(1);
+    }
+    if( c.indexOf(name) === 0){
+      return c.substring(name.length, c.length)
+    }
+
+  }
+  return "";
+}
+
 export const authLogin = (username, password) => {
   return (dispatch) => {
     dispatch(authStart());
+
+    const CSRF = getCookie('csrftoken');
+
     axios
       .post("http://127.0.0.1:8000/rest-auth/login/", {
         username,
         password,
+      }, {
+        headers: {
+          "X-CSRFToken": CSRF
+        }
       })
       .then((res) => {
         const token = res.data.key;
@@ -60,12 +84,19 @@ export const authLogin = (username, password) => {
 export const authSignup = (username, email, password1, password2) => {
   return (dispatch) => {
     dispatch(authStart());
+
+    const CSRF = getCookie('csrftoken');
+
     axios
       .post("http://127.0.0.1:8000/rest-auth/registration/", {
         username,
         email,
         password1,
         password2,
+      }, {
+        headers: {
+          "X-CSRFToken": CSRF
+        }
       })
       .then((res) => {
         const token = res.data.key;
