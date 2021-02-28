@@ -11,7 +11,7 @@ import reducer from "./store/reducers/auth";
 
 const composeEnhances = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-const store = createStore(reducer, composeEnhances(applyMiddleware(thunk)));
+export const store = createStore(reducer, composeEnhances(applyMiddleware(thunk)));
 
 const app = (
   <Provider store={store}>

@@ -138,7 +138,7 @@ const Register = (props) => {
         {/*  </Checkbox>*/}
         {/*</Form.Item>*/}
         <Form.Item>
-          <Button type="primary" style={{ width: "100%" }} htmlType="submit">
+          <Button type="primary" style={{ width: "100%" }} htmlType="submit" loading={props.loading}>
             Зарегистрироваться
           </Button>
         </Form.Item>
