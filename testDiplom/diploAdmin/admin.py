@@ -177,8 +177,13 @@ class StagesAdmin(admin.ModelAdmin):
 
 @admin.register(models.Projects)
 class ProjectsAdmin(admin.ModelAdmin):
-    list_display = ('project_name', 'project_status', 'start_date_plan', 'finish_date_plan', 'tech_task_path')
+    list_display = ('project_name', 'project_status', 'start_date_plan', 'finish_date_plan')
 
+
+@admin.register(models.Documents)
+class DocumentsAdmin(admin.ModelAdmin):
+    list_display = ('login_user', 'path_file' )
+    
 
 # Register your models here.
 admin.site.register(models.Users, UsersModel)

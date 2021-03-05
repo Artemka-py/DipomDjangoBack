@@ -118,6 +118,23 @@ class Users(AbstractBaseUser):
     image_img.allow_tags = True
 
 
+def upload_location_documents(instatnce, filename):
+    file_path = 'documents/{login_user}/{filename}'.format(login_user=str(instatnce.login_user), filename=filename)
+    return file_path
+
+class Documents(models.Model):
+    login_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Загрузил документ")
+    path_file = models.FileField(verbose_name='Путь до документов', null=True, blank=True,
+                                    upload_to=upload_location_documents)
+
+    class Meta:
+        verbose_name = "Документ"
+        verbose_name_plural = "Документы"
+
+    def __str__(self):
+        return str(self.path_file.url)
+
+
 class Clients(models.Model):
     client_login = models.OneToOneField(settings.AUTH_USER_MODEL, db_column='client_login', primary_key=True,
                                         on_delete=models.DO_NOTHING, verbose_name="Логин клиента")
@@ -153,6 +170,7 @@ class Issues(models.Model):
     issue_description = models.TextField(verbose_name="Описание проблемы")
     issue_task = models.ForeignKey('Tasks', models.DO_NOTHING, null=False, default=1, verbose_name="Название задачи")
     issue_date = models.DateField(verbose_name="Дата обьявления проблемы")
+    docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
     issue_close_status = models.BooleanField(blank=True, null=True, choices=(
         (True, 'Да'), (False, 'Нет')
     ), default=False, verbose_name="Исправлено")
@@ -189,6 +207,7 @@ class Modules(models.Model):
                                        verbose_name="Название проекта")
     module_status = models.ForeignKey('Status', models.DO_NOTHING, db_column='module_status', default=1, null=False,
                                       verbose_name="Статус модуля")
+    docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
 
     def __str__(self):
         return str(self.module_name)
@@ -208,6 +227,7 @@ class Notes(models.Model):
                                           null=False, verbose_name="Логин клиента")
     note_task_id = models.ForeignKey('Tasks', models.DO_NOTHING, db_column="note_task_id", default=1, null=False,
                                      verbose_name="Название задачи")
+    docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
 
     def __str__(self):
         return str(self.note_name)
@@ -277,8 +297,9 @@ class Projects(models.Model):
                                        verbose_name='Фактическая дата старта проекта')
     finish_date_fact = models.DateField(verbose_name='Фактическая дата конца проекта')
 
-    tech_task_path = models.FileField(verbose_name='Путь до экспортированных задач', null=True, blank=True,
-                                      upload_to=upload_location_tasks)
+    docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
+    # tech_task_path = models.FileField(verbose_name='Путь до экспортированных задач', null=True, blank=True,
+    #                                   upload_to=upload_location_tasks)
 
     def __str__(self):
         return str(self.project_name)
@@ -291,13 +312,14 @@ class Projects(models.Model):
 
 class Stages(models.Model):
     stage_id = models.AutoField(primary_key=True)
-    stage_name = models.CharField(max_length=255)
-    stage_module = models.ForeignKey(Modules, models.DO_NOTHING, default=1, null=False)
-    stage_status = models.ForeignKey('Status', models.DO_NOTHING, db_column='stage_status', default=1, null=False)
-    start_date = models.DateField()
-    finish_date = models.DateField()
-    start_date_fact = models.DateField()
-    finish_date_fact = models.DateField()
+    stage_name = models.CharField(max_length=255, verbose_name='Название этапа')
+    stage_module = models.ForeignKey(Modules, models.DO_NOTHING, default=1, null=False, verbose_name='Название модуля')
+    stage_status = models.ForeignKey('Status', models.DO_NOTHING, db_column='stage_status', default=1, null=False, verbose_name='Статус')
+    docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
+    start_date = models.DateField(verbose_name='Дата старта этапа', auto_now_add=True, null=False, blank=False)
+    finish_date = models.DateField(verbose_name='Дата окончания этапа')
+    start_date_fact = models.DateField(verbose_name='Фактическая дата старта этапа')
+    finish_date_fact = models.DateField(verbose_name='Фактическая дата конца этапа')
 
     def __str__(self):
         return self.stage_name
@@ -330,9 +352,15 @@ class Tasks(MPTTModel):
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.DO_NOTHING,
                                verbose_name="Название главной задачи", related_name='children',
                                db_index=True)  # children_set - for treebeard
+    start_date = models.DateField(verbose_name='Дата старта задачи', auto_now_add=True, null=False, blank=False)
+    finish_date = models.DateField(verbose_name='Дата окончания задачи')
+    start_date_fact = models.DateField(verbose_name='Фактическая дата старта задачи', null=True, blank=True)
+    finish_date_fact = models.DateField(verbose_name='Фактическая дата конца задачи', null=True, blank=True)
+    docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
 
     def __unicode__(self):
         return 'Задача %s' % self.task_name
+
 
     class Meta:
         db_table = 'tasks'
@@ -388,3 +416,7 @@ def submission_delete_projects(sender, instance, **kwargs):
 @receiver(post_delete, sender=Organisations)
 def submission_delete_org(sender, instance, **kwargs):
     instance.organisation_image_src.delete(False)
+
+@receiver(post_delete, sender=Documents)
+def submission_delete_doc(sender, instatnce, **kwargs):
+    instatnce.path_file.delete(False)
