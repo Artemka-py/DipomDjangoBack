@@ -156,7 +156,8 @@ class TaskModel(DraggableMPTTAdmin):
     list_display = (
         'tree_actions',
         'indented_title',
-        'task_developer_login'
+        'task_developer_login',
+        'task_setter_login',
     )
     actions = [export_to_csv, export_xlsx]
 
