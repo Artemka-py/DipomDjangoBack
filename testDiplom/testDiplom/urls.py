@@ -17,11 +17,14 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
-from diploAdmin.views import index
+from diploAdmin.views import index, projects
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index),
+    path('api/', include('diploAdmin.api.urls')),
+    path('project-login/<str:username>/', projects),
     path('rest-auth/', include('rest_auth.urls')),
     path('rest-auth/registration/', include('rest_auth.registration.urls')),
     path('api-auth/', include('rest_framework.urls')),

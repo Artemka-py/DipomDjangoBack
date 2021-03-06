@@ -1,6 +1,8 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.core.validators import RegexValidator
 from django.db import models
+from django.db.models.base import Model
+from django.db.models.query_utils import Q
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.utils import timezone
@@ -308,6 +310,20 @@ class Projects(models.Model):
         db_table = 'projects'
         verbose_name = 'Проект'
         verbose_name_plural = 'Проекты'
+
+    
+    # def get_queryset(self):
+    #     login = self.request.query_params.get('login')
+
+    #     # qs = WorkingDeveloperList.objects.filter(developer_login = login)
+    #     # for i in qs:
+    #     #     qs2 = Workgroups.objects.filter()
+
+    #     queryset = Model.objects.filter(Q(project_client_login=login) | Q(project_manager_login=login))
+    #     # if (queryset)
+
+
+    #     return queryset
 
 
 class Stages(models.Model):

@@ -1,8 +1,9 @@
-import React from "react";
-import { Route, Redirect } from "react-router-dom";
-import AboutPage from "./pages/about/AboutPage";
-import Auth from "./components/Autentification/Auth/Auth";
-import Register from "./components/Autentification/Registration/Register";
+import React from 'react'
+import { Route, Redirect } from 'react-router-dom'
+import AboutPage from './pages/about/AboutPage'
+import Auth from './components/Autentification/Auth/Auth'
+import Register from './components/Autentification/Registration/Register'
+import Project from './pages/Projects/Project'
 
 const BaseRouter = () => (
   <div>
@@ -11,7 +12,8 @@ const BaseRouter = () => (
     <Route path="/admin" exact render={() => <Redirect to="/admin" />} />
     <Route path="/auth" component={Auth} />
     <Route path="/register" component={Register} />
+    <Route path="/projects" component={Project} />
   </div>
-);
+)
 
-export default BaseRouter;
+export default BaseRouter

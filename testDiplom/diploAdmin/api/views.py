@@ -1,9 +1,10 @@
-# from rest_framework import viewsets
-#
-# from .serializers import UsersSerializer
-# from ..models import Users
-#
-# class UsersViewSet(viewsets.ModelViewSet):
-#
-#   queryset = Users.objects.all()
-#   serializer_class = UsersSerializer
+from rest_framework import viewsets
+
+from .serializers import ProjectSerializer
+from ..models import Projects
+
+class ProjectsViewSet(viewsets.ModelViewSet):
+
+  # Projects.objects.filter(Q(project_client_login='test2') | Q(project_manager_login='test2'))
+  queryset = Projects.objects.all()
+  serializer_class = ProjectSerializer

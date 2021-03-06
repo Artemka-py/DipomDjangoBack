@@ -1,18 +1,18 @@
-import React, { useEffect } from "react";
-import { Layout, Menu } from "antd";
-import { Footer } from "antd/es/layout/layout";
-import { Link } from "react-router-dom";
-import "../App.css";
-import { connect } from "react-redux";
-import * as actions from "../store/actions/auth";
+import React, { useEffect } from 'react'
+import { Layout, Menu } from 'antd'
+import { Footer } from 'antd/es/layout/layout'
+import { Link } from 'react-router-dom'
+import '../App.css'
+import { connect } from 'react-redux'
+import * as actions from '../store/actions/auth'
 
-const { Header, Content } = Layout;
+const { Header, Content } = Layout
 
 const Master = (props) => {
   useEffect(() => {
-    if (window.location.pathname) console.log("robit");
-    console.log(window.location.pathname);
-  }, [window.location.pathname]);
+    if (window.location.pathname) console.log('robit')
+    console.log(window.location.pathname)
+  }, [window.location.pathname])
 
   return (
     <Layout>
@@ -20,9 +20,9 @@ const Master = (props) => {
         <div className="logo" />
         <Menu
           theme="dark"
-          style={{ color: "#fff" }}
+          style={{ color: '#fff' }}
           mode="horizontal"
-          defaultSelectedKeys={["1"]}
+          defaultSelectedKeys={['1']}
         >
           <Menu.Item key="1">
             <Link to="/">Главная</Link>
@@ -32,18 +32,23 @@ const Master = (props) => {
           </Menu.Item>
           {/*TODO: Сделать выравнивание по правой стороне */}
           {props.isAuthenticated ? (
-            <Menu.Item key="3" onClick={props.onLogout}>
-              <Link to="/">Выход</Link>
-            </Menu.Item>
+            <>
+              <Menu.Item key="3">
+                <Link to="/projects">Проекты</Link>
+              </Menu.Item>
+              <Menu.Item key="4" onClick={props.onLogout}>
+                <Link to="/">Выход</Link>
+              </Menu.Item>
+            </>
           ) : (
-            <Menu.Item key="3">
+            <Menu.Item key="4">
               <Link to="/auth">Авторизация</Link>
             </Menu.Item>
           )}
         </Menu>
       </Header>
       <Layout>
-        <Layout style={{ padding: "0 24px 24px" }}>
+        <Layout style={{ padding: '0 24px 24px' }}>
           <hr />
           <hr />
           <Content className="site-layout-background">
@@ -51,15 +56,15 @@ const Master = (props) => {
           </Content>
         </Layout>
       </Layout>
-      <Footer style={{ textAlign: "end" }}>&#169;Lytkin</Footer>
+      <Footer style={{ textAlign: 'end' }}>&#169;Lytkin</Footer>
     </Layout>
-  );
-};
+  )
+}
 
 const mapDispatchToProps = (dispatch) => {
   return {
     onLogout: () => dispatch(actions.logout()),
-  };
-};
+  }
+}
 
-export default connect(null, mapDispatchToProps)(Master);
+export default connect(null, mapDispatchToProps)(Master)

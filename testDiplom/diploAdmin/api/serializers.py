@@ -1,10 +1,10 @@
-# from rest_framework import serializers
-# from rest_framework import fields
-#
-# from ..models import Users
-#
-# class UsersSerializer(serializers.ModelSerializer):
-#
-#   class Meta:
-#     model = Users
-#     fields = '__all__'
+from rest_framework import serializers
+from rest_framework import fields
+
+from ..models import Projects
+
+class ProjectSerializer(serializers.ModelSerializer):
+
+  class Meta:
+    model = Projects
+    fields = '__all__'
