@@ -26,8 +26,6 @@ class CommentSerializer(ser.Serializer):
     created = ser.DateTimeField()
 
 def projects(req, username):
-    #('project_id', 'project_name', 'project_client_login', 'project_manager_login', 'project_workgroup', 
-    # 'project_info', 'project_status', 'start_date_plan', 'finish_date_plan', 'start_date_fact', 'finish_date_fact', )
     with connection.cursor() as cursor:
         cursor.execute(''' select project_id, project_name, project_info, start_date_plan, finish_date_plan,
         start_date_fact, finish_date_fact, status.status_name, workgroups.workgroup_name 

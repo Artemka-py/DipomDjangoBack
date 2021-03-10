@@ -283,7 +283,7 @@ def upload_location_tasks(instatnce, filename):
 class Projects(models.Model):
     project_id = models.AutoField(primary_key=True)
     project_name = models.CharField(default='Плохой проект', null=False, max_length=255,
-                                    verbose_name='Название проекта')
+                                    verbose_name='Название проекта', unique=True)
     project_client_login = models.ForeignKey(Clients, models.DO_NOTHING, db_column='project_client_login', default=1,
                                              null=False, verbose_name='Логин клиента')
     project_manager_login = models.ForeignKey(Managers, models.DO_NOTHING, db_column='project_manager_login', default=1,
