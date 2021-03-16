@@ -1,9 +1,12 @@
 import React from 'react'
-import { Route, Redirect } from 'react-router-dom'
+import { Route, Redirect, Router } from 'react-router-dom'
 import AboutPage from './pages/about/AboutPage'
+import { createBrowserHistory } from 'history'
 import Auth from './components/Autentification/Auth/Auth'
 import Register from './components/Autentification/Registration/Register'
 import Project from './pages/Projects/Project'
+
+const customHistory = createBrowserHistory()
 
 const BaseRouter = () => (
   <div>
@@ -13,6 +16,7 @@ const BaseRouter = () => (
     <Route path="/auth" component={Auth} />
     <Route path="/register" component={Register} />
     <Route path="/projects" component={Project} />
+    <Route path="/projects/:id" exact component={Project} />
   </div>
 )
 

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Layout, Menu } from 'antd'
 import { Footer } from 'antd/es/layout/layout'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import '../App.css'
 import { connect } from 'react-redux'
 import * as actions from '../store/actions/auth'
@@ -9,6 +9,8 @@ import * as actions from '../store/actions/auth'
 const { Header, Content } = Layout
 
 const Master = (props) => {
+  const history = useHistory()
+
   useEffect(() => {
     if (window.location.pathname) console.log('robit')
     console.log(window.location.pathname)

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux'
 import { Table, Tooltip } from 'antd'
-import { NavLink } from 'react-router-dom'
+import {Link} from "react-router-dom";
 
 const columns = [
   {
@@ -10,7 +10,11 @@ const columns = [
     dataIndex: 'project_name',
     key: 'name',
     align: 'center',
-    render: (text) => <NavLink to="">{text}</NavLink>,
+    render: (text, row, index) => {
+      console.log('render')
+      console.log(row)
+      return (<Link to={`${row.project_id}`}>{text}</Link>)
+    },
   },
   {
     title: 'Информация о проекте',
@@ -80,6 +84,15 @@ const Project = (props) => {
     <div>
       <Table
         loading={loading}
+        onRow={(record, rowIndex) => {
+          return {
+            onClick: event => {
+              console.log('click')
+              console.log(record, rowIndex)
+            }
+          }
+        }}
+        bordered={true}
         rowKey={(record) => record.project_id}
         dataSource={data}
         columns={columns}
