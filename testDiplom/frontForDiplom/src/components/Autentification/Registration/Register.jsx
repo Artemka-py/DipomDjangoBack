@@ -1,38 +1,42 @@
-import React, { useState } from "react";
-import { Form, Input, Select, Button } from "antd";
-import { UserOutlined } from "@ant-design/icons";
-import { connect } from "react-redux";
-import classes from "./Register.module.css";
-import * as actions from "../../../store/actions/auth";
+import React, { useEffect, useState } from 'react';
+import { Form, Input, Select, Button } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import { connect } from 'react-redux';
+import classes from './Register.module.css';
+import * as actions from '../../../store/actions/auth';
 
 const Register = (props) => {
   const [form] = Form.useForm();
+  let errorMessage = [];
 
   const onFinish = (values) => {
-    console.log("Received values of form: ", values);
-    props.onRegister(
-      values.username,
-      values.email,
-      values.password1,
-      values.password2
-    );
-    props.history.push("/");
+    console.log('Received values of form: ', values);
+    props.onRegister(values.username, values.email, values.password1, values.password2);
   };
 
-  // const prefixSelector = (
-  //   <Form.Item name="prefix" noStyle>
-  //     <Select
-  //       style={{
-  //         width: 70,
-  //       }}
-  //     >
-  //       <Option value="+7">+7</Option>
-  //     </Select>
-  //   </Form.Item>
-  // );
+  useEffect(() => {
+    if (props.loading === false && props.error) {
+      if (props.error === null) {
+        props.history.push('/');
+      }
+    }
+  }, [props.error, props.history, props.loading]);
+
+  if (props.error || errorMessage.length !== 0) {
+    console.log(typeof props.error.response.data);
+    for (let key in props.error.response.data) {
+      errorMessage.push(props.error.response.data[key]);
+    }
+    console.log(errorMessage);
+  }
 
   return (
     <div className={classes.test}>
+      {errorMessage.map((e, i) => (
+        <p style={{ color: 'red' }} key={i}>
+          {e}
+        </p>
+      ))}
       <Form form={form} name="register" onFinish={onFinish} scrollToFirstError>
         <Form.Item
           name="username"
@@ -40,7 +44,7 @@ const Register = (props) => {
           rules={[
             {
               required: true,
-              message: "Пожалуйста напишите ваш никнейм!",
+              message: 'Пожалуйста напишите ваш никнейм!',
               whitespace: true,
             },
           ]}
@@ -52,12 +56,12 @@ const Register = (props) => {
           label="E-mail"
           rules={[
             {
-              type: "email",
-              message: "Некорректный E-mail!",
+              type: 'email',
+              message: 'Некорректный E-mail!',
             },
             {
               required: true,
-              message: "Пожалуйста напишите ваш E-mail!",
+              message: 'Пожалуйста напишите ваш E-mail!',
             },
           ]}
         >
@@ -70,7 +74,7 @@ const Register = (props) => {
           rules={[
             {
               required: true,
-              message: "Пожалуйста напишите пароль!",
+              message: 'Пожалуйста напишите пароль!',
             },
           ]}
           hasFeedback
@@ -81,64 +85,33 @@ const Register = (props) => {
         <Form.Item
           name="password2"
           label="Подтвердите пароль"
-          dependencies={["password1"]}
+          dependencies={['password1']}
           hasFeedback
           rules={[
             {
               required: true,
-              message: "Пожалуйста потдвердите ваш пароль!",
+              message: 'Пожалуйста потдвердите ваш пароль!',
             },
             ({ getFieldValue }) => ({
               validator(_, value) {
-                if (!value || getFieldValue("password1") === value) {
+                if (!value || getFieldValue('password1') === value) {
                   return Promise.resolve();
                 }
 
-                return Promise.reject("Оба пароля должны совпадать!");
+                return Promise.reject('Оба пароля должны совпадать!');
               },
             }),
           ]}
         >
           <Input.Password />
         </Form.Item>
-
-        {/*<Form.Item*/}
-        {/*  name="phone"*/}
-        {/*  label="Phone Number"*/}
-        {/*  rules={[*/}
-        {/*    {*/}
-        {/*      required: true,*/}
-        {/*      message: "Please input your phone number!",*/}
-        {/*    },*/}
-        {/*  ]}*/}
-        {/*>*/}
-        {/*  <Input*/}
-        {/*    addonBefore={prefixSelector}*/}
-        {/*    style={{*/}
-        {/*      width: "100%",*/}
-        {/*    }}*/}
-        {/*  />*/}
-        {/*</Form.Item>*/}
-
-        {/*<Form.Item*/}
-        {/*  name="agreement"*/}
-        {/*  valuePropName="checked"*/}
-        {/*  rules={[*/}
-        {/*    {*/}
-        {/*      validator: (_, value) =>*/}
-        {/*        value*/}
-        {/*          ? Promise.resolve()*/}
-        {/*          : Promise.reject("Should accept agreement"),*/}
-        {/*    },*/}
-        {/*  ]}*/}
-        {/*  {...tailFormItemLayout}*/}
-        {/*>*/}
-        {/*  <Checkbox>*/}
-        {/*    I have read the <a href="">agreement</a>*/}
-        {/*  </Checkbox>*/}
-        {/*</Form.Item>*/}
         <Form.Item>
-          <Button type="primary" style={{ width: "100%" }} htmlType="submit" loading={props.loading}>
+          <Button
+            type="primary"
+            style={{ width: '100%' }}
+            htmlType="submit"
+            loading={props.loading}
+          >
             Зарегистрироваться
           </Button>
         </Form.Item>

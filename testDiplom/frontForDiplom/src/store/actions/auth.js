@@ -1,5 +1,6 @@
-import * as actionTypes from "./actionsTypes";
-import axios from "axios";
+import * as actionTypes from './actionsTypes';
+import axios from 'axios';
+import getCookie from '../../common/parseCookies';
 
 export const authStart = () => {
   return {
@@ -23,9 +24,9 @@ export const authFail = (error) => {
 };
 
 export const logout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("expirationDate");
-  localStorage.removeItem("username");
+  localStorage.removeItem('token');
+  localStorage.removeItem('expirationDate');
+  localStorage.removeItem('username');
   return {
     type: actionTypes.AUTH_LOGOUT,
   };
@@ -37,47 +38,31 @@ export const checkAuthTimeout = (expirationDate) => {
   };
 };
 
-function getCookie(cname) {
-  let name = cname + "=";
-  let decodedCookie = decodeURIComponent(document.cookie);
-  let ca = decodedCookie.split(";");
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) === " ") {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) === 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
-}
-
 export const authLogin = (username, password) => {
   return (dispatch) => {
     dispatch(authStart());
 
-    const CSRF = getCookie("csrftoken");
+    const CSRF = getCookie('csrftoken');
 
     axios
       .post(
-        "http://127.0.0.1:8000/rest-auth/login/",
+        'http://127.0.0.1:8000/rest-auth/login/',
         {
           username,
           password,
         },
         {
           headers: {
-            "X-CSRFToken": CSRF,
+            'X-CSRFToken': CSRF,
           },
-        }
+        },
       )
       .then((res) => {
         const token = res.data.key;
         const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-        localStorage.setItem("token", token);
-        localStorage.setItem("expirationDate", expirationDate.toString());
-        localStorage.setItem("username", username);
+        localStorage.setItem('token', token);
+        localStorage.setItem('expirationDate', expirationDate.toString());
+        localStorage.setItem('username', username);
         dispatch(authSuccess(token, username));
         dispatch(checkAuthTimeout(3600));
       })
@@ -92,11 +77,11 @@ export const authSignup = (username, email, password1, password2) => {
   return (dispatch) => {
     dispatch(authStart());
 
-    const CSRF = getCookie("csrftoken");
+    const CSRF = getCookie('csrftoken');
 
     axios
       .post(
-        "http://127.0.0.1:8000/rest-auth/registration/",
+        'http://127.0.0.1:8000/rest-auth/registration/',
         {
           username,
           email,
@@ -105,15 +90,15 @@ export const authSignup = (username, email, password1, password2) => {
         },
         {
           headers: {
-            "X-CSRFToken": CSRF,
+            'X-CSRFToken': CSRF,
           },
-        }
+        },
       )
       .then((res) => {
         const token = res.data.key;
         const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-        localStorage.setItem("token", token);
-        localStorage.setItem("expirationDate", expirationDate.toString());
+        localStorage.setItem('token', token);
+        localStorage.setItem('expirationDate', expirationDate.toString());
         dispatch(authSuccess(token, username));
         dispatch(checkAuthTimeout(3600));
       })
@@ -125,21 +110,17 @@ export const authSignup = (username, email, password1, password2) => {
 
 export const authCheckState = () => {
   return (dispatch) => {
-    const token = localStorage.getItem("token");
-    const username = localStorage.getItem("username");
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
     if (token === undefined && username === undefined) {
       dispatch(logout());
     } else {
-      const expirationDate = new Date(localStorage.getItem("expirationDate"));
+      const expirationDate = new Date(localStorage.getItem('expirationDate'));
       if (expirationDate <= new Date()) {
         dispatch(logout());
       } else {
         dispatch(authSuccess(token, username));
-        dispatch(
-          checkAuthTimeout(
-            (expirationDate.getTime() - new Date().getTime()) / 1000
-          )
-        );
+        dispatch(checkAuthTimeout((expirationDate.getTime() - new Date().getTime()) / 1000));
       }
     }
   };

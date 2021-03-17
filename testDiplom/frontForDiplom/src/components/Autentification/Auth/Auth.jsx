@@ -1,11 +1,9 @@
 import { Form, Input, Button, Checkbox } from 'antd';
-import { UserOutlined, LockOutlined, LoadingOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import './Auth.css';
 import { connect } from 'react-redux';
 import * as actions from '../../../store/actions/auth';
 import { NavLink } from 'react-router-dom';
-import { Spin } from 'antd/es';
-import { store } from '../../../index';
 import { useEffect } from 'react';
 
 // const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;

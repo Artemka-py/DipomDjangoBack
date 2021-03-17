@@ -425,9 +425,9 @@ def submission_delete(sender, instance, **kwargs):
     instance.user_image_src.delete(False)
 
 
-@receiver(post_delete, sender=Projects)
-def submission_delete_projects(sender, instance, **kwargs):
-    instance.tech_task_path.delete(False)
+# @receiver(post_delete, sender=Projects)
+# def submission_delete_projects(sender, instance, **kwargs):
+#     instance.docs_path.delete(False)
 
 
 @receiver(post_delete, sender=Organisations)
