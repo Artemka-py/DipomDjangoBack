@@ -11,6 +11,7 @@
     "axios": "^0.21.1",
     "bugbattle": "^3.2.3",
     "history": "^5.0.0",
+    "moment": "^2.29.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-redux": "^7.2.2",
@@ -27,17 +28,6 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "./src/*.{js,jsx,ts,tsx}": [
-      "npx prettier --write",
-      "eslint src/*.js --fix-dry-run",
-    ]
   },
   "eslintConfig": {
     "extends": [
@@ -58,10 +48,6 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^7.22.0",
-    "eslint-config-airbnb": "^18.2.1",
-    "husky": "^5.1.3",
-    "lint-staged": "^10.5.4",
     "prettier": "^2.2.1"
   }
 }
