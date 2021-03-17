@@ -285,11 +285,11 @@ class Projects(models.Model):
     project_name = models.CharField(default='Плохой проект', null=False, max_length=255,
                                     verbose_name='Название проекта', unique=True)
     project_client_login = models.ForeignKey(Clients, models.DO_NOTHING, db_column='project_client_login', default=1,
-                                             null=False, verbose_name='Логин клиента')
+                                            null=True, verbose_name='Логин клиента', blank=True)
     project_manager_login = models.ForeignKey(Managers, models.DO_NOTHING, db_column='project_manager_login', default=1,
-                                              null=False, verbose_name='Логин менеджера')
+                                            null=False, verbose_name='Логин менеджера')
     project_workgroup = models.ForeignKey('Workgroups', models.DO_NOTHING, default=1, null=False,
-                                          verbose_name='Рабоча группа')
+                                    verbose_name='Рабоча группа')
     project_info = models.TextField(verbose_name='Информация о проекте')
     project_status = models.ForeignKey('Status', models.DO_NOTHING, default=1, null=False,
                                        verbose_name='Статус проекта')

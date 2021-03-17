@@ -1,7 +1,7 @@
 from django.db import connection
 from django.db.models import Q
 from django.http.response import HttpResponse
-from .models import Tasks
+from .models import Clients, Tasks
 from django.shortcuts import render
 from django.core import serializers
 
@@ -17,7 +17,7 @@ def dict_fetch_all(cursor):
 
 import json
 
-from rest_framework import serializers as ser
+from rest_framework import fields, serializers as ser
 from rest_framework.renderers import JSONRenderer
 
 class CommentSerializer(ser.Serializer):
@@ -48,3 +48,9 @@ def tasks(req, username):
 
     return HttpResponse(data, content_type="application/json")
     
+
+def clients(req, org_id):
+    data = Clients.objects.filter(client_organisation=org_id).all()
+    data = serializers.serialize('json', data, fields=())
+    
+    return HttpResponse(data, content_type="application/json")

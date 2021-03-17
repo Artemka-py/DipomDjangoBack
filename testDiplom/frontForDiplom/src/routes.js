@@ -16,7 +16,7 @@ const BaseRouter = () => (
     <Route path="/auth" component={Auth} />
     <Route path="/register" component={Register} />
     <Route path="/projects" component={Project} />
-    <Route path="/projects/:id" exact component={Project} />
+    <Route path="/projects/:id" exact component='' />
   </div>
 )
 
