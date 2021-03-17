@@ -113,9 +113,8 @@ const Project = (props) => {
   };
 
   const onAddNewProject = async (formData) => {
+    console.log('robit');
     setLoadingForm(true);
-    console.log(formData);
-    window.rtest = formData;
     const start_date_plan = formatForDate(formData.dateTime[0]._d.toLocaleString().substr(0, 10));
     const finish_date_plan = formatForDate(formData.dateTime[1]._d.toLocaleString().substr(0, 10));
     let workgId = 0;
@@ -123,34 +122,10 @@ const Project = (props) => {
     CSRF = getCookie('csrftoken');
 
     await axios
-      .post('http://127.0.0.1:8000/api/workg/', {
-        workgroup_name: formData.project_workgroup,
-      })
-      .then((res) => {
-        console.log(res.data);
-        workgId = res.data.workgroup_id;
-      })
-      .catch((err) => {
-        setError(err);
-        console.log(err.response.data);
-      });
-
-    if (error) return;
-
-    await axios
       .post(
-        'http://127.0.0.1:8000/api/projects/',
+        'http://127.0.0.1:8000/api/workg/',
         {
-          project_name: formData.project_name,
-          project_info: formData.project_info,
-          finish_date_plan: finish_date_plan,
-          start_date_plan: start_date_plan,
-          start_date_fact: start_date_plan,
-          finish_date_fact: finish_date_plan,
-          project_client_login: formData.project_client_login,
-          project_manager_login: props.username,
-          project_workgroup: workgId,
-          project_status: formData.status_name,
+          workgroup_name: formData.project_workgroup,
         },
         {
           headers: {
@@ -159,19 +134,47 @@ const Project = (props) => {
         },
       )
       .then((res) => {
-        fetchData();
+        workgId = res.data.workgroup_id;
       })
       .catch((err) => {
         setError(err);
       });
 
-    if (error) return;
-
+    if (workgId !== 0) {
+      await axios
+        .post(
+          'http://127.0.0.1:8000/api/projects/',
+          {
+            project_name: formData.project_name,
+            project_info: formData.project_info,
+            finish_date_plan: finish_date_plan,
+            start_date_plan: start_date_plan,
+            start_date_fact: start_date_plan,
+            finish_date_fact: finish_date_plan,
+            project_client_login: formData.project_client_login,
+            project_manager_login: props.username,
+            project_workgroup: workgId,
+            project_status: formData.status_name,
+          },
+          {
+            headers: {
+              'X-CSRFToken': CSRF,
+            },
+          },
+        )
+        .then((res) => {
+          fetchData();
+        })
+        .catch((err) => {
+          setError(err);
+        });
+      if (error !== null) return;
+      else onClose();
+    }
     setLoadingForm(false);
   };
 
   const onOrgChange = async (e) => {
-    console.log(e);
     await axios
       .get(`http://localhost:8000/client-org/${e}/`)
       .then((res) => {
@@ -203,12 +206,9 @@ const Project = (props) => {
   };
 
   if (error || errorMessage.length !== 0) {
-    console.log(typeof error);
-    console.log(error);
-    // for (let key in props.error.response.data) {
-    //   errorMessage.push(props.error.response.data[key]);
-    // }
-    console.log(errorMessage);
+    for (let key in error.response.data) {
+      errorMessage.push(error.response.data[key]);
+    }
   }
 
   return (
@@ -252,151 +252,158 @@ const Project = (props) => {
         {loadingForm ? (
           antIcon
         ) : (
-          <Form layout="vertical" hideRequiredMark onFinish={onAddNewProject}>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  name="project_name"
-                  label="Название проекта"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Пожалуйста напишите название проекта',
-                    },
-                  ]}
-                >
-                  <Input placeholder="Пожалуйста напишите название проекта" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item name="status_name" label="Статус проекта">
-                  <Select placeholder="Выберите статус">
-                    {statuses
-                      ? statuses.map((e, index) => (
-                          <Option key={index} value={e.status_id}>
-                            {e.status_name}
-                          </Option>
-                        ))
-                      : null}
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  name="organization"
-                  label="Организации"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Пожалуйста выберите организацию, в которой находится ваш клиент',
-                    },
-                  ]}
-                >
-                  <Select onChange={onOrgChange} placeholder="Пожалуйста выберите организацию">
-                    {org
-                      ? org.map((e, index) => (
-                          <Option key={index} value={e.organisation_id}>
-                            {e.full_name}
-                          </Option>
-                        ))
-                      : null}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="project_client_login"
-                  label="Логин клиента"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Пожалуйста выберите клиента',
-                    },
-                  ]}
-                >
-                  <Select
-                    loading={loadingSelect}
-                    disabled={statusOrg}
-                    placeholder="Выберите клиента"
+          <>
+            {errorMessage.map((e, i) => (
+              <p style={{ color: 'red' }} key={i}>
+                {e}
+              </p>
+            ))}
+            <Form layout="vertical" hideRequiredMark onFinish={onAddNewProject}>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="project_name"
+                    label="Название проекта"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Пожалуйста напишите название проекта',
+                      },
+                    ]}
                   >
-                    {clients
-                      ? clients.map((e, index) => (
-                          <Option key={index} value={e.pk}>
-                            {e.pk}
-                          </Option>
-                        ))
-                      : null}
-                  </Select>
+                    <Input placeholder="Пожалуйста напишите название проекта" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="status_name" label="Статус проекта">
+                    <Select placeholder="Выберите статус">
+                      {statuses
+                        ? statuses.map((e, index) => (
+                            <Option key={index} value={e.status_id}>
+                              {e.status_name}
+                            </Option>
+                          ))
+                        : null}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="organization"
+                    label="Организации"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Пожалуйста выберите организацию, в которой находится ваш клиент',
+                      },
+                    ]}
+                  >
+                    <Select onChange={onOrgChange} placeholder="Пожалуйста выберите организацию">
+                      {org
+                        ? org.map((e, index) => (
+                            <Option key={index} value={e.organisation_id}>
+                              {e.full_name}
+                            </Option>
+                          ))
+                        : null}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="project_client_login"
+                    label="Логин клиента"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Пожалуйста выберите клиента',
+                      },
+                    ]}
+                  >
+                    <Select
+                      loading={loadingSelect}
+                      disabled={statusOrg}
+                      placeholder="Выберите клиента"
+                    >
+                      {clients
+                        ? clients.map((e, index) => (
+                            <Option key={index} value={e.pk}>
+                              {e.pk}
+                            </Option>
+                          ))
+                        : null}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="project_workgroup"
+                    label="Рабочая группа"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Пожалуйста напишите название рабочей группы',
+                      },
+                    ]}
+                  >
+                    <Input placeholder="Напишите название рабочей группы" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="dateTime"
+                    label="Дата начала и окончания проекта"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Пожалуйста выберите даты начала и окончания проекта',
+                      },
+                    ]}
+                  >
+                    <DatePicker.RangePicker format="DD.MM.YYYY" style={{ width: '100%' }} />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={24}>
+                  <Form.Item
+                    name="project_info"
+                    label="Информация о проекте"
+                    style={{ marginRight: 26 }}
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Пожалуйста введите описание проекта',
+                      },
+                    ]}
+                  >
+                    <Input.TextArea
+                      style={{ maxHeight: 345 }}
+                      rows={4}
+                      placeholder="Введите описание проекта"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={{ width: '100%' }}
+                    className="login-form-button"
+                    loading={props.loading}
+                  >
+                    Создать новый проект
+                  </Button>
                 </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  name="project_workgroup"
-                  label="Рабочая группа"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Пожалуйста напишите название рабочей группы',
-                    },
-                  ]}
-                >
-                  <Input placeholder="Напишите название рабочей группы" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="dateTime"
-                  label="Дата начала и окончания проекта"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Пожалуйста выберите даты начала и окончания проекта',
-                    },
-                  ]}
-                >
-                  <DatePicker.RangePicker format="DD.MM.YYYY" style={{ width: '100%' }} />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item
-                  name="project_info"
-                  label="Информация о проекте"
-                  style={{ marginRight: 26 }}
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Пожалуйста введите описание проекта',
-                    },
-                  ]}
-                >
-                  <Input.TextArea
-                    style={{ maxHeight: 345 }}
-                    rows={4}
-                    placeholder="Введите описание проекта"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  style={{ width: '100%' }}
-                  className="login-form-button"
-                  loading={props.loading}
-                >
-                  Создать новый проект
-                </Button>
-              </Form.Item>
-            </Row>
-          </Form>
+              </Row>
+            </Form>
+          </>
         )}
       </Drawer>
     </div>

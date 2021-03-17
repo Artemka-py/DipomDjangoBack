@@ -27,7 +27,6 @@ const Register = (props) => {
     for (let key in props.error.response.data) {
       errorMessage.push(props.error.response.data[key]);
     }
-    console.log(errorMessage);
   }
 
   return (
