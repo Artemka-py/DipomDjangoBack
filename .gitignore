@@ -8,3 +8,4 @@ testDiplom/static
 testDiplom/templates
 env/
 .idea/
+__pycache__/*.pyc
