@@ -33,6 +33,9 @@ const Master = (props) => {
           {/*TODO: Сделать выравнивание по правой стороне */}
           {props.isAuthenticated ? (
             <>
+              <Menu.Item key="5">
+                <Link to="/tasks">Задачи</Link>
+              </Menu.Item>
               <Menu.Item key="3">
                 <Link to="/projects">Проекты</Link>
               </Menu.Item>
