@@ -2,8 +2,8 @@ from django.http import response
 from rest_framework import viewsets
 from rest_framework.views import APIView
 
-from .serializers import ClientsSerializer, OrganisationsSerializer, ProjectSerializer, StatusSerializer, TasksSerializer, UsersSerializer, WorkgroupsSerializer, WorkingDeveloperListSerializer
-from ..models import Clients, Organisations, Projects, Status, Tasks, Users, Workgroups, WorkingDeveloperList
+from .serializers import ClientsSerializer, DocsSerializer, OrganisationsSerializer, ProjectSerializer, StatusSerializer, TasksSerializer, UsersSerializer, WorkgroupsSerializer, WorkingDeveloperListSerializer
+from ..models import Clients, Documents, Organisations, Projects, Status, Tasks, Users, Workgroups, WorkingDeveloperList
 
 class ProjectsViewSet(viewsets.ModelViewSet):
 
@@ -51,3 +51,9 @@ class WorkingDeveloperListViewSet(viewsets.ModelViewSet):
 
   queryset = WorkingDeveloperList.objects.all()
   serializer_class = WorkingDeveloperListSerializer
+
+
+class DocsViewSet(viewsets.ModelViewSet):
+
+  queryset = Documents.objects.all()
+  serializer_class = DocsSerializer

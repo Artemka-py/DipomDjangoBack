@@ -1,11 +1,23 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { Table, Tooltip, Drawer, Form, Button, Col, Row, Input, Select, DatePicker } from 'antd';
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { Link, NavLink } from 'react-router-dom';
+import {
+  Table,
+  Tooltip,
+  Drawer,
+  Form,
+  Button,
+  Col,
+  Row,
+  Input,
+  Select,
+  DatePicker,
+  Upload,
+  Space,
+} from 'antd';
+import { LoadingOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
 import { formatForDate } from '../../common/date';
-import { authFail, authSuccess, checkAuthTimeout } from '../../store/actions/auth';
 import getCookie from '../../common/parseCookies';
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
@@ -69,18 +81,17 @@ const Project = (props) => {
   const [loadingForm, setLoadingForm] = useState(false);
   const [loadingSelect, setLoadingSelect] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [statusPage, setStatusPage] = useState(false);
   const [statuses, setStatuses] = useState(null);
   const [org, setOrg] = useState(null);
   const [clients, setClients] = useState(null);
   const [statusOrg, setStatusOrg] = useState(true);
   const [error, setError] = useState(null);
-  let getFetchData;
+  const [idPictures, setIdPictures] = useState([]);
   let errorMessage = [];
   let CSRF;
 
   const fetchData = async () => {
-    if (statusPage === false) setLoading(true);
+    setLoading(true);
 
     await axios
       .get(`http://localhost:8000/project-login/${props.username}/`)
@@ -89,17 +100,11 @@ const Project = (props) => {
       })
       .catch((err) => console.error(err));
 
-    if (statusPage === false) setLoading(false);
-    if (statusPage === false) setStatusPage(true);
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchData();
-    getFetchData = setInterval(fetchData, 10000);
-
-    return function cleanup() {
-      clearInterval(getFetchData);
-    };
   }, [props.username]);
 
   const handleAdd = async (e) => {
@@ -172,6 +177,7 @@ const Project = (props) => {
       else onClose();
     }
     setLoadingForm(false);
+    fetchData();
   };
 
   const onOrgChange = async (e) => {
@@ -205,6 +211,47 @@ const Project = (props) => {
       .catch((err) => console.error(err));
   };
 
+  const uploadAction = async (e) => {
+    switch (e.method) {
+      case 'post': {
+        const uploadData = new FormData();
+
+        uploadData.append('login_user', props.username);
+        uploadData.append('path_file', e.file, e.file.name);
+
+        await axios
+          .post('http://127.0.0.1:8000/api/docs/', uploadData)
+          .then((res) => {
+            console.log(res.data);
+            setIdPictures([
+              ...idPictures,
+              {
+                id: res.data.id,
+                fileName: e.file.name,
+              },
+            ]);
+          })
+          .catch((err) => console.error(err));
+        e.onSuccess();
+        return console.log('post');
+      }
+    }
+  };
+
+  const removeUploadAction = async (e) => {
+    for (let i = 0; i <= idPictures.length; i++) {
+      if (idPictures[i])
+        if (idPictures[i].fileName === e.name) {
+          axios
+            .delete(`http://127.0.0.1:8000/api/docs/${idPictures[i].id}/`)
+            .then((res) => {
+              setIdPictures(idPictures.slice(i, i));
+            })
+            .catch();
+        } else return;
+    }
+  };
+
   if (error || errorMessage.length !== 0) {
     for (let key in error.response.data) {
       errorMessage.push(error.response.data[key]);
@@ -223,6 +270,18 @@ const Project = (props) => {
         }}
       >
         <PlusOutlined /> Добавить проект
+      </Button>
+
+      <Button
+        onClick={fetchData}
+        type="primary"
+        style={{
+          marginBottom: 16,
+          marginTop: 16,
+          marginLeft: 16,
+        }}
+      >
+        Обновить таблицу
       </Button>
       <Table
         loading={loading}
@@ -386,6 +445,32 @@ const Project = (props) => {
                       rows={4}
                       placeholder="Введите описание проекта"
                     />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={24}>
+                  <Form.Item
+                    name="еее"
+                    label="Прикрепленные документы к проекту"
+                    style={{ marginRight: 26 }}
+                  >
+                    <Space
+                      style={{ maxHeight: 345 }}
+                      direction="vertical"
+                      style={{ width: '100%' }}
+                      size="large"
+                    >
+                      <Upload
+                        customRequest={uploadAction}
+                        onRemove={removeUploadAction}
+                        listType="picture"
+                        maxCount={5}
+                        multiple
+                      >
+                        <Button icon={<UploadOutlined />}>Upload (Max: 5)</Button>
+                      </Upload>
+                    </Space>
                   </Form.Item>
                 </Col>
               </Row>

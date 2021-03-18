@@ -434,6 +434,6 @@ def submission_delete(sender, instance, **kwargs):
 def submission_delete_org(sender, instance, **kwargs):
     instance.organisation_image_src.delete(False)
 
-@receiver(post_delete, sender=Documents)
-def submission_delete_doc(sender, instatnce, **kwargs):
-    instatnce.path_file.delete(False)
+# @receiver(post_delete, sender=Documents)
+# def submission_delete_doc(sender, instatnce, **kwargs):
+#     instatnce.path_file.delete(False)
