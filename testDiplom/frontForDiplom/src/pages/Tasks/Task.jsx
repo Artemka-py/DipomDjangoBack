@@ -33,7 +33,9 @@ const columns = [
     dataIndex: 'start_date_plan',
     key: 'start_date_plan',
     align: 'center',
-    sorter: (a, b) => a.start_date_plan.length - b.start_date_plan.length,
+    sorter: (a, b) => {
+      return new Date(a.start_date_plan) - new Date(b.start_date_plan);
+    },
     sortDirections: ['descend', 'ascend'],
   },
   {
@@ -41,23 +43,13 @@ const columns = [
     dataIndex: 'finish_date_plan',
     key: 'finish_date_plan',
     align: 'center',
-    sorter: (a, b) => a.finish_date_plan.length - b.finish_date_plan.length,
+    sorter: (a, b) => {
+      return new Date(a.start_date_plan) - new Date(b.start_date_plan);
+    },
     sortDirections: ['descend', 'ascend'],
   },
 ];
-const rowSelection = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-  },
-  onSelect: (record, selected, selectedRows) => {
-    console.log(record, selected, selectedRows);
-  },
-  onSelectAll: (selected, selectedRows, changeRows) => {
-    console.log(selected, selectedRows, changeRows);
-  },
-};
 
-// add new last() method:
 if (!Array.prototype.last) {
   Array.prototype.last = function () {
     return this[this.length - 1];
@@ -67,15 +59,15 @@ if (!Array.prototype.last) {
 function transformDataToTree(data) {
   let treeData = [];
   let cur_lvls = [];
+
   data.map(function (item, i, arr) {
     let treeItem = {
       key: item.pk,
       task_name: item.fields.task_name,
       task_developer: item.fields.task_developer_login,
-      task_setter: item.fields.task_developer_login,
+      task_setter: item.fields.task_setter_login,
       start_date_plan: item.fields.start_date,
       finish_date_plan: item.fields.finish_date,
-      children: [],
     };
 
     let parent_key = item.fields.parent;
@@ -92,16 +84,21 @@ function transformDataToTree(data) {
         copy = copy.children[cur_lvls[lvl_down]];
         lvl_down += 1;
       }
+
       lvl_down += 1;
+
       if (cur_lvls[lvl_down] === undefined) {
         cur_lvls[lvl_down] = 0;
       } else {
         cur_lvls[lvl_down] += 1;
       }
+
+      if (typeof copy.children === 'undefined') copy.children = [];
       copy.children.push(treeItem);
     }
   });
 
+  console.log(treeData);
   return treeData;
 }
 
@@ -109,6 +106,7 @@ const Task = (props) => {
   const [data, setData] = useState(null);
   const [checkStrictly, setCheckStrictly] = React.useState(false);
   const [loading, setLoading] = useState(false);
+  const [projectsId, setProjectsId] = useState(null);
   const [statusPage, setStatusPage] = useState(false);
   let getFetchData;
 
@@ -116,11 +114,24 @@ const Task = (props) => {
     if (statusPage === false) setLoading(true);
 
     await axios
-      .get(`http://localhost:8000/tasks-login/${props.username}/`)
+      .get(`http://127.0.0.1:8000/projects_id-login/${props.username}/`)
       .then((res) => {
-        setData(transformDataToTree(res.data));
+        setProjectsId(res.data);
+        console.log(res.data);
       })
       .catch((err) => console.error(err));
+
+    for (let i = 0; i < projectsId.length; i++) {
+      window.test = projectsId;
+      console.log(i);
+      await axios
+        .get(`http://localhost:8000/tasks-login/${projectsId[i].project_id}/`)
+        .then((res) => {
+          console.log(res.data);
+          setData(transformDataToTree(res.data));
+        })
+        .catch((err) => console.error(err));
+    }
 
     if (statusPage === false) setLoading(false);
     if (statusPage === false) setStatusPage(true);
@@ -132,14 +143,13 @@ const Task = (props) => {
 
   return (
     <>
-      <Space align="center" style={{ marginBottom: 16 }}>
-        CheckStrictly: <Switch checked={checkStrictly} onChange={setCheckStrictly} />
-      </Space>
       <Table
         columns={columns}
-        rowSelection={{ ...rowSelection, checkStrictly }}
+        expandable
+        indentSize={45}
         dataSource={data}
         loading={loading}
+        bordered={true}
       />
     </>
   );

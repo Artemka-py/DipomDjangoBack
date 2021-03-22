@@ -176,7 +176,7 @@ const Project = (props) => {
       if (error !== null) return;
       else onClose();
     }
-    setLoadingForm(false);
+    await setLoadingForm(false);
     fetchData();
   };
 
@@ -468,7 +468,7 @@ const Project = (props) => {
                         maxCount={5}
                         multiple
                       >
-                        <Button icon={<UploadOutlined />}>Upload (Max: 5)</Button>
+                        <Button icon={<UploadOutlined />}>Прикрепить (Максимально: 5)</Button>
                       </Upload>
                     </Space>
                   </Form.Item>
