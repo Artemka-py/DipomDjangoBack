@@ -1,109 +1,30 @@
+<<<<<<< Updated upstream
 import React, { Children, useEffect, useState } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { Table, Switch, Space } from 'antd';
+import { Drawer, List, Avatar, Divider, Col, Row } from 'antd';
 
-const columns = [
-  {
-    title: 'Название задачи',
-    dataIndex: 'task_name',
-    key: 'name',
-    align: 'center',
-    sorter: (a, b) => a.task_name.length - b.task_name.length,
-    sortDirections: ['descend', 'ascend'],
-  },
-  {
-    title: 'Исполнитель',
-    dataIndex: 'task_developer',
-    key: 'task_developer',
-    align: 'center',
-    sorter: (a, b) => a.task_developer.length - b.task_developer.length,
-    sortDirections: ['descend', 'ascend'],
-  },
-  {
-    title: 'Постановщик',
-    dataIndex: 'task_setter',
-    key: 'task_setter',
-    align: 'center',
-    sorter: (a, b) => a.task_setter.length - b.task_setter.length,
-    sortDirections: ['descend', 'ascend'],
-  },
-  {
-    title: 'Дата начала проекта',
-    dataIndex: 'start_date_plan',
-    key: 'start_date_plan',
-    align: 'center',
-    sorter: (a, b) => a.start_date_plan.length - b.start_date_plan.length,
-    sortDirections: ['descend', 'ascend'],
-  },
-  {
-    title: 'Дата окончания проекта',
-    dataIndex: 'finish_date_plan',
-    key: 'finish_date_plan',
-    align: 'center',
-    sorter: (a, b) => a.finish_date_plan.length - b.finish_date_plan.length,
-    sortDirections: ['descend', 'ascend'],
-  },
-];
-const rowSelection = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-  },
-  onSelect: (record, selected, selectedRows) => {
-    console.log(record, selected, selectedRows);
-  },
-  onSelectAll: (selected, selectedRows, changeRows) => {
-    console.log(selected, selectedRows, changeRows);
-  },
-};
+const DescriptionItem = ({ title, content }) => (
+  <div className="site-description-item-profile-wrapper">
+    <p className="site-description-item-profile-p-label">{title}:</p>
+    {content}
+  </div>
+);
 
-// add new last() method:
-if (!Array.prototype.last) {
-  Array.prototype.last = function () {
-    return this[this.length - 1];
+class App extends React.Component {
+  state = { visible: false };
+
+  showDrawer = () => {
+    this.setState({
+      visible: true,
+    });
   };
-}
 
-function transformDataToTree(data) {
-  let treeData = [];
-  let cur_lvls = [];
-  data.map(function (item, i, arr) {
-    let treeItem = {
-      key: item.pk,
-      task_name: item.fields.task_name,
-      task_developer: item.fields.task_developer_login,
-      task_setter: item.fields.task_developer_login,
-      start_date_plan: item.fields.start_date,
-      finish_date_plan: item.fields.finish_date,
-      children: [],
-    };
-
-    let parent_key = item.fields.parent;
-    if (parent_key == null) {
-      treeData.push(treeItem);
-      if (cur_lvls.length === 0) cur_lvls[0] = 0;
-      else {
-        cur_lvls[0] += 1;
-      }
-    } else {
-      let lvl_down = 0;
-      let copy = treeData[cur_lvls[0]];
-      while (parent_key !== copy.key) {
-        copy = copy.children[cur_lvls[lvl_down]];
-        lvl_down += 1;
-      }
-      lvl_down += 1;
-      if (cur_lvls[lvl_down] === undefined) {
-        cur_lvls[lvl_down] = 0;
-      } else {
-        cur_lvls[lvl_down] += 1;
-      }
-      copy.children.push(treeItem);
-    }
-  });
-
-  return treeData;
-}
+  onClose = () => {
+    this.setState({
+      visible: false,
+    });
+  };
 
 const Task = (props) => {
   const [data, setData] = useState(null);
@@ -132,15 +53,98 @@ const Task = (props) => {
 
   return (
     <>
-      <Space align="center" style={{ marginBottom: 16 }}>
-        CheckStrictly: <Switch checked={checkStrictly} onChange={setCheckStrictly} />
-      </Space>
-      <Table
-        columns={columns}
-        rowSelection={{ ...rowSelection, checkStrictly }}
-        dataSource={data}
-        loading={loading}
-      />
+      <Drawer
+          width={640}
+          placement="right"
+          closable={false}
+          onClose={this.onClose}
+          visible={this.state.visible}
+        >
+          <p className="site-description-item-profile-p" style={{ marginBottom: 24 }}>
+            User Profile
+          </p>
+          <p className="site-description-item-profile-p">Personal</p>
+          <Row>
+            <Col span={12}>
+              <DescriptionItem title="Full Name" content="Lily" />
+            </Col>
+            <Col span={12}>
+              <DescriptionItem title="Account" content="AntDesign@example.com" />
+            </Col>
+          </Row>
+          <Row>
+            <Col span={12}>
+              <DescriptionItem title="City" content="HangZhou" />
+            </Col>
+            <Col span={12}>
+              <DescriptionItem title="Country" content="China🇨🇳" />
+            </Col>
+          </Row>
+          <Row>
+            <Col span={12}>
+              <DescriptionItem title="Birthday" content="February 2,1900" />
+            </Col>
+            <Col span={12}>
+              <DescriptionItem title="Website" content="-" />
+            </Col>
+          </Row>
+          <Row>
+            <Col span={24}>
+              <DescriptionItem
+                title="Message"
+                content="Make things as simple as possible but no simpler."
+              />
+            </Col>
+          </Row>
+          <Divider />
+          <p className="site-description-item-profile-p">Company</p>
+          <Row>
+            <Col span={12}>
+              <DescriptionItem title="Position" content="Programmer" />
+            </Col>
+            <Col span={12}>
+              <DescriptionItem title="Responsibilities" content="Coding" />
+            </Col>
+          </Row>
+          <Row>
+            <Col span={12}>
+              <DescriptionItem title="Department" content="XTech" />
+            </Col>
+            <Col span={12}>
+              <DescriptionItem title="Supervisor" content={<a>Lin</a>} />
+            </Col>
+          </Row>
+          <Row>
+            <Col span={24}>
+              <DescriptionItem
+                title="Skills"
+                content="C / C + +, data structures, software engineering, operating systems, computer networks, databases, compiler theory, computer architecture, Microcomputer Principle and Interface Technology, Computer English, Java, ASP, etc."
+              />
+            </Col>
+          </Row>
+          <Divider />
+          <p className="site-description-item-profile-p">Contacts</p>
+          <Row>
+            <Col span={12}>
+              <DescriptionItem title="Email" content="AntDesign@example.com" />
+            </Col>
+            <Col span={12}>
+              <DescriptionItem title="Phone Number" content="+86 181 0000 0000" />
+            </Col>
+          </Row>
+          <Row>
+            <Col span={24}>
+              <DescriptionItem
+                title="Github"
+                content={
+                  <a href="http://github.com/ant-design/ant-design/">
+                    github.com/ant-design/ant-design/
+                  </a>
+                }
+              />
+            </Col>
+          </Row>
+        </Drawer>
     </>
   );
 };
@@ -152,3 +156,5 @@ const mapStateToProps = (state) => {
 };
 
 export default connect(mapStateToProps)(Task);
+=======
+>>>>>>> Stashed changes
