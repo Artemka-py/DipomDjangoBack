@@ -5,12 +5,8 @@ import AboutPage from './pages/about/AboutPage';
 import Auth from './components/Autentification/Auth/Auth';
 import Register from './components/Autentification/Registration/Register';
 import Project from './pages/Projects/Project';
-<<<<<<< Updated upstream
-import Task from './pages/Tasks/Task'
-=======
 // import Task from './pages/Tasks/Task'
->>>>>>> Stashed changes
-import Tasks_list from './pages/Tasks/Tasks_list';
+import Tasks from './pages/Tasks/Tasks';
 
 const customHistory = createBrowserHistory();
 
@@ -23,7 +19,7 @@ const BaseRouter = () => (
     <Route path="/auth" component={Auth} />
     <Route path="/register" component={Register} />
     <Route path="/projects" component={Project} />
-    <Route path="/tasks" component={Tasks_list} />
+    <Route path="/tasks" component={Tasks} />
     <Route path="/projects/:id" exact component="" />
   </div>
 );

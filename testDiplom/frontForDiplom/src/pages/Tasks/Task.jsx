@@ -1,8 +1,8 @@
-<<<<<<< Updated upstream
-import React, { Children, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { Drawer, List, Avatar, Divider, Col, Row } from 'antd';
+import { Redirect} from 'react-router-dom';
+import { Drawer, Divider, Col, Row } from 'antd';
 
 const DescriptionItem = ({ title, content }) => (
   <div className="site-description-item-profile-wrapper">
@@ -11,41 +11,38 @@ const DescriptionItem = ({ title, content }) => (
   </div>
 );
 
-class App extends React.Component {
-  state = { visible: false };
-
-  showDrawer = () => {
-    this.setState({
-      visible: true,
-    });
-  };
-
-  onClose = () => {
-    this.setState({
-      visible: false,
-    });
-  };
-
 const Task = (props) => {
+  const [visible, setVisible] = useState(true);
   const [data, setData] = useState(null);
-  const [checkStrictly, setCheckStrictly] = React.useState(false);
   const [loading, setLoading] = useState(false);
   const [statusPage, setStatusPage] = useState(false);
   let getFetchData;
 
-  const fetchData = async () => {
-    if (statusPage === false) setLoading(true);
+  const showDrawer = () => {
+    setVisible(true);
+  };
+
+  const onClose = () => {
+    setVisible(false);
+    window.location.assign('/tasks');
+  };
+
+  async function fetchData() {
+    if (statusPage === false)
+      setLoading(true);
 
     await axios
       .get(`http://localhost:8000/tasks-login/${props.username}/`)
       .then((res) => {
-        setData(transformDataToTree(res.data));
+        console.log("drawer rendered");
       })
       .catch((err) => console.error(err));
 
-    if (statusPage === false) setLoading(false);
-    if (statusPage === false) setStatusPage(true);
-  };
+    if (statusPage === false)
+      setLoading(false);
+    if (statusPage === false)
+      setStatusPage(true);
+  }
 
   useEffect(() => {
     fetchData();
@@ -57,8 +54,8 @@ const Task = (props) => {
           width={640}
           placement="right"
           closable={false}
-          onClose={this.onClose}
-          visible={this.state.visible}
+          onClose={onClose}
+          visible={visible}
         >
           <p className="site-description-item-profile-p" style={{ marginBottom: 24 }}>
             User Profile
@@ -145,7 +142,7 @@ const Task = (props) => {
             </Col>
           </Row>
         </Drawer>
-    </>
+      </>
   );
 };
 
@@ -156,5 +153,3 @@ const mapStateToProps = (state) => {
 };
 
 export default connect(mapStateToProps)(Task);
-=======
->>>>>>> Stashed changes

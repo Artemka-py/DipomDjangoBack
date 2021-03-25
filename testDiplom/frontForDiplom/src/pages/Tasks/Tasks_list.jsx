@@ -1,8 +1,8 @@
-import React, { Children, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Table, Tooltip, Space } from 'antd';
+import { Table, Tooltip } from 'antd';
 
 const columns = [
   {
@@ -75,47 +75,47 @@ if (!Array.prototype.last) {
     return this[this.length - 1];
   };
 }
+// transform data to treeObject
+// function transformDataToTree(data) {
+//   let treeData = [];
+//   let cur_lvls = [];
+//   data.map(function (item, i, arr) {
+//     let treeItem = {
+//       key: item.pk,
+//       task_name: item.fields.task_name,
+//       task_developer: item.fields.task_developer_login,
+//       task_setter: item.fields.task_developer_login,
+//       start_date_plan: item.fields.start_date,
+//       finish_date_plan: item.fields.finish_date,
+//       children: [],
+//     };
 
-function transformDataToTree(data) {
-  let treeData = [];
-  let cur_lvls = [];
-  data.map(function (item, i, arr) {
-    let treeItem = {
-      key: item.pk,
-      task_name: item.fields.task_name,
-      task_developer: item.fields.task_developer_login,
-      task_setter: item.fields.task_developer_login,
-      start_date_plan: item.fields.start_date,
-      finish_date_plan: item.fields.finish_date,
-      children: [],
-    };
+//     let parent_key = item.fields.parent;
+//     if (parent_key == null) {
+//       treeData.push(treeItem);
+//       if (cur_lvls.length === 0) cur_lvls[0] = 0;
+//       else {
+//         cur_lvls[0] += 1;
+//       }
+//     } else {
+//       let lvl_down = 0;
+//       let copy = treeData[cur_lvls[0]];
+//       while (parent_key !== copy.key) {
+//         copy = copy.children[cur_lvls[lvl_down]];
+//         lvl_down += 1;
+//       }
+//       lvl_down += 1;
+//       if (cur_lvls[lvl_down] === undefined) {
+//         cur_lvls[lvl_down] = 0;
+//       } else {
+//         cur_lvls[lvl_down] += 1;
+//       }
+//       copy.children.push(treeItem);
+//     }
+//   });
 
-    let parent_key = item.fields.parent;
-    if (parent_key == null) {
-      treeData.push(treeItem);
-      if (cur_lvls.length === 0) cur_lvls[0] = 0;
-      else {
-        cur_lvls[0] += 1;
-      }
-    } else {
-      let lvl_down = 0;
-      let copy = treeData[cur_lvls[0]];
-      while (parent_key !== copy.key) {
-        copy = copy.children[cur_lvls[lvl_down]];
-        lvl_down += 1;
-      }
-      lvl_down += 1;
-      if (cur_lvls[lvl_down] === undefined) {
-        cur_lvls[lvl_down] = 0;
-      } else {
-        cur_lvls[lvl_down] += 1;
-      }
-      copy.children.push(treeItem);
-    }
-  });
-
-  return treeData;
-}
+//   return treeData;
+// }
 function transformData(data){
   const data_transformed = [];
   data.forEach(item => {
