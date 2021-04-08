@@ -74,6 +74,7 @@ const columns = [
   },
 ];
 const { Option } = Select;
+let realTimeFetch;
 
 const Project = (props) => {
   const [data, setData] = useState(null);
@@ -91,20 +92,29 @@ const Project = (props) => {
   let CSRF;
 
   const fetchData = async () => {
-    setLoading(true);
-
     await axios
       .get(`http://localhost:8000/project-login/${props.username}/`)
       .then((res) => {
         setData(res.data);
       })
       .catch((err) => console.error(err));
+  };
 
-    setLoading(false);
+  const reloadFetchData = () => {
+    setLoading(true);
+    fetchData().then(() => setLoading(false));
   };
 
   useEffect(() => {
-    fetchData();
+    setLoading(true);
+
+    fetchData().then(() => setLoading(false));
+
+    realTimeFetch = setInterval(fetchData, 10000);
+
+    return () => {
+      clearInterval(realTimeFetch);
+    };
   }, [props.username]);
 
   const handleAdd = async (e) => {
@@ -273,7 +283,7 @@ const Project = (props) => {
       </Button>
 
       <Button
-        onClick={fetchData}
+        onClick={reloadFetchData}
         type="primary"
         style={{
           marginBottom: 16,

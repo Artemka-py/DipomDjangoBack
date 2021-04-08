@@ -5,10 +5,9 @@ import AboutPage from './pages/about/AboutPage';
 import Auth from './components/Autentification/Auth/Auth';
 import Register from './components/Autentification/Registration/Register';
 import Project from './pages/Projects/Project';
-import Task from './pages/Tasks/Task'
+import Task from './pages/Tasks/Task';
 
 const customHistory = createBrowserHistory();
-
 
 const BaseRouter = () => (
   <div>

@@ -121,17 +121,17 @@ const Task = (props) => {
       })
       .catch((err) => console.error(err));
 
-    for (let i = 0; i < projectsId.length; i++) {
-      window.test = projectsId;
-      console.log(i);
-      await axios
-        .get(`http://localhost:8000/tasks-login/${projectsId[i].project_id}/`)
-        .then((res) => {
-          console.log(res.data);
-          setData(transformDataToTree(res.data));
-        })
-        .catch((err) => console.error(err));
-    }
+    // for (let i = 0; i < projectsId.length; i++) {
+    //   window.test = projectsId;
+    //   console.log(i);
+    //   await axios
+    //     .get(`http://localhost:8000/tasks-login/${projectsId[i].project_id}/`)
+    //     .then((res) => {
+    //       console.log(res.data);
+    //       setData(transformDataToTree(res.data));
+    //     })
+    //     .catch((err) => console.error(err));
+    // }
 
     if (statusPage === false) setLoading(false);
     if (statusPage === false) setStatusPage(true);
