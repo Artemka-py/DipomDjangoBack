@@ -18,6 +18,7 @@ import {
 import { LoadingOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { formatForDate } from '../../common/date';
+import { authFail, authSuccess, checkAuthTimeout } from '../../store/actions/auth';
 import getCookie from '../../common/parseCookies';
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
@@ -28,7 +29,7 @@ const columns = [
     key: 'name',
     align: 'center',
     render: (text, row, index) => {
-      return <Link to={`projects/${row.project_id}`}>{text}</Link>;
+      return <Link to={`/projects/${row.project_id}`}>{text}</Link>;
     },
   },
   {
@@ -82,12 +83,13 @@ const Project = (props) => {
   const [loadingForm, setLoadingForm] = useState(false);
   const [loadingSelect, setLoadingSelect] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [statusPage, setStatusPage] = useState(false);
   const [statuses, setStatuses] = useState(null);
   const [org, setOrg] = useState(null);
   const [clients, setClients] = useState(null);
   const [statusOrg, setStatusOrg] = useState(true);
   const [error, setError] = useState(null);
-  const [idPictures, setIdPictures] = useState([]);
+  let getFetchData;
   let errorMessage = [];
   let CSRF;
 
@@ -219,47 +221,6 @@ const Project = (props) => {
         setOrg(res.data);
       })
       .catch((err) => console.error(err));
-  };
-
-  const uploadAction = async (e) => {
-    switch (e.method) {
-      case 'post': {
-        const uploadData = new FormData();
-
-        uploadData.append('login_user', props.username);
-        uploadData.append('path_file', e.file, e.file.name);
-
-        await axios
-          .post('http://127.0.0.1:8000/api/docs/', uploadData)
-          .then((res) => {
-            console.log(res.data);
-            setIdPictures([
-              ...idPictures,
-              {
-                id: res.data.id,
-                fileName: e.file.name,
-              },
-            ]);
-          })
-          .catch((err) => console.error(err));
-        e.onSuccess();
-        return console.log('post');
-      }
-    }
-  };
-
-  const removeUploadAction = async (e) => {
-    for (let i = 0; i <= idPictures.length; i++) {
-      if (idPictures[i])
-        if (idPictures[i].fileName === e.name) {
-          axios
-            .delete(`http://127.0.0.1:8000/api/docs/${idPictures[i].id}/`)
-            .then((res) => {
-              setIdPictures(idPictures.slice(i, i));
-            })
-            .catch();
-        } else return;
-    }
   };
 
   if (error || errorMessage.length !== 0) {
