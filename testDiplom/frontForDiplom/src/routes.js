@@ -5,8 +5,7 @@ import AboutPage from './pages/about/AboutPage';
 import Auth from './components/Autentification/Auth/Auth';
 import Register from './components/Autentification/Registration/Register';
 import Project from './pages/Projects/Project';
-import Task from './pages/Tasks/Task';
-import { connect } from 'react-redux';
+import Tasks from './pages/Tasks/Tasks';
 
 const customHistory = createBrowserHistory();
 
@@ -17,13 +16,9 @@ const BaseRouter = ({ username, isAuthenticated }) => (
     <Route path="/admin" exact render={() => <Redirect to="/admin" />} />
     <Route path="/auth" component={Auth} />
     <Route path="/register" component={Register} />
-    {isAuthenticated === true && (
-      <>
-        <Route path="/projects" component={Project} />
-        <Route path="/tasks" component={Task} />
-        <Route path="/projects/:id" exact component="" />
-      </>
-    )}
+    <Route path="/projects" component={Project} />
+    <Route path="/tasks" component={Tasks} />
+    <Route path="/projects/:id" exact component="" />
   </div>
 );
 
