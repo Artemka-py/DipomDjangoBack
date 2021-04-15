@@ -1,7 +1,7 @@
 from django.db import connection
 from django.db.models import Q
 from django.http.response import HttpResponse
-from .models import Clients, Tasks
+from .models import Clients, Projects, Tasks
 from django.shortcuts import render
 from django.core import serializers
 
@@ -39,6 +39,12 @@ def projects(req, username):
 
         data = dict_fetch_all(cursor)
         data = JSONRenderer().render(data)
+
+    return HttpResponse(data, content_type="application/json")
+
+
+def project_check_rights(_, manager_login, project_id):
+    data = Projects.objects.filter(project_id=project_id, project_manager_login=manager_login).count()
 
     return HttpResponse(data, content_type="application/json")
 

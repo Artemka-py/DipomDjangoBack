@@ -19,60 +19,9 @@ import { LoadingOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons
 import { Link } from 'react-router-dom';
 import { formatForDate } from '../../common/date';
 import getCookie from '../../common/parseCookies';
+import DetailDrawer from './DetailDrawer/DetailDrawer';
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
-const columns = [
-  {
-    title: 'Название проекта',
-    dataIndex: 'project_name',
-    key: 'name',
-    align: 'center',
-    render: (text, row, index) => {
-      return <Link to={`projects/${row.project_id}`}>{text}</Link>;
-    },
-  },
-  {
-    title: 'Информация о проекте',
-    dataIndex: 'project_info',
-    key: 'project_info',
-    align: 'center',
-    ellipsis: {
-      showTitle: false,
-    },
-    render: (projectInfo) => {
-      if (projectInfo.length > 150) projectInfo = projectInfo.substring(0, 150).trim() + '...';
-      return (
-        <Tooltip placement="topLeft" title={projectInfo}>
-          {projectInfo}
-        </Tooltip>
-      );
-    },
-  },
-  {
-    title: 'Статус',
-    dataIndex: 'status_name',
-    key: 'status',
-    align: 'center',
-  },
-  {
-    title: 'Дата начала проекта',
-    dataIndex: 'start_date_plan',
-    key: 'start_date_plan',
-    align: 'center',
-  },
-  {
-    title: 'Дата окончания проекта',
-    dataIndex: 'finish_date_plan',
-    key: 'finish_date_plan',
-    align: 'center',
-  },
-  {
-    title: 'Рабочая группа',
-    dataIndex: 'workgroup_name',
-    key: 'workgroup_name',
-    align: 'center',
-  },
-];
 const { Option } = Select;
 let realTimeFetch;
 
@@ -88,8 +37,67 @@ const Project = (props) => {
   const [statusOrg, setStatusOrg] = useState(true);
   const [error, setError] = useState(null);
   const [idPictures, setIdPictures] = useState([]);
+  const [detailVisibleDrawer, setDetailVisibleDrawer] = useState(false);
+  const [infoForDetail, setInfoForDetail] = useState({});
   let errorMessage = [];
   let CSRF;
+
+  const columns = [
+    {
+      title: 'Название проекта',
+      dataIndex: 'project_name',
+      key: 'name',
+      align: 'center',
+      render: (text, record) => {
+        return (
+          <>
+            <a onClick={() => detailDrawer(text, record)}>{text}</a>
+          </>
+        );
+      },
+    },
+    {
+      title: 'Информация о проекте',
+      dataIndex: 'project_info',
+      key: 'project_info',
+      align: 'center',
+      ellipsis: {
+        showTitle: false,
+      },
+      render: (projectInfo) => {
+        if (projectInfo.length > 150) projectInfo = projectInfo.substring(0, 150).trim() + '...';
+        return (
+          <Tooltip placement="topLeft" title={projectInfo}>
+            {projectInfo}
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: 'Статус',
+      dataIndex: 'status_name',
+      key: 'status',
+      align: 'center',
+    },
+    {
+      title: 'Дата начала проекта',
+      dataIndex: 'start_date_plan',
+      key: 'start_date_plan',
+      align: 'center',
+    },
+    {
+      title: 'Дата окончания проекта',
+      dataIndex: 'finish_date_plan',
+      key: 'finish_date_plan',
+      align: 'center',
+    },
+    {
+      title: 'Рабочая группа',
+      dataIndex: 'workgroup_name',
+      key: 'workgroup_name',
+      align: 'center',
+    },
+  ];
 
   const fetchData = async () => {
     await axios
@@ -98,6 +106,11 @@ const Project = (props) => {
         setData(res.data);
       })
       .catch((err) => console.error(err));
+  };
+
+  const detailDrawer = (nameOfProject, record) => {
+    setInfoForDetail(record);
+    setDetailVisibleDrawer(true);
   };
 
   const reloadFetchData = () => {
@@ -268,11 +281,31 @@ const Project = (props) => {
     }
   }
 
+  const onCloseDetailVisibleDrawer = () => {
+    setInfoForDetail({});
+    setDetailVisibleDrawer(false);
+  };
+
   return (
     <div>
+      {detailVisibleDrawer && (
+        <DetailDrawer
+          onClose={onCloseDetailVisibleDrawer}
+          visible={detailVisibleDrawer}
+          infoForDetail={infoForDetail}
+          username={props.username}
+          statuses={statuses}
+          statusesFetch={statusesFetch}
+          uploadAction={uploadAction}
+          removeUploadAction={removeUploadAction}
+          onOrgChange={onOrgChange}
+          org={org}
+        />
+      )}
       <Button
         onClick={handleAdd}
         type="primary"
+        loading={loadingForm}
         style={{
           marginBottom: 16,
           marginTop: 16,
@@ -419,7 +452,7 @@ const Project = (props) => {
                       },
                     ]}
                   >
-                    <Input placeholder="Напишите название рабочей группы" />
+                    <Input placeholder="Напишите название рабочей группы" allowClear />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -453,6 +486,7 @@ const Project = (props) => {
                     <Input.TextArea
                       style={{ maxHeight: 345 }}
                       rows={4}
+                      allowClear
                       placeholder="Введите описание проекта"
                     />
                   </Form.Item>

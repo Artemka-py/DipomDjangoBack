@@ -171,9 +171,9 @@ class Test(admin.ModelAdmin):
     list_display = ['status_name']
 
 
-@admin.register(models.Stages)
-class StagesAdmin(admin.ModelAdmin):
-    exclude = ['stage_id']
+# @admin.register(models.Stages)
+# class StagesAdmin(admin.ModelAdmin):
+#     exclude = ['stage_id']
 
 
 @admin.register(models.Projects)
@@ -191,7 +191,7 @@ admin.site.register(models.Users, UsersModel)
 admin.site.register(models.Tasks, TaskModel)
 admin.site.register(models.Managers, list_display=('manager_login', 'outsource_spec',))
 admin.site.register(models.Clients, list_display=('client_login', 'client_organisation',))
-admin.site.register(models.Modules)
+# admin.site.register(models.Modules)
 admin.site.register(models.Developers)
 admin.site.register(models.Workgroups, WorkgroupsModel)
 admin.site.register(models.Organisations, list_display=('full_name', 'short_name', 'image_img',))
