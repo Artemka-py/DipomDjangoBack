@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from 'axios'; 
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Table, Tooltip } from 'antd';
+import { Table, Tooltip} from 'antd';
 
 const columns = [
   {
@@ -132,7 +132,7 @@ function transformData(data){
   return data_transformed;
 }
 
-const Tasks_list = (props) => {
+const Tasks_list = (props) => {                                                                                                                 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [statusPage, setStatusPage] = useState(false);
@@ -146,6 +146,7 @@ const Tasks_list = (props) => {
       .then((res) => {
         // setData(transformDataToTree(res.data));
         console.log(res.data)
+
         setData(transformData(res.data));
       })
       .catch((err) => console.error(err));

@@ -57,3 +57,4 @@ class DocsViewSet(viewsets.ModelViewSet):
 
   queryset = Documents.objects.all()
   serializer_class = DocsSerializer
+
