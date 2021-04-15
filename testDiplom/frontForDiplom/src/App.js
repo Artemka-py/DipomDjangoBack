@@ -13,7 +13,7 @@ const App = (props) => {
     <div>
       <Router>
         <Master {...props}>
-          <BaseRouter />
+          <BaseRouter isAuthenticated={props.isAuthenticated} />
         </Master>
       </Router>
     </div>

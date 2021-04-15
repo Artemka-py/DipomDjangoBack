@@ -75,6 +75,7 @@ const columns = [
   },
 ];
 const { Option } = Select;
+let realTimeFetch;
 
 const Project = (props) => {
   const [data, setData] = useState(null);
@@ -93,25 +94,28 @@ const Project = (props) => {
   let CSRF;
 
   const fetchData = async () => {
-    if (statusPage === false) setLoading(true);
-
     await axios
       .get(`http://localhost:8000/project-login/${props.username}/`)
       .then((res) => {
         setData(res.data);
       })
       .catch((err) => console.error(err));
+  };
 
-    if (statusPage === false) setLoading(false);
-    if (statusPage === false) setStatusPage(true);
+  const reloadFetchData = () => {
+    setLoading(true);
+    fetchData().then(() => setLoading(false));
   };
 
   useEffect(() => {
-    fetchData();
-    getFetchData = setInterval(fetchData, 10000);
+    setLoading(true);
 
-    return function cleanup() {
-      clearInterval(getFetchData);
+    fetchData().then(() => setLoading(false));
+
+    realTimeFetch = setInterval(fetchData, 10000);
+
+    return () => {
+      clearInterval(realTimeFetch);
     };
   }, [props.username]);
 
@@ -184,7 +188,8 @@ const Project = (props) => {
       if (error !== null) return;
       else onClose();
     }
-    setLoadingForm(false);
+    await setLoadingForm(false);
+    fetchData();
   };
 
   const onOrgChange = async (e) => {
@@ -236,6 +241,18 @@ const Project = (props) => {
         }}
       >
         <PlusOutlined /> Добавить проект
+      </Button>
+
+      <Button
+        onClick={reloadFetchData}
+        type="primary"
+        style={{
+          marginBottom: 16,
+          marginTop: 16,
+          marginLeft: 16,
+        }}
+      >
+        Обновить таблицу
       </Button>
       <Table
         loading={loading}
@@ -399,6 +416,32 @@ const Project = (props) => {
                       rows={4}
                       placeholder="Введите описание проекта"
                     />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={24}>
+                  <Form.Item
+                    name="еее"
+                    label="Прикрепленные документы к проекту"
+                    style={{ marginRight: 26 }}
+                  >
+                    <Space
+                      style={{ maxHeight: 345 }}
+                      direction="vertical"
+                      style={{ width: '100%' }}
+                      size="large"
+                    >
+                      <Upload
+                        customRequest={uploadAction}
+                        onRemove={removeUploadAction}
+                        listType="picture"
+                        maxCount={5}
+                        multiple
+                      >
+                        <Button icon={<UploadOutlined />}>Прикрепить (Максимально: 5)</Button>
+                      </Upload>
+                    </Space>
                   </Form.Item>
                 </Col>
               </Row>

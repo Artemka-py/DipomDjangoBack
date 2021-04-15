@@ -5,13 +5,11 @@ import AboutPage from './pages/about/AboutPage';
 import Auth from './components/Autentification/Auth/Auth';
 import Register from './components/Autentification/Registration/Register';
 import Project from './pages/Projects/Project';
-// import Task from './pages/Tasks/Task'
 import Tasks from './pages/Tasks/Tasks';
 
 const customHistory = createBrowserHistory();
 
-
-const BaseRouter = () => (
+const BaseRouter = ({ username, isAuthenticated }) => (
   <div>
     <Route path="/" />
     <Route path="/about" component={AboutPage} />
@@ -23,5 +21,11 @@ const BaseRouter = () => (
     <Route path="/projects/:id" exact component="" />
   </div>
 );
+
+const mapStateToProps = (state) => {
+  return {
+    username: state.username,
+  };
+};
 
 export default BaseRouter;
