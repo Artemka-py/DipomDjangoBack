@@ -202,22 +202,22 @@ class Managers(models.Model):
         verbose_name_plural = 'Менеджеры'
 
 
-class Modules(models.Model):
-    module_id = models.AutoField(primary_key=True)
-    module_name = models.CharField(max_length=255, verbose_name="Название модуля")
-    module_project = models.ForeignKey('Projects', models.DO_NOTHING, default=1, null=False,
-                                       verbose_name="Название проекта")
-    module_status = models.ForeignKey('Status', models.DO_NOTHING, db_column='module_status', default=1, null=False,
-                                      verbose_name="Статус модуля")
-    docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
+# class Modules(models.Model):
+#     module_id = models.AutoField(primary_key=True)
+#     module_name = models.CharField(max_length=255, verbose_name="Название модуля")
+#     module_project = models.ForeignKey('Projects', models.DO_NOTHING, default=1, null=False,
+#                                        verbose_name="Название проекта")
+#     module_status = models.ForeignKey('Status', models.DO_NOTHING, db_column='module_status', default=1, null=False,
+#                                       verbose_name="Статус модуля")
+#     docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
 
-    def __str__(self):
-        return str(self.module_name)
+#     def __str__(self):
+#         return str(self.module_name)
 
-    class Meta:
-        db_table = 'modules'
-        verbose_name = 'Модуль'
-        verbose_name_plural = 'Модули'
+#     class Meta:
+#         db_table = 'modules'
+#         verbose_name = 'Модуль'
+#         verbose_name_plural = 'Модули'
 
 
 class Notes(models.Model):
@@ -326,24 +326,24 @@ class Projects(models.Model):
     #     return queryset
 
 
-class Stages(models.Model):
-    stage_id = models.AutoField(primary_key=True)
-    stage_name = models.CharField(max_length=255, verbose_name='Название этапа')
-    stage_module = models.ForeignKey(Modules, models.DO_NOTHING, default=1, null=False, verbose_name='Название модуля')
-    stage_status = models.ForeignKey('Status', models.DO_NOTHING, db_column='stage_status', default=1, null=False, verbose_name='Статус')
-    docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
-    start_date = models.DateField(verbose_name='Дата старта этапа', auto_now_add=True, null=False, blank=False)
-    finish_date = models.DateField(verbose_name='Дата окончания этапа')
-    start_date_fact = models.DateField(verbose_name='Фактическая дата старта этапа')
-    finish_date_fact = models.DateField(verbose_name='Фактическая дата конца этапа')
+# class Stages(models.Model):
+#     stage_id = models.AutoField(primary_key=True)
+#     stage_name = models.CharField(max_length=255, verbose_name='Название этапа')
+#     stage_module = models.ForeignKey(Modules, models.DO_NOTHING, default=1, null=False, verbose_name='Название модуля')
+#     stage_status = models.ForeignKey('Status', models.DO_NOTHING, db_column='stage_status', default=1, null=False, verbose_name='Статус')
+#     docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
+#     start_date = models.DateField(verbose_name='Дата старта этапа', auto_now_add=True, null=False, blank=False)
+#     finish_date = models.DateField(verbose_name='Дата окончания этапа')
+#     start_date_fact = models.DateField(verbose_name='Фактическая дата старта этапа')
+#     finish_date_fact = models.DateField(verbose_name='Фактическая дата конца этапа')
 
-    def __str__(self):
-        return self.stage_name
+#     def __str__(self):
+#         return self.stage_name
 
-    class Meta:
-        db_table = 'stages'
-        verbose_name = 'Этап'
-        verbose_name_plural = 'Этапы'
+#     class Meta:
+#         db_table = 'stages'
+#         verbose_name = 'Этап'
+#         verbose_name_plural = 'Этапы'
 
 
 class Status(models.Model):
@@ -362,7 +362,8 @@ class Status(models.Model):
 class Tasks(MPTTModel):
     task_id = models.AutoField(primary_key=True)
     task_name = models.CharField(max_length=255, verbose_name="Название задачи")
-    task_stage = models.ForeignKey(Stages, models.DO_NOTHING, default=1, null=False, verbose_name="Название этапа")
+    # task_stage = models.ForeignKey(Stages, models.DO_NOTHING, default=1, null=False, verbose_name="Название этапа")
+    project_task = models.ForeignKey(Projects, models.DO_NOTHING, default=1, null=False, verbose_name="К какому проекту относиться")
     task_setter_login = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, null=False, default=1, verbose_name="Поставил задачу")
     task_developer_login = models.ForeignKey('Developers', models.DO_NOTHING, db_column='task_developer_login',
                                              default=1, null=False, verbose_name="Логин разработчика")

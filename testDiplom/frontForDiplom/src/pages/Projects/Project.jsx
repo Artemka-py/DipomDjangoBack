@@ -20,62 +20,11 @@ import { Link } from 'react-router-dom';
 import { formatForDate } from '../../common/date';
 import { authFail, authSuccess, checkAuthTimeout } from '../../store/actions/auth';
 import getCookie from '../../common/parseCookies';
+import DetailDrawer from './DetailDrawer/DetailDrawer';
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
-const columns = [
-  {
-    title: 'Название проекта',
-    dataIndex: 'project_name',
-    key: 'name',
-    align: 'center',
-    render: (text, row, index) => {
-      return <Link to={`/projects/${row.project_id}`}>{text}</Link>;
-    },
-  },
-  {
-    title: 'Информация о проекте',
-    dataIndex: 'project_info',
-    key: 'project_info',
-    align: 'center',
-    ellipsis: {
-      showTitle: false,
-    },
-    render: (projectInfo) => {
-      if (projectInfo.length > 150) projectInfo = projectInfo.substring(0, 150).trim() + '...';
-      return (
-        <Tooltip placement="topLeft" title={projectInfo}>
-          {projectInfo}
-        </Tooltip>
-      );
-    },
-  },
-  {
-    title: 'Статус',
-    dataIndex: 'status_name',
-    key: 'status',
-    align: 'center',
-  },
-  {
-    title: 'Дата начала проекта',
-    dataIndex: 'start_date_plan',
-    key: 'start_date_plan',
-    align: 'center',
-  },
-  {
-    title: 'Дата окончания проекта',
-    dataIndex: 'finish_date_plan',
-    key: 'finish_date_plan',
-    align: 'center',
-  },
-  {
-    title: 'Рабочая группа',
-    dataIndex: 'workgroup_name',
-    key: 'workgroup_name',
-    align: 'center',
-  },
-];
-const { Option } = Select;
 let realTimeFetch;
+const { Option } = Select;
 
 const Project = (props) => {
   const [data, setData] = useState(null);
@@ -89,22 +38,78 @@ const Project = (props) => {
   const [clients, setClients] = useState(null);
   const [statusOrg, setStatusOrg] = useState(true);
   const [error, setError] = useState(null);
+  const [infoForDetail, setInfoForDetail] = useState({});
+  const [detailVisibleDrawer, setDetailVisibleDrawer] = useState(false);
+  const [idPictures, setIdPictures] = useState([]);
   let getFetchData;
   let errorMessage = [];
   let CSRF;
 
-  const fetchData = async () => {
-    await axios
-      .get(`http://localhost:8000/project-login/${props.username}/`)
-      .then((res) => {
-        setData(res.data);
-      })
-      .catch((err) => console.error(err));
-  };
+  const columns = [
+    {
+      title: 'Название проекта',
+      dataIndex: 'project_name',
+      key: 'name',
+      align: 'center',
+      render: (text, row, index) => {
+        return <Link to={`/projects/${row.project_id}`}>{text}</Link>;
+      },
+    },
+    {
+      title: 'Информация о проекте',
+      dataIndex: 'project_info',
+      key: 'project_info',
+      align: 'center',
+      ellipsis: {
+        showTitle: false,
+      },
+      render: (projectInfo) => {
+        if (projectInfo.length > 150) projectInfo = projectInfo.substring(0, 150).trim() + '...';
+        return (
+          <Tooltip placement="topLeft" title={projectInfo}>
+            {projectInfo}
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: 'Статус',
+      dataIndex: 'status_name',
+      key: 'status',
+      align: 'center',
+    },
+    {
+      title: 'Дата начала проекта',
+      dataIndex: 'start_date_plan',
+      key: 'start_date_plan',
+      align: 'center',
+    },
+    {
+      title: 'Дата окончания проекта',
+      dataIndex: 'finish_date_plan',
+      key: 'finish_date_plan',
+      align: 'center',
+    },
+    {
+      title: 'Рабочая группа',
+      dataIndex: 'workgroup_name',
+      key: 'workgroup_name',
+      align: 'center',
+    },
+  ];
 
-  const reloadFetchData = () => {
-    setLoading(true);
-    fetchData().then(() => setLoading(false));
+  const fetchData = async () => {
+    axios
+      .get(`http://localhost:8000/project-login/${props.username}/`)
+      .then((res) => {})
+      .catch((err) => console.error(err));
+
+    const detailDrawer = (nameOfProject, record) => {
+      setDetailVisibleDrawer(true);
+    };
+    const reloadFetchData = () => {
+      setLoading(true);
+    };
   };
 
   useEffect(() => {
@@ -113,7 +118,6 @@ const Project = (props) => {
     fetchData().then(() => setLoading(false));
 
     realTimeFetch = setInterval(fetchData, 10000);
-
     return () => {
       clearInterval(realTimeFetch);
     };
@@ -127,6 +131,11 @@ const Project = (props) => {
 
   const onClose = () => {
     setVisible(false);
+  };
+
+  const reloadFetchData = () => {
+    setLoading(true);
+    fetchData().then(() => setLoading(false));
   };
 
   const onAddNewProject = async (formData) => {
@@ -192,6 +201,50 @@ const Project = (props) => {
     fetchData();
   };
 
+  const uploadAction = async (e) => {
+    switch (e.method) {
+      case 'post': {
+        const uploadData = new FormData();
+
+        uploadData.append('login_user', props.username);
+        uploadData.append('path_file', e.file, e.file.name);
+
+        await axios
+          .post('http://127.0.0.1:8000/api/docs/', uploadData)
+          .then((res) => {
+            console.log(res.data);
+            setIdPictures([
+              ...idPictures,
+              {
+                id: res.data.id,
+                fileName: e.file.name,
+              },
+            ]);
+          })
+          .catch((err) => console.error(err));
+        e.onSuccess();
+        return console.log('post');
+      }
+
+      default:
+        return console.log('default');
+    }
+  };
+
+  const removeUploadAction = async (e) => {
+    for (let i = 0; i <= idPictures.length; i++) {
+      if (idPictures[i])
+        if (idPictures[i].fileName === e.name) {
+          axios
+            .delete(`http://127.0.0.1:8000/api/docs/${idPictures[i].id}/`)
+            .then((res) => {
+              setIdPictures(idPictures.slice(i, i));
+            })
+            .catch();
+        } else return;
+    }
+  };
+
   const onOrgChange = async (e) => {
     await axios
       .get(`http://localhost:8000/client-org/${e}/`)
@@ -229,11 +282,31 @@ const Project = (props) => {
     }
   }
 
+  const onCloseDetailVisibleDrawer = () => {
+    setInfoForDetail({});
+    setDetailVisibleDrawer(false);
+  };
+
   return (
     <div>
+      {detailVisibleDrawer && (
+        <DetailDrawer
+          onClose={onCloseDetailVisibleDrawer}
+          visible={detailVisibleDrawer}
+          infoForDetail={infoForDetail}
+          username={props.username}
+          statuses={statuses}
+          statusesFetch={statusesFetch}
+          uploadAction={uploadAction}
+          removeUploadAction={removeUploadAction}
+          onOrgChange={onOrgChange}
+          org={org}
+        />
+      )}
       <Button
         onClick={handleAdd}
         type="primary"
+        loading={loadingForm}
         style={{
           marginBottom: 16,
           marginTop: 16,
@@ -380,7 +453,7 @@ const Project = (props) => {
                       },
                     ]}
                   >
-                    <Input placeholder="Напишите название рабочей группы" />
+                    <Input placeholder="Напишите название рабочей группы" allowClear />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -414,6 +487,7 @@ const Project = (props) => {
                     <Input.TextArea
                       style={{ maxHeight: 345 }}
                       rows={4}
+                      allowClear
                       placeholder="Введите описание проекта"
                     />
                   </Form.Item>
