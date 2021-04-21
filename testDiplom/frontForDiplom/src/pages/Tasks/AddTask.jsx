@@ -5,6 +5,7 @@ import { Drawer, Divider, Col, Row, Button, Spin, Input, DatePicker, Form } from
 import { UserOutlined } from '@ant-design/icons';
 import getCookie from '../../common/parseCookies';
 import { formatForDate } from '../../common/date';
+import SelectUser from './SelectUser';
 
 const { TextArea } = Input;
 let realFetchData;
@@ -30,6 +31,8 @@ const AddTask = (props) => {
     axios
       .post(`http://localhost:8000/api/tasks/`,
         {
+          parent_id: null,
+          project_task_id: null,
           task_name: values.task_name,
           task_developer_login: values.task_developer_login,
           task_setter_login: values.task_setter_login,
@@ -57,14 +60,20 @@ const AddTask = (props) => {
   return (
     <>
       <Drawer
-          width={640}
+          width={840}
           placement="right"
           closable={false}
           onClose={onClose}
           visible={visible}
         >
           <>
-            <Form hideRequiredMark onFinish={onAddTask}>
+            <Form 
+              hideRequiredMark 
+              onFinish={onAddTask}
+              initialValues={{
+                task_setter_login: props.username,
+              }}
+            >
               <Row>
                 <Col span={16}>
                   <Form.Item
@@ -123,6 +132,7 @@ const AddTask = (props) => {
                   <p>Постановщик:</p>
                     <Form.Item 
                       name="task_setter_login" 
+                      disabled 
                       rules={[
                         {
                           required: true,
@@ -142,9 +152,9 @@ const AddTask = (props) => {
                       },
                     ]}
                   >
-                    <Input 
-                      prefix={<UserOutlined/>} 
-                    />
+                    {/* <SelectUser 
+                    project_id = {DataCue.project_task_id}
+                    /> */}
                   </Form.Item>
                 </Col>
                 <Col span={6} style={{textAlign: 'center'}}>

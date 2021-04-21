@@ -7,6 +7,7 @@ import { UserOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import getCookie from '../../common/parseCookies';
 import { formatForDate } from '../../common/date';
+import SelectUser from './SelectUser'
 
 const { TextArea } = Input;
 let realFetchData;
@@ -82,7 +83,7 @@ const Task = (props) => {
   return (
     <>
       <Drawer
-          width={640}
+          width={840}
           placement="right"
           closable={false}
           onClose={onClose}
@@ -91,7 +92,17 @@ const Task = (props) => {
         >
           {!data ? <Spin /> : (
           <>
-            <Form layout="vertical" hideRequiredMark onFinish={onEditTask}>
+            <Form 
+              layout="vertical" 
+              hideRequiredMark onFinish={onEditTask}
+              initialValues={{
+                task_name: data.task_name,
+                task_developer_login: data.task_developer_login,
+                task_setter_login: data.task_setter_login,
+                start_date: moment(data.start_date, "YYYY-MM-dd") ,
+                finish_date: moment(data.finish_date, "YYYY-MM-dd"),
+              }}
+            >
               <Row>
                 <Col span={16}>
                   {editable ? (
@@ -104,7 +115,7 @@ const Task = (props) => {
                     ]}
                   >
                     <Input 
-                        defaultValue={data.task_name}
+                        // defaultValue={data.task_name}
                     />
                   </Form.Item>):
                   (<p 
@@ -178,15 +189,16 @@ const Task = (props) => {
                   <p>Постановщик:<br></br> 
                     {editable ? (
                     <Form.Item 
-                        name="task_setter_login" 
-                        rules={[
-                            {
-                            required: true,
-                            },
-                        ]}
+                        name="task_setter_login"
+                        // rules={[
+                        //     {
+                        //     required: true,
+                        //     },
+                        // ]}
                     >
                         <Input 
-                        defaultValue={data.task_setter_login} 
+                        disabled
+                        // defaultValue={data.task_setter_login} 
                         prefix={<UserOutlined/>} 
                         />
                     </Form.Item>):
@@ -206,10 +218,10 @@ const Task = (props) => {
                             },
                         ]}
                     >
-                        <Input 
-                        defaultValue={data.task_developer_login} 
-                        prefix={<UserOutlined/>} 
-                        />
+                      <SelectUser 
+                        project_id = {data.project_task}
+                        user_login = {props.username}
+                      />
                     </Form.Item>):
                     (<b>
                       {data.task_developer_login}
@@ -228,9 +240,9 @@ const Task = (props) => {
                         ]}
                     >
                         <DatePicker 
-                        allowClear="false" 
+                        allowClear={false}
                         onChange={onChangeDate} 
-                        defaultValue={moment(data.start_date, "YYYY-MM-dd") }
+                        // defaultValue={moment(data.start_date, "YYYY-MM-dd") }
                         />
                     </Form.Item>):
                     (<b>{data.start_date}</b>)}
@@ -247,8 +259,10 @@ const Task = (props) => {
                             },
                         ]}
                     >
-                        <DatePicker onChange={onChangeDate} 
-                        defaultValue={moment(data.finish_date, "YYYY-MM-dd")}
+                        <DatePicker
+                        allowClear={false}  
+                        onChange={onChangeDate} 
+                        // defaultValue={moment(data.finish_date, "YYYY-MM-dd")}
                         />
                     </Form.Item>):
                     (<b>{data.finish_date}</b>)}
@@ -256,6 +270,9 @@ const Task = (props) => {
                 </Col>
               </Row>
               <Divider />
+              <Row>
+                <p>Comments</p>
+              </Row>
             </Form>
           </>
           )}
