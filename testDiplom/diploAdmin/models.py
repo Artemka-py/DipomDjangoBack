@@ -363,7 +363,7 @@ class Tasks(MPTTModel):
     task_id = models.AutoField(primary_key=True)
     task_name = models.CharField(max_length=255, verbose_name="Название задачи")
     # task_stage = models.ForeignKey(Stages, models.DO_NOTHING, default=1, null=False, verbose_name="Название этапа")
-    project_task = models.ForeignKey(Projects, models.DO_NOTHING, default=1, null=False, verbose_name="К какому проекту относиться")
+    project_task = models.ForeignKey(Projects, models.CASCADE, default=1, null=False, verbose_name="К какому проекту относиться")
     task_setter_login = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, null=False, default=1, verbose_name="Поставил задачу")
     task_developer_login = models.ForeignKey('Developers', models.DO_NOTHING, db_column='task_developer_login',
                                              default=1, null=False, verbose_name="Логин разработчика")

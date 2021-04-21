@@ -41,6 +41,8 @@ const Project = (props) => {
   const [infoForDetail, setInfoForDetail] = useState({});
   const [detailVisibleDrawer, setDetailVisibleDrawer] = useState(false);
   const [idPictures, setIdPictures] = useState([]);
+  const [delTables, setDelTables] = useState([]);
+  const [disableDelButton, setDisableDelButton] = useState(true);
   let getFetchData;
   let errorMessage = [];
   let CSRF;
@@ -99,21 +101,26 @@ const Project = (props) => {
   ];
 
   const fetchData = async () => {
+    if (statusPage === false) setLoading(true);
+
     axios
       .get(`http://localhost:8000/project-login/${props.username}/`)
-      .then((res) => {})
+      .then((res) => {
+        setData(res.data);
+      })
       .catch((err) => console.error(err));
 
-    const detailDrawer = (nameOfProject, record) => {
-      setDetailVisibleDrawer(true);
-    };
-    const reloadFetchData = () => {
-      setLoading(true);
-    };
+    if (statusPage === false) setLoading(false);
+    if (statusPage === false) setStatusPage(true);
+  };
+
+  const detailDrawer = (nameOfProject, record) => {
+    setDetailVisibleDrawer(true);
   };
 
   useEffect(() => {
     setLoading(true);
+    console.log(loading);
 
     fetchData().then(() => setLoading(false));
 
@@ -121,7 +128,7 @@ const Project = (props) => {
     return () => {
       clearInterval(realTimeFetch);
     };
-  }, [props.username]);
+  }, []);
 
   const handleAdd = async (e) => {
     await statusesFetch();
@@ -232,11 +239,17 @@ const Project = (props) => {
   };
 
   const removeUploadAction = async (e) => {
+    CSRF = getCookie('csrftoken');
+
     for (let i = 0; i <= idPictures.length; i++) {
       if (idPictures[i])
         if (idPictures[i].fileName === e.name) {
           axios
-            .delete(`http://127.0.0.1:8000/api/docs/${idPictures[i].id}/`)
+            .delete(`http://127.0.0.1:8000/api/docs/${idPictures[i].id}/`, {
+              headers: {
+                'X-CSRFToken': CSRF,
+              },
+            })
             .then((res) => {
               setIdPictures(idPictures.slice(i, i));
             })
@@ -274,6 +287,43 @@ const Project = (props) => {
         setOrg(res.data);
       })
       .catch((err) => console.error(err));
+  };
+
+  const rowSelection = {
+    onChange: (selectedRowKeys) => {
+      if (selectedRowKeys.length !== 0) setDisableDelButton(false);
+      else setDisableDelButton(true);
+      setDelTables(selectedRowKeys);
+    },
+  };
+
+  const deleteTables = () => {
+    if (delTables.length > 0) {
+      CSRF = getCookie('csrftoken');
+      console.log(CSRF);
+
+      delTables.map((i) => {
+        axios
+          .delete(`http://localhost:8000/api/projects/${i}`, {
+            headers: {
+              'X-CSRFToken': CSRF,
+            },
+          })
+          .then((res) => {
+            console.log(res);
+          })
+          .catch((err) => {
+            console.error(err);
+            alert(
+              'Случилась ошибка, пожалуйста сообщите о ней администрацией либо с помощью кнопки feedback!',
+            );
+          });
+      });
+      setDelTables([]);
+      fetchData();
+    } else {
+      alert('Выберите таблицы, которые хотите удалить!');
+    }
   };
 
   if (error || errorMessage.length !== 0) {
@@ -319,6 +369,7 @@ const Project = (props) => {
       <Button
         onClick={reloadFetchData}
         type="primary"
+        ghost={true}
         style={{
           marginBottom: 16,
           marginTop: 16,
@@ -327,13 +378,30 @@ const Project = (props) => {
       >
         Обновить таблицу
       </Button>
+
+      <Button
+        onClick={deleteTables}
+        type="primary"
+        danger={true}
+        disabled={disableDelButton}
+        style={{
+          marginBottom: 16,
+          marginTop: 16,
+          marginLeft: 16,
+        }}
+      >
+        Удалить таблицу(ы)
+      </Button>
+
       <Table
         loading={loading}
         bordered={true}
+        rowSelection={{ ...rowSelection }}
         rowKey={(record) => record.project_id}
         dataSource={data}
         columns={columns}
       />
+
       <Drawer
         title="Создание нового проекта"
         width={720}

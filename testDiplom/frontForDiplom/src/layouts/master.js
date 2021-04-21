@@ -70,7 +70,7 @@ const Master = (props) => {
                 <Link to="/">Выход</Link>
               </Menu.Item>
               <Menu.Item style={{ float: 'right' }} onClick={lkHandler} key="4">
-                <a>{props.username}</a>
+                <a>Приветствуем вас, {props.username}!</a>
               </Menu.Item>
             </>
           ) : (
