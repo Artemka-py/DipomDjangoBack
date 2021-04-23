@@ -6,6 +6,7 @@ import Auth from './components/Autentification/Auth/Auth';
 import Register from './components/Autentification/Registration/Register';
 import Project from './pages/Projects/Project';
 import Tasks from './pages/Tasks/Tasks';
+import DetailProject from './pages/Projects/DetailProject/DetailProject';
 
 const customHistory = createBrowserHistory();
 
@@ -16,9 +17,9 @@ const BaseRouter = ({ username, isAuthenticated }) => (
     <Route path="/admin" exact render={() => <Redirect to="/admin" />} />
     <Route path="/auth" component={Auth} />
     <Route path="/register" component={Register} />
+    <Route path="/project-detail/:id" component={DetailProject} />
     <Route path="/projects" component={Project} />
     <Route path="/tasks" component={Tasks} />
-    <Route path="/projects/:id" exact component="" />
   </div>
 );
 

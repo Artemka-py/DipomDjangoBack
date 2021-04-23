@@ -54,7 +54,7 @@ const Project = (props) => {
       key: 'name',
       align: 'center',
       render: (text, row, index) => {
-        return <Link to={`/projects/${row.project_id}`}>{text}</Link>;
+        return <Link to={`/project-detail/${row.project_id}`}>{text}</Link>;
       },
     },
     {
