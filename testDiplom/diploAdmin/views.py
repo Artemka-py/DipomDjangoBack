@@ -27,7 +27,7 @@ class CommentSerializer(ser.Serializer):
 
 def projects(req, username):
     with connection.cursor() as cursor:
-        cursor.execute(''' select project_id, project_name, project_info, start_date_plan, finish_date_plan,
+        cursor.execute(''' select distinct project_id, project_name, project_info, start_date_plan, finish_date_plan,
         start_date_fact, finish_date_fact, status.status_name, workgroups.workgroup_name 
         from projects inner join workgroups on
         projects.project_workgroup_id = workgroups.workgroup_id
