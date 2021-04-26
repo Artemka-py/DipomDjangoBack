@@ -1,15 +1,15 @@
 from django.http import response
-from rest_framework import viewsets
-from rest_framework.views import APIView
+from rest_framework import serializers, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
-from .serializers import ClientsSerializer, DocsSerializer, OrganisationsSerializer, ProjectSerializer, StatusSerializer, TasksSerializer, UsersSerializer, WorkgroupsSerializer, WorkingDeveloperListSerializer
-from ..models import Clients, Documents, Organisations, Projects, Status, Tasks, Users, Workgroups, WorkingDeveloperList
+from .serializers import ClientsSerializer, DocsSerializer, ManagerSerializer, OrganisationsSerializer, ProjectSerializer, StatusSerializer, TasksSerializer, UsersSerializer, WorkgroupsSerializer, WorkingDeveloperListSerializer
+from ..models import Clients, Documents, Managers, Organisations, Projects, Status, Tasks, Users, Workgroups, WorkingDeveloperList
 
 class ProjectsViewSet(viewsets.ModelViewSet):
 
   queryset = Projects.objects.all()
   serializer_class = ProjectSerializer
-
 
 class TasksViewSet(viewsets.ModelViewSet):
 
@@ -58,3 +58,8 @@ class DocsViewSet(viewsets.ModelViewSet):
   queryset = Documents.objects.all()
   serializer_class = DocsSerializer
 
+
+class ManagersViewSet(viewsets.ModelViewSet):
+
+  queryset = Managers.objects.all()
+  serializer_class = ManagerSerializer

@@ -17,9 +17,13 @@ const BaseRouter = ({ username, isAuthenticated }) => (
     <Route path="/admin" exact render={() => <Redirect to="/admin" />} />
     <Route path="/auth" component={Auth} />
     <Route path="/register" component={Register} />
-    <Route path="/project-detail/:id" component={DetailProject} />
-    <Route path="/projects" component={Project} />
-    <Route path="/tasks" component={Tasks} />
+    {isAuthenticated && (
+      <>
+        <Route path="/project-detail/:id" component={DetailProject} />
+        <Route path="/projects" component={Project} />
+        <Route path="/tasks" component={Tasks} />
+      </>
+    )}
   </div>
 );
 

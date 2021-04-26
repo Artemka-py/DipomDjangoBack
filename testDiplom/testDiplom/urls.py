@@ -2,7 +2,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
-from diploAdmin.views import index, projects, tasks, clients, projects_id, project_check_rights, workgroup_developers
+from diploAdmin.views import index, projects, tasks, clients, projects_id, project_check_rights, workgroup_developers, project_with_orgs
 
 
 urlpatterns = [
@@ -10,6 +10,7 @@ urlpatterns = [
     path('', index),
     path('api/', include('diploAdmin.api.urls')),
     path('project-login/<str:username>/', projects),
+    path('project-orgs/<int:project_id>/', project_with_orgs),
     path('project-check-rights/<str:manager_login>/<int:project_id>/', project_check_rights),
     path('projects_id-login/<str:username>/', projects_id),
     path('tasks-login/<str:username>/', tasks),

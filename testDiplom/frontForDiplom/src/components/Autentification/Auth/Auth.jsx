@@ -1,14 +1,15 @@
 import { Form, Input, Button, Checkbox } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import './Auth.css';
 import { connect } from 'react-redux';
 import * as actions from '../../../store/actions/auth';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
 import { useEffect } from 'react';
 
 // const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
 const Auth = (props) => {
+  const history = useHistory();
   let errorMessage = null;
 
   const onFinish = async (values) => {
@@ -19,7 +20,7 @@ const Auth = (props) => {
 
   useEffect(() => {
     if (props.loading === false && (props.token || props.error))
-      if (props.error === null) props.history.push('/');
+      if (props.error === null) history.push('/');
   }, [props.error, props.history, props.loading, props.token]);
 
   const onFinishFailed = (errorInfo) => {};
@@ -65,11 +66,12 @@ const Auth = (props) => {
             },
           ]}
         >
-          <Input
+          <Input.Password
             prefix={<LockOutlined className="site-form-item-icon" />}
             type="password"
             placeholder="Пароль"
             disabled={props.loading}
+            iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
           />
         </Form.Item>
         <Form.Item>

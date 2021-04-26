@@ -88,3 +88,13 @@ def workgroup_developers(req, project_id):
         data = JSONRenderer().render(data)
     
     return HttpResponse(data, content_type="application/json")
+
+
+def project_with_orgs(req, project_id):
+    with connection.cursor() as cursor:
+        cursor.execute('''select * from projects inner JOIN clients c on projects.project_client_login = c.client_login inner join organisations o on c.client_organisation_id = o.organisation_id where project_id = %s''', [project_id])
+
+        data = dict_fetch_all(cursor)
+        data = JSONRenderer().render(data)
+
+    return HttpResponse(data, content_type="application/json")

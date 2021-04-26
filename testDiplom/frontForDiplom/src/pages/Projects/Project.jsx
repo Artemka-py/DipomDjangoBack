@@ -294,13 +294,13 @@ const Project = (props) => {
     },
   };
 
-  const deleteTables = () => {
+  const deleteTables = async () => {
     if (delTables.length > 0) {
       CSRF = getCookie('csrftoken');
       console.log(CSRF);
 
-      delTables.map((i) => {
-        axios
+      await delTables.map(async (i) => {
+        await axios
           .delete(`http://localhost:8000/api/projects/${i}`, {
             headers: {
               'X-CSRFToken': CSRF,
