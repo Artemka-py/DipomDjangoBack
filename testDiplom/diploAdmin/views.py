@@ -5,6 +5,9 @@ from .models import Clients, Projects, Tasks
 from django.shortcuts import render
 from django.core import serializers
 
+def error(req):
+    return render(req, 'error.html', {})
+
 def index(req):
     return render(req, 'index.html', {})
 

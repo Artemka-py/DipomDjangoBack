@@ -188,19 +188,35 @@ const DetailProject = ({ match, username }) => {
         </>
       ),
     },
+  ];
+
+  const columnsEdit = [
+    ...columns,
     {
       title: 'Операции',
       dataIndex: 'operation',
       render: (_, record) => (
         <Popconfirm
           title="Уверены, что хотите удалить данного разработчика?"
-          onConfirm={() => console.log(record.key)}
+          onConfirm={() => deleteDeveloperFromProject(record)}
         >
           <a>Удалить</a>
         </Popconfirm>
       ),
     },
   ];
+
+  const deleteDeveloperFromProject = async (rec) => {
+    await axios
+      .delete(`http://localhost:8000/api/workdl/${rec.list_id}/`)
+      .then(async (res) => {
+        await fetchDevelopers();
+        toast('success', 'Успешное удаление разработчика!');
+      })
+      .catch((err) => {
+        toast('error', 'Что-то пошло не так! ' + err.message);
+      });
+  };
 
   const fetchData = async () => {
     await axios.get(`http://127.0.0.1:8000/project-orgs/${ID}/`).then(async (res) => {
@@ -369,7 +385,6 @@ const DetailProject = ({ match, username }) => {
         developer_login: newDeveloper,
       })
       .then(async (res) => {
-        console.log(res.data);
         await fetchDevelopers();
       })
       .catch((err) => {
@@ -529,36 +544,48 @@ const DetailProject = ({ match, username }) => {
           <Space direction="vertical" size={'small'} style={{ marginBottom: '15px' }}>
             <Title level={3}>Разработчики:</Title>
 
-            <Space direction={'horizontal'} size={'small'}>
-              <Title level={4}>Это все пользователи:</Title>
-              <Select labelInValue style={{ width: 220 }} onChange={changeNewDevHandler}>
-                {allDevelopers &&
-                  allDevelopers.map((value, idx) => (
-                    <Option key={idx} value={value.username}>
-                      {value.username}
-                    </Option>
-                  ))}
-              </Select>
+            {!editable ? (
+              <Table
+                dataSource={developers}
+                rowKey={(record) => record.id}
+                bordered
+                pagination={false}
+                columns={columns}
+              />
+            ) : (
+              <>
+                <Space direction={'horizontal'} size={'small'}>
+                  <Title level={4}>Это все пользователи:</Title>
+                  <Select labelInValue style={{ width: 220 }} onChange={changeNewDevHandler}>
+                    {allDevelopers &&
+                      allDevelopers.map((value, idx) => (
+                        <Option key={idx} value={value.username}>
+                          {value.username}
+                        </Option>
+                      ))}
+                  </Select>
 
-              <Checkbox onChange={changeOutHandler} checked={outCheck}>
-                Удаленно
-              </Checkbox>
-              <Checkbox onChange={changeTeamHandler} checked={teamLeadCheck}>
-                Тимлидер
-              </Checkbox>
+                  <Checkbox onChange={changeOutHandler} checked={outCheck}>
+                    Удаленно
+                  </Checkbox>
+                  <Checkbox onChange={changeTeamHandler} checked={teamLeadCheck}>
+                    Тимлидер
+                  </Checkbox>
 
-              <Button onClick={handleAddDeveloper} loading={loadingAddDev} type="primary">
-                Добавить разработчика
-              </Button>
-            </Space>
+                  <Button onClick={handleAddDeveloper} loading={loadingAddDev} type="primary">
+                    Добавить разработчика
+                  </Button>
+                </Space>
 
-            <Table
-              dataSource={developers}
-              rowKey={(record) => record.id}
-              bordered
-              pagination={false}
-              columns={columns}
-            />
+                <Table
+                  dataSource={developers}
+                  rowKey={(record) => record.id}
+                  bordered
+                  pagination={false}
+                  columns={columnsEdit}
+                />
+              </>
+            )}
           </Space>
 
           <hr />
@@ -574,7 +601,7 @@ const DetailProject = ({ match, username }) => {
           {editable && <br />}
           <hr />
 
-          <Title level={3}>Задачи:</Title>
+          <Title level={3}>Задачи (только просмотр):</Title>
           {dataForTree.length > 0 ? TreeDataUi(dataForTree) : 'Задач еще нет'}
         </div>
       )}
