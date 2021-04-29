@@ -27,6 +27,7 @@ import {
 import classes from './DetailProject.module.css';
 import { logout } from '../../../store/actions/auth';
 import { Link } from 'react-router-dom';
+import { formatForDate } from '../../../common/date';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -137,7 +138,6 @@ function transformDataToTree(data) {
     }
   });
 
-  console.log(treeData);
   return treeData;
 }
 
@@ -167,6 +167,16 @@ const DetailProject = ({ match, username }) => {
   const [loadingAddDev, setLoadingAddDev] = useState(false);
   const [teamLeadCheck, setTeamLeadCheck] = useState(false);
   const [outCheck, setOutCheck] = useState(false);
+  const [newStatus, setNewStatus] = useState(null);
+  const [newFinishDate, setNewFinishDate] = useState(null);
+  const [newManager, setNewManager] = useState(null);
+  const [newClient, setNewClient] = useState(null);
+
+  const selectNewDeveloperRef = useRef(null);
+
+  const changeInfoHandler = (e) => {
+    console.log(e.target.value);
+  };
 
   const columns = [
     {
@@ -311,27 +321,55 @@ const DetailProject = ({ match, username }) => {
       await fetchManagers();
       await fetchStatuses();
       await fetchDevelopers();
+      console.log(dataProject);
 
       setEditable(true);
       setLoadingEdit(false);
     } else {
       setLoadingEdit(true);
-      toast('success', 'Данные успешно изменены!'); //'Произошла ошибка попробуйте еще раз!'
+
+      const finishDate = formatForDate(newFinishDate._d.toLocaleString().substr(0, 10));
+
+      await axios
+        .patch(`http://localhost:8000/api/projects/${ID}/`, {
+          finish_date_plan: finishDate || dataProject.finish_date_plan,
+          finish_date_fact: finishDate || dataProject.finish_date_fact,
+          project_status: newStatus || dataProject.status_id,
+          project_info: 'ebebwetbwetbwt' || dataProject.project_info,
+          project_client_login: 'test' || dataProject.project_client_login,
+          project_manager_login: 'test' || dataProject.project_manager_login,
+        })
+        .then(async (res) => {
+          await fetchData();
+          toast('success', 'Данные успешно изменены!');
+        })
+        .catch((err) => {
+          toast('error', 'Произошла ошибка попробуйте еще раз! ' + err.message);
+        });
+
       setEditable(false);
       setLoadingEdit(false);
     }
   };
 
-  const handleChangeClient = (value) => {
-    console.log(value);
+  const changeDateHandler = (e) => {
+    console.log(e);
+    setNewFinishDate(e);
   };
 
-  const handleChangeManager = (value) => {
-    console.log(value);
+  const handleChangeClient = (e) => {
+    console.log(e.value);
+    setNewClient(e.value);
   };
 
-  const handleChangeStatus = (value) => {
-    console.log(value);
+  const handleChangeManager = (e) => {
+    console.log(e.value);
+    setNewManager(e.value);
+  };
+
+  const handleChangeStatus = (e) => {
+    console.log(e.value);
+    setNewStatus(e.value);
   };
 
   const changeNewDevHandler = (e) => {
@@ -374,6 +412,8 @@ const DetailProject = ({ match, username }) => {
       await addNewDevToWorkGroup();
     }
 
+    console.log(selectNewDeveloperRef);
+    setNewDeveloper('');
     setLoadingAddDev(false);
   };
 
@@ -463,7 +503,7 @@ const DetailProject = ({ match, username }) => {
                 >
                   {statuses &&
                     statuses.map((value, idx) => (
-                      <Option key={idx} value={value.status_name}>
+                      <Option key={idx} value={value.status_id}>
                         {value.status_name}
                       </Option>
                     ))}
@@ -491,6 +531,7 @@ const DetailProject = ({ match, username }) => {
             <DatePicker
               defaultValue={moment(dataProject.finish_date_plan, dateFormat)}
               disabled={!editable}
+              onChange={changeDateHandler}
             />
           </Space>
 
@@ -556,7 +597,12 @@ const DetailProject = ({ match, username }) => {
               <>
                 <Space direction={'horizontal'} size={'small'}>
                   <Title level={4}>Это все пользователи:</Title>
-                  <Select labelInValue style={{ width: 220 }} onChange={changeNewDevHandler}>
+                  <Select
+                    labelInValue
+                    style={{ width: 220 }}
+                    ref={selectNewDeveloperRef}
+                    onChange={changeNewDevHandler}
+                  >
                     {allDevelopers &&
                       allDevelopers.map((value, idx) => (
                         <Option key={idx} value={value.username}>
@@ -595,7 +641,12 @@ const DetailProject = ({ match, username }) => {
               {dataProject.project_info}
             </Paragraph>
           ) : (
-            <TextArea showCount maxLength={500} defaultValue={dataProject.project_info} />
+            <TextArea
+              showCount
+              maxLength={500}
+              onChange={changeInfoHandler}
+              defaultValue={dataProject.project_info}
+            />
           )}
 
           {editable && <br />}

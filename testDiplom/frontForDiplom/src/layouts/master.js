@@ -18,6 +18,7 @@ import '../App.css';
 import { connect } from 'react-redux';
 import * as actions from '../store/actions/auth';
 import axios from 'axios';
+import { Offline } from 'react-detect-offline';
 
 const { Header, Content } = Layout;
 const { Option } = Select;
@@ -49,6 +50,9 @@ const Master = (props) => {
 
   return (
     <Layout>
+      <Offline>
+        <h1 style={{ color: 'red' }}>Проверьте подключеие к интернету!!!</h1>
+      </Offline>
       <Header className="header">
         <div className="logo" />
         <Menu theme="dark" style={{ color: '#fff' }} mode="horizontal" defaultSelectedKeys={['1']}>
