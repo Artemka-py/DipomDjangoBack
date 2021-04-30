@@ -254,7 +254,7 @@ const Task = (props) => {
                         {value.developer_login}
                       </Option>
                     ))}
-                    </Select>}
+                    </Select>
                 </Col>
                 {DatePickers()}
               </Row>

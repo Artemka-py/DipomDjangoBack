@@ -75,47 +75,6 @@ if (!Array.prototype.last) {
     return this[this.length - 1];
   };
 }
-// transform data to treeObject
-// function transformDataToTree(data) {
-//   let treeData = [];
-//   let cur_lvls = [];
-//   data.map(function (item, i, arr) {
-//     let treeItem = {
-//       key: item.pk,
-//       task_name: item.fields.task_name,
-//       task_developer: item.fields.task_developer_login,
-//       task_setter: item.fields.task_developer_login,
-//       start_date_plan: item.fields.start_date,
-//       finish_date_plan: item.fields.finish_date,
-//       children: [],
-//     };
-
-//     let parent_key = item.fields.parent;
-//     if (parent_key == null) {
-//       treeData.push(treeItem);
-//       if (cur_lvls.length === 0) cur_lvls[0] = 0;
-//       else {
-//         cur_lvls[0] += 1;
-//       }
-//     } else {
-//       let lvl_down = 0;
-//       let copy = treeData[cur_lvls[0]];
-//       while (parent_key !== copy.key) {
-//         copy = copy.children[cur_lvls[lvl_down]];
-//         lvl_down += 1;
-//       }
-//       lvl_down += 1;
-//       if (cur_lvls[lvl_down] === undefined) {
-//         cur_lvls[lvl_down] = 0;
-//       } else {
-//         cur_lvls[lvl_down] += 1;
-//       }
-//       copy.children.push(treeItem);
-//     }
-//   });
-
-//   return treeData;
-// }
 function transformData(data){
   const data_transformed = [];
   data.forEach(item => {
@@ -144,7 +103,6 @@ const Tasks_list = (props) => {
     await axios
       .get(`http://localhost:8000/tasks-login/${props.username}/`)
       .then((res) => {
-        // setData(transformDataToTree(res.data));
         console.log(res.data)
 
         setData(transformData(res.data));
@@ -164,7 +122,7 @@ const Tasks_list = (props) => {
       <Table
         columns={columns}
         rowSelection={{ ...rowSelection}}
-        rowKey={(record) => record.pk}
+        rowKey={(record) => record.key}
         dataSource={data}
         loading={loading}
       />

@@ -3,51 +3,50 @@ import {useEffect, useState} from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import {Spin } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 
 
 const { Option } = Select;
 let realFetchData;
 
-const SelectUser = (props, { value = {}, onChange }) =>{
+const SelectUser = (props, { value, onChange }
+  ) =>{
     const [data, setData] = useState(null);
-    const [project_id, setProjectId] = useState(props.project_id);
     const [loading, setLoading] = useState(false);
     const [user_login, setUser] = useState(props.user_login);
+    const [project_id, setProject] = useState(props.project_id);
+    // const[value, setValue] = useState(null);
 
-    const triggerChange = (changedValue) => {
-        onChange?.({
-          user_login,
-          ...value,
-          ...changedValue,
-        });
-    };
+    // const triggerChange = (changedValue) => {
+    //     onChange?.({
+    //       user_login,
+    //       value,
+    //       changedValue,
+    //     });
+    // };
 
-    const onUserChange = (newUser) => {
-        if (!('user' in value)) {
-          setUser(newUser);
-        }
-    
-        triggerChange({
-          user_login: newUser,
-        });
-      };
+    // const onUserChange = (newUser) => {
+    //       setUser(newUser);
+    //       // setValue(newUser);
+    //     triggerChange({user_login: newUser});
+    // };
 
-    function onBlur() {
-        console.log('blur');
-    }
+    // function onBlur() {
+    //     console.log('blur');
+    // }
 
-    function onFocus() {
-        console.log('focus');
-    }
+    // function onFocus() {
+    //     console.log('focus');
+    // }
 
-    function onSearch(val) {
-        console.log('search:', val);
-    }
+    // function onSearch(val) {
+    //     console.log('search:', val);
+    // }
 
     const fetchData = async () => {
         console.log(props.project_id);
         await axios
-          .get(`http://localhost:8000/workgroup-developers/${project_id}/`)
+          .get(`http://localhost:8000/workgroup-developers/${props.project_id}/`)
           .then(async (res) => {
             console.log(res.data);
             setData(res.data);
@@ -58,33 +57,36 @@ const SelectUser = (props, { value = {}, onChange }) =>{
     useEffect(() => {
         setLoading(true);
         fetchData().
-        then(setLoading(false))
-      }, [props.username]);
+        then(setLoading(false));
+      }, []);
+
+    useEffect(()=>{
+      setProject(props.project_id);
+      console.log("Prject Updated");
+    },[project_id]);
 
     return (
-        <>
             <Select
-                showSearch
+                // showSearch
                 style={{ width: 200 }}
-                placeholder="Select a person"
-                optionFilterProp="children"
-                value={value.user_login || user_login} 
-                onChange={onUserChange}
-                onFocus={onFocus}
-                onBlur={onBlur}
-                onSearch={onSearch}
-                filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                // prefix={<UserOutlined/>} 
-                }
+                // optionFilterProp="children"
+                // value={user_login} 
+                // onChange={onUserChange}
+                // onSearch={onSearch}
+                prefix={<UserOutlined/>} 
+                // filterOption={(input, option) =>
+                //   option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                // }
             >
-                {!data ? 
-                (<Option><Spin /></Option>) : 
-                (data.map((val)=>
-                    <Option value={val.developer_login}>{val.developer_login}</Option>
-                ))}
+                {data && 
+                // (<Option key="spin"><Spin /></Option>) : 
+                data.map((val, index)=>(
+                    <Option value={val.developer_login} key={index}>
+                      {val.developer_login}
+                    </Option>
+                  )
+                )}
             </Select>
-        </>
     )
 }
 

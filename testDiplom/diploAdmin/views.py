@@ -27,7 +27,7 @@ class CommentSerializer(ser.Serializer):
 
 def projects(req, username):
     with connection.cursor() as cursor:
-        cursor.execute(''' select project_id, project_name, project_info, start_date_plan, finish_date_plan,
+        cursor.execute(''' select distinct project_id, project_name, project_info, start_date_plan, finish_date_plan,
         start_date_fact, finish_date_fact, status.status_name, workgroups.workgroup_name 
         from projects inner join workgroups on
         projects.project_workgroup_id = workgroups.workgroup_id
@@ -67,7 +67,7 @@ def projects_id(req, username):
 
 def tasks(req, username):
     data = Tasks.objects.filter(Q(task_setter_login=username)| Q(task_developer_login=username))
-    data = serializers.serialize('json', data, fields=('task_id', 'task_name', 'task_stage', 'task_setter_login', 'task_developer_login', 'parent', 'start_date', 'finish_date', 'start_date_fact', 'finish_date_fact', ))
+    data = serializers.serialize('json', data, fields=('task_id', 'task_name', 'task_stage', 'task_setter_login', 'task_developer_login', 'parent', 'start_date', 'finish_date', 'start_date_fact', 'finish_date_fact', 'descriptioin'))
 
     return HttpResponse(data, content_type="application/json")
     
