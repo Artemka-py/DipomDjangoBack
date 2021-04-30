@@ -241,7 +241,7 @@ class Notes(models.Model):
 
 
 def upload_location_org(instatnce, filename):
-    file_path = 'org/{full_name}/{filename}'.format(full_name=str(instatnce.full_name), filename=filename)
+    file_path = 'org/{full_name}/{filename}'.format(full_name=str(instatnce.organisation_id), filename=filename)
     return file_path
 
 

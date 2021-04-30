@@ -18,7 +18,6 @@ import {
 import { LoadingOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { formatForDate } from '../../common/date';
-import { authFail, authSuccess, checkAuthTimeout } from '../../store/actions/auth';
 import getCookie from '../../common/parseCookies';
 import DetailDrawer from './DetailDrawer/DetailDrawer';
 
@@ -43,7 +42,6 @@ const Project = (props) => {
   const [idPictures, setIdPictures] = useState([]);
   const [delTables, setDelTables] = useState([]);
   const [disableDelButton, setDisableDelButton] = useState(true);
-  let getFetchData;
   let errorMessage = [];
   let CSRF;
 
@@ -54,7 +52,7 @@ const Project = (props) => {
       key: 'name',
       align: 'center',
       render: (text, row, index) => {
-        return <Link to={`/projects/${row.project_id}`}>{text}</Link>;
+        return <Link to={`/project-detail/${row.project_id}`}>{text}</Link>;
       },
     },
     {
@@ -120,7 +118,6 @@ const Project = (props) => {
 
   useEffect(() => {
     setLoading(true);
-    console.log(loading);
 
     fetchData().then(() => setLoading(false));
 
@@ -271,8 +268,8 @@ const Project = (props) => {
       .catch((err) => console.error(err));
   };
 
-  const statusesFetch = () => {
-    axios
+  const statusesFetch = async () => {
+    await axios
       .get(`http://localhost:8000/api/status/`)
       .then((res) => {
         setStatuses(res.data);
@@ -297,13 +294,13 @@ const Project = (props) => {
     },
   };
 
-  const deleteTables = () => {
+  const deleteTables = async () => {
     if (delTables.length > 0) {
       CSRF = getCookie('csrftoken');
       console.log(CSRF);
 
-      delTables.map((i) => {
-        axios
+      await delTables.map(async (i) => {
+        await axios
           .delete(`http://localhost:8000/api/projects/${i}`, {
             headers: {
               'X-CSRFToken': CSRF,
@@ -390,7 +387,7 @@ const Project = (props) => {
           marginLeft: 16,
         }}
       >
-        Удалить таблицу(ы)
+        Удалить проект{delTables.length > 1 && 'ы'}
       </Button>
 
       <Table

@@ -5,6 +5,9 @@ from .models import Clients, Projects, Tasks
 from django.shortcuts import render
 from django.core import serializers
 
+def error(req):
+    return render(req, 'error.html', {})
+
 def index(req):
     return render(req, 'index.html', {})
 
@@ -87,4 +90,31 @@ def workgroup_developers(req, project_id):
         data = dict_fetch_all(cursor)
         data = JSONRenderer().render(data)
     
+    return HttpResponse(data, content_type="application/json")
+
+
+def project_with_orgs(req, project_id):
+    with connection.cursor() as cursor:
+        cursor.execute('''select * from projects inner JOIN clients c on projects.project_client_login = c.client_login inner join organisations o on c.client_organisation_id = o.organisation_id inner join status s on projects.project_status_id = s.status_id where project_id = %s''', [project_id])
+
+        data = dict_fetch_all(cursor)
+        data = JSONRenderer().render(data)
+
+    return HttpResponse(data, content_type="application/json")
+
+
+def developers_in_project(req, work_id):
+    with connection.cursor() as cursor:
+        cursor.execute('''select * from working_developer_list where workgroup_id = %s''', [work_id])
+
+        data = dict_fetch_all(cursor)
+        data = JSONRenderer().render(data)
+
+    return HttpResponse(data, content_type="application/json")
+
+
+def tasks_project(req, id):
+    data = Tasks.objects.filter(project_task_id = id)
+    data = serializers.serialize('json', data, fields=('task_id', 'task_name', 'task_stage', 'task_setter_login', 'task_developer_login', 'parent', 'start_date', 'finish_date', 'start_date_fact', 'finish_date_fact', ))
+
     return HttpResponse(data, content_type="application/json")

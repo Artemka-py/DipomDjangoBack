@@ -2,7 +2,7 @@ from django.db import models
 from rest_framework import serializers
 from rest_framework import fields
 
-from ..models import Clients, Documents, Organisations, Projects, Status, Tasks, Users, Workgroups, WorkingDeveloperList
+from ..models import Clients, Documents, Organisations, Projects, Status, Tasks, Users, Workgroups, WorkingDeveloperList, Managers, Developers
 
 class ProjectSerializer(serializers.ModelSerializer):
 
@@ -64,4 +64,18 @@ class DocsSerializer(serializers.ModelSerializer):
 
   class Meta:
     model = Documents
+    fields = '__all__'
+
+
+class ManagerSerializer(serializers.ModelSerializer):
+
+  class Meta:
+    model = Managers
+    fields = '__all__'
+
+
+class DevelopersSerializer(serializers.ModelSerializer):
+
+  class Meta:
+    model = Developers
     fields = '__all__'

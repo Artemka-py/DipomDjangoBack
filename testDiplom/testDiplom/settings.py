@@ -34,6 +34,7 @@ AUTH_USER_MODEL = 'diploAdmin.Users'
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.redirects',
     'django.contrib.sites',
     'django.contrib.auth',
     'admin_interface',
@@ -66,6 +67,7 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 
 MIDDLEWARE = [
+    'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Input, Select, Button } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { EyeInvisibleOutlined, EyeTwoTone, UserOutlined } from '@ant-design/icons';
 import { connect } from 'react-redux';
 import classes from './Register.module.css';
 import * as actions from '../../../store/actions/auth';
@@ -78,7 +78,9 @@ const Register = (props) => {
           ]}
           hasFeedback
         >
-          <Input.Password />
+          <Input.Password
+            iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+          />
         </Form.Item>
 
         <Form.Item
@@ -102,7 +104,9 @@ const Register = (props) => {
             }),
           ]}
         >
-          <Input.Password />
+          <Input.Password
+            iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+          />
         </Form.Item>
         <Form.Item>
           <Button

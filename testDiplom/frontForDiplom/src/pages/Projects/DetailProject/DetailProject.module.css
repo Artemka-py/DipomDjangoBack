@@ -1,0 +1,83 @@
+/*.space-align-container {*/
+/*    display: flex;*/
+/*    flex-wrap: wrap;*/
+/*    align-items: flex-start;*/
+/*}*/
+/*.space-align-block {*/
+/*    flex: none;*/
+/*    margin: 8px 4px;*/
+/*    padding: 4px;*/
+/*    border: 1px solid #40a9ff;*/
+/*}*/
+/*.space-align-block .mock-block {*/
+/*    display: inline-block;*/
+/*    padding: 32px 8px 16px;*/
+/*    background: rgba(150, 150, 150, 0.2);*/
+/*}*/
+
+.round {
+    width: 100px;
+    border-radius: 150px; /* Радиус скругления */
+    border: 3px solid white; /* Параметры рамки */
+    box-shadow: 0 0 7px #666; /* Параметры тени */
+}
+
+textarea {
+    max-height: 300px;
+}
+
+.list2b {
+    margin-bottom: 8px;
+    padding:0;
+    list-style: none;
+    counter-reset: li;
+}
+.list2b li {
+    position: relative;
+    border: 2px solid #DDDDDD;
+    background: #FAFAFA;
+    padding:16px 20px 16px 28px;
+    margin:12px 0 12px 40px;
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+}
+.list2b li:hover {
+    background: #F0F5FB;
+    border: 2px solid #ADCEE9;
+}
+.list2b li:before {
+    line-height: 32px;
+    position: absolute;
+    top: 4px;
+    left:-40px;
+    width:40px;
+    text-align:center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #FFF;
+    background: #77AEDB;
+    counter-increment: li;
+    content: counter(li);
+    -webkit-transition-duration: 0.2s;
+    transition-duration: 0.2s;
+}
+.list2b li:hover:before {
+    width:46px;
+    background: #337AB7;
+}
+.list2b li:after {
+    position: absolute;
+    left: 0;
+    top: 4px;
+    content: "";
+    height: 0;
+    width: 0;
+    border: 16px solid transparent;
+    border-left-color: #77AEDB;
+    -webkit-transition-duration: 0.2s;
+    transition-duration: 0.2s
+}
+.list2b li:hover:after {
+    margin-left: 6px;
+    border-left-color: #337AB7;
+}
