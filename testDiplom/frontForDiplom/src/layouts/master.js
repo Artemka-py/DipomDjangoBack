@@ -51,7 +51,7 @@ const Master = (props) => {
   return (
     <Layout>
       <Offline>
-        <h1 style={{ color: 'red' }}>Проверьте подключеие к интернету!!!</h1>
+        <h1 style={{ color: 'red' }}>Проверьте подключение к интернету!!!</h1>
       </Offline>
       <Header className="header">
         <div className="logo" />
@@ -69,6 +69,9 @@ const Master = (props) => {
               </Menu.Item>
               <Menu.Item key="3">
                 <Link to="/projects">Проекты</Link>
+              </Menu.Item>
+              <Menu.Item key="7">
+                <Link to="/statistic">Статистика и отчеты</Link>
               </Menu.Item>
               <Menu.Item style={{ float: 'right' }} key="6" onClick={props.onLogout}>
                 <Link to="/">Выход</Link>

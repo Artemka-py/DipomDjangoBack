@@ -14,6 +14,7 @@ import {
   Checkbox,
   Switch,
   Tooltip,
+  Drawer,
 } from 'antd';
 import axios from 'axios';
 import { connect } from 'react-redux';
@@ -28,6 +29,7 @@ import classes from './DetailProject.module.css';
 import { logout } from '../../../store/actions/auth';
 import { Link } from 'react-router-dom';
 import { formatForDate } from '../../../common/date';
+import StatisticProject from './StatisticProject/StatisticProject';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -171,12 +173,10 @@ const DetailProject = ({ match, username }) => {
   const [newFinishDate, setNewFinishDate] = useState(null);
   const [newManager, setNewManager] = useState(null);
   const [newClient, setNewClient] = useState(null);
+  const [newInfoProject, setNewInfoProject] = useState(null);
+  const [openStatisticDrawer, setOpenStatisticDrawer] = useState(false);
 
   const selectNewDeveloperRef = useRef(null);
-
-  const changeInfoHandler = (e) => {
-    console.log(e.target.value);
-  };
 
   const columns = [
     {
@@ -328,16 +328,18 @@ const DetailProject = ({ match, username }) => {
     } else {
       setLoadingEdit(true);
 
-      const finishDate = formatForDate(newFinishDate._d.toLocaleString().substr(0, 10));
+      let finishDate;
+      if (newFinishDate)
+        finishDate = formatForDate(newFinishDate._d.toLocaleString().substr(0, 10));
 
       await axios
         .patch(`http://localhost:8000/api/projects/${ID}/`, {
           finish_date_plan: finishDate || dataProject.finish_date_plan,
           finish_date_fact: finishDate || dataProject.finish_date_fact,
           project_status: newStatus || dataProject.status_id,
-          project_info: 'ebebwetbwetbwt' || dataProject.project_info,
-          project_client_login: 'test' || dataProject.project_client_login,
-          project_manager_login: 'test' || dataProject.project_manager_login,
+          project_info: newInfoProject || dataProject.project_info,
+          project_client_login: newClient || dataProject.project_client_login,
+          project_manager_login: newManager || dataProject.project_manager_login,
         })
         .then(async (res) => {
           await fetchData();
@@ -353,22 +355,22 @@ const DetailProject = ({ match, username }) => {
   };
 
   const changeDateHandler = (e) => {
-    console.log(e);
     setNewFinishDate(e);
   };
 
+  const changeInfoHandler = (e) => {
+    setNewInfoProject(e.target.value);
+  };
+
   const handleChangeClient = (e) => {
-    console.log(e.value);
     setNewClient(e.value);
   };
 
   const handleChangeManager = (e) => {
-    console.log(e.value);
     setNewManager(e.value);
   };
 
   const handleChangeStatus = (e) => {
-    console.log(e.value);
     setNewStatus(e.value);
   };
 
@@ -404,7 +406,6 @@ const DetailProject = ({ match, username }) => {
           outsource_spec: outCheck,
         })
         .then(async (res) => {
-          console.log(res.data);
           await addNewDevToWorkGroup();
         })
         .catch((err) => console.error(err));
@@ -412,7 +413,6 @@ const DetailProject = ({ match, username }) => {
       await addNewDevToWorkGroup();
     }
 
-    console.log(selectNewDeveloperRef);
     setNewDeveloper('');
     setLoadingAddDev(false);
   };
@@ -448,11 +448,16 @@ const DetailProject = ({ match, username }) => {
     await axios
       .get(`http://localhost:8000/tasks-projects/${ID}/`)
       .then((res) => {
-        console.log(res.data);
         dataForTree = res.data;
       })
       .catch((err) => console.error(err));
   };
+
+  const handleOpenStatistic = () => {
+    setOpenStatisticDrawer(true);
+  };
+
+  const closeStatisticDrawer = () => setOpenStatisticDrawer(false);
 
   return (
     <div>
@@ -460,8 +465,6 @@ const DetailProject = ({ match, username }) => {
         <Spin size="large" />
       ) : (
         <div style={{ margin: '15px', paddingTop: '15px' }}>
-          {/*<h1>{'Rights: ' + rights}</h1>*/}
-
           <div style={{ display: 'inline-block', width: '-webkit-fill-available' }}>
             {imgVisible && (
               <Image
@@ -474,6 +477,7 @@ const DetailProject = ({ match, username }) => {
               />
             )}
             <Title style={{ display: 'inline-block' }}>&nbsp;{dataProject.project_name}</Title>
+
             {rights && (
               <Button
                 onClick={editableHandle}
@@ -485,6 +489,18 @@ const DetailProject = ({ match, username }) => {
                 {!editable ? 'Изменить проект' : 'Сохранить изменения'}
               </Button>
             )}
+
+            <Button
+              onClick={handleOpenStatistic}
+              style={{ float: 'right', marginTop: '7px', marginRight: '10px' }}
+              type="primary"
+            >
+              Статистика
+            </Button>
+
+            <Drawer width={500} visible={openStatisticDrawer} onClose={closeStatisticDrawer}>
+              <StatisticProject />
+            </Drawer>
           </div>
 
           <hr />
