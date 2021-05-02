@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import  { Redirect, useParams } from 'react-router-dom';
@@ -10,12 +10,47 @@ import { formatForDate } from '../../common/date';
 
 const { Option } = Select;
 const { TextArea } = Input;
-let realFetchData;
+
+// const DatePickers = ({data})=>{
+
+//   // const onChangeStartDate = (date) => {
+//   //   setStartDate(date.format('YYYY-MM-DD'));
+//   //   console.log("Start Date: ", start_date);
+//   // }
+
+//   // const onChangeFinishDate = (date) =>{
+//   //   setFinishDate(date.format('YYYY-MM-DD'));
+//   //   console.log("Finish Date: ", finish_date);
+//   // }
+
+//   return( 
+//     <>
+//             <Col span={6} style={{textAlign: 'center'}}>
+//                 <p>Дата начала:</p>
+//                 <DatePicker 
+//                     allowClear={false}
+//                     // onChange={onChangeStartDate} 
+//                     defaultValue={moment(data.start_date, "YYYY-MM-dd")}
+//                     // defaultPickerValue = {moment(data.start_date, "YYYY-MM-dd")} 
+//                   />
+//               </Col>
+//               <Col span={6} style={{textAlign: 'center'}}>
+//                 <p>Дата окончания: </p>
+//                 <DatePicker
+//                   allowClear={false}  
+//                   // onChange={onChangeFinishDate} 
+//                   defaultValue={moment(data.finish_date, "YYYY-MM-dd")} 
+//                   // defaultPickerValue = {moment(data.finish_date, "YYYY-MM-dd")} 
+//                 />
+//               </Col>
+//       </>
+//   )
+// }
 
 const Task = (props) => {
+  const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(true);
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
   const { task_id }= useParams();
   const [editable, setEditable] = useState(false);
   const [finish_date, setFinishDate] = useState('');
@@ -24,11 +59,14 @@ const Task = (props) => {
   const [task_descriptioin, setTaskDescription] = useState();
   const [task_developer_login, setTaskDeveloper] = useState();
   const [parent_task, setParentTask] = useState();
-  const [tasks, setTasks] = useState();
-  const [developers, setDevelopers] = useState();
-  const[project_id, setProject] = useState('');
+  const [tasks, setTasks] = useState([]);
+  const [developers, setDevelopers] = useState([]);
+  const [project_id, setProjectId] = useState();
   let realFetchData;
   let CSRF;
+
+
+  realFetchData =useRef(null);
 
   const showDrawer = () => {
     setVisible(true);
@@ -39,7 +77,11 @@ const Task = (props) => {
     window.location.assign('/tasks');
   };
 
-  const onClickEdit = () => {
+  const onClickEdit = async() => {
+
+    await fetchTasks(project_id);
+    await fetchDevelopers(project_id);
+
     setEditable(true);
   }
 
@@ -68,7 +110,22 @@ const Task = (props) => {
     setEditable(false);
   }
 
-  const getTasks = async()=>{
+  const fetchData = async () => {
+    await axios
+      .get(`http://localhost:8000/api/tasks/${task_id}/`)
+      .then(async (res) => {
+        // console.log(res.data);
+        setData(res.data);
+        setProjectId(res.data.project_task);
+        setStartDate(res.dara.start_date);
+        setFinishDate(res.data.finish_date);
+        // console.log("local value: ", data.project_task);
+      })
+      .catch((err) => console.error(err));
+      
+  }
+
+  const fetchTasks = async(project_id)=>{
     await axios
       .get(`http://localhost:8000/tasks-projects/${project_id}/`)
       .then((res) => {
@@ -78,7 +135,7 @@ const Task = (props) => {
       .catch((err) => console.error(err));
   }
 
-  const getDevelopers = async()=>{
+  const fetchDevelopers = async(project_id)=>{
     await axios
           .get(`http://localhost:8000/workgroup-developers/${project_id}/`)
           .then(async (res) => {
@@ -88,57 +145,6 @@ const Task = (props) => {
           .catch((err) => console.error(err));
   }
 
-  const DatePickers = ()=>{
-    return( 
-      <>
-              <Col span={6} style={{textAlign: 'center'}}>
-                  <p>Дата начала: <br></br>
-                  </p>
-                  {console.log("Date_start: ", moment(data.start_date, "YYYY-MM-dd"))}
-                    <DatePicker 
-                      allowClear={false}
-                      onChange={onChangeStartDate} 
-                      defaultValue={moment(data.start_date, "YYYY-MM-dd") }
-                      // defaultPickerValue = {moment(data.start_date, "YYYY-MM-dd")} 
-                    />
-                </Col>
-                <Col span={6} style={{textAlign: 'center'}}>
-                  <p>Дата окончания: <br></br>
-                  </p>
-                      {console.log("Date_finish", moment(data.finish_date, "YYYY-MM-dd"))}
-                      <DatePicker
-                        allowClear={false}  
-                        onChange={onChangeFinishDate} 
-                        defaultValue={moment(data.finish_date, "YYYY-MM-dd")} 
-                        // defaultPickerValue = {moment(data.finish_date, "YYYY-MM-dd")} 
-                      />
-                </Col>
-        </>
-    )
-  }
-
-  const fetchData = async () => {
-    await axios
-      .get(`http://localhost:8000/api/tasks/${task_id}/`)
-      .then(async (res) => {
-        // console.log(res.data);
-        setData(res.data);
-        setProject(res.data.project_task);
-        console.log(project_id);
-      })
-      .catch((err) => console.error(err));
-  }
-
-  const onChangeStartDate = (date) => {
-    setStartDate(date.format('YYYY-MM-DD'));
-    console.log("Start Date: ", start_date);
-  }
-
-  const onChangeFinishDate = (date) =>{
-    setFinishDate(date.format('YYYY-MM-DD'));
-    console.log("Finish Date: ", finish_date)
-  }
-
   const onTaskDeveloperChange = (e) =>{
     setTaskDeveloper(e.value);
   }
@@ -146,11 +152,40 @@ const Task = (props) => {
     setParentTask(e.value);
   }
 
+  const renderTasksList= ()=>{
+    return (
+      <> 
+         {!tasks ? 
+            (<Option><Spin /></Option>) :  
+            (tasks.map((val)=> {return
+              <Option value={val.developer_login}>{val.developer_login}</Option>
+            }
+            ))
+          }
+      </>
+    );
+  };
+
+  const renderDevelopersList= ()=>{
+    return (
+      <> 
+         {!developers ? 
+            (<Option><Spin /></Option>) :  
+            (developers.map((val)=>{
+               <Option value={val.developer_login}>{val.developer_login}</Option>
+              }
+            ))
+          }
+      </>
+    );
+  };
+
   useEffect(() => {
     setLoading(true);
-    fetchData().then(setLoading(false)).
-    then(getTasks()).then(getDevelopers());
-    realFetchData = setInterval(fetchData, 1000);
+    
+    fetchData().then(()=>setLoading(false));
+    
+    realFetchData = setInterval(fetchData, 10000);
 
     return () => clearInterval(realFetchData);
   },[]);
@@ -165,7 +200,7 @@ const Task = (props) => {
           visible={visible}
           // editable = {editable}
         >
-          {!data ? <Spin /> : (
+          {!loading ? (<Spin />) : (
           <>
             {editable ? (
               <>
@@ -202,31 +237,27 @@ const Task = (props) => {
                 />
               </Row>
               <Row>
-                <span>Задача для проекта:</span>
-                <b>
-                  {data.project_task}
-                </b>
+                <p>
+                  <span>Задача для проекта:  </span>
+                  <b>
+                    {data.project_task}
+                  </b>
+                </p>
               </Row>
               <Row>
-                <span>Родительская задача:</span>
-                <Select
+                <span>Родительская задача:  </span>
+                {/* <Select
                 showSearch
                 style={{ width: 200 }}
-                placeholder="Select a task"
-                optionFilterProp="children"
+                // optionFilterProp="children"
                 defaultValue={{value: data.parent}} 
                 onChange={selectParentTaskHandler}
-                filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                // prefix={<UserOutlined/>} 
-                }
+                prefix={<UserOutlined/>} 
+                // filterOption={(input, option) =>
+                // option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             >
-                {!tasks ? 
-                (<Option><Spin /></Option>) : 
-                (tasks.map((val)=>
-                    <Option value={val.developer_login}>{val.developer_login}</Option>
-                ))}
-            </Select>
+               { {renderTasksList} }
+            </Select> */}
               </Row>
               <Divider />
               <Row>
@@ -237,26 +268,39 @@ const Task = (props) => {
                   </p>
                     <Input 
                       disabled
-                      defaultValue={data.task_setter_login} 
+                      // defaultValue={data.task_setter_login} 
                       prefix={<UserOutlined/>} 
                     />
                 </Col>
                 <Col span={6} style={{textAlign: 'center'}}>
                   <p>Исполнитель: <br></br>
                   </p>
-                    <Select 
+                    {/* <Select 
                       onChange = {onTaskDeveloperChange}
-                      defaultValue={{ value: data.task_developer_login }}
+                      // defaultValue={{ value: data.task_developer_login }}
                     >
-                    {developers && 
-                    developers.map((value, idx)=>(
-                      <Option key={idx} value={value.developer_login}>
-                        {value.developer_login}
-                      </Option>
-                    ))}
-                    </Select>}
+                    {{renderDevelopersList} 
+                    </Select> */}
                 </Col>
-                {DatePickers()}
+                {/* <DatePickers data={data} /> */}
+                  <Col span={6} style={{textAlign: 'center'}}>
+                  <p>Дата начала:</p>
+                  <DatePicker 
+                      allowClear={false}
+                      // onChange={onChangeStartDate} 
+                      defaultValue={moment(data.start_date, "YYYY-MM-dd")}
+                      // defaultPickerValue = {moment(data.start_date, "YYYY-MM-dd")} 
+                    />
+                </Col>
+                <Col span={6} style={{textAlign: 'center'}}>
+                  <p>Дата окончания: </p>
+                  <DatePicker
+                    allowClear={false}  
+                    // onChange={onChangeFinishDate} 
+                    defaultValue={moment(data.finish_date, "YYYY-MM-dd")} 
+                    // defaultPickerValue = {moment(data.finish_date, "YYYY-MM-dd")} 
+                  />
+                </Col>
               </Row>
               <Divider />
               <Row>

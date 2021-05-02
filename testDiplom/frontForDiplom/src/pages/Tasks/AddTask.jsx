@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { Drawer, Divider, Col, Row, Button, Spin, Input, DatePicker, Form } from 'antd';
+import { Drawer, Divider, Col, Row, Button, Spin, Input, DatePicker, Form, Select } from 'antd';
 import getCookie from '../../common/parseCookies';
 import { formatForDate } from '../../common/date';
-import SelectUser from './SelectUser';
-import SelectProject from './SelectProject';
-import SelectTask from './SelectTask';
+// import SelectUser from './SelectUser';
+// import SelectProject from './SelectProject';
+// import SelectTask from './SelectTask';
 import { UserOutlined } from '@ant-design/icons';
 
+
+const { Option } = Select;
 const { TextArea } = Input;
 let realFetchData;
 
@@ -64,7 +66,7 @@ const AddTask = (props) => {
   }
 
   const fetchProjectData = () =>{
-    
+
   }
 
    useEffect(() => {
@@ -154,9 +156,8 @@ const AddTask = (props) => {
                       },
                     ]}
                   >
-                    {<SelectProject 
-                    onChange = {onProjectChange}
-                    />}
+                    {<Select
+                    onChange = {onProjectChange}/>}
                 </Form.Item>
               </Row>
               <Row>
@@ -169,10 +170,7 @@ const AddTask = (props) => {
                       },
                     ]}
                   >
-                    {<SelectTask 
-                      onChange
-                      project_id = {project_id}
-                    />}
+                    {<Select/>}
                 </Form.Item>
               </Row>
               <Divider />
@@ -205,9 +203,7 @@ const AddTask = (props) => {
                       },
                     ]}
                   >
-                    {project_id && <SelectUser 
-                      project_id = {project_id}
-                    /> }
+                    {<Select/> }
                   </Form.Item>
                 </Col>
                 <Col span={6} style={{textAlign: 'center'}}>

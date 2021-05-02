@@ -28,6 +28,7 @@ const DetailDrawer = ({
       .then((res) => {
         console.log(!!res.data);
         setRights(!!res.data);
+        console.log(rights);
       })
       .catch((err) => console.error(err));
   };
