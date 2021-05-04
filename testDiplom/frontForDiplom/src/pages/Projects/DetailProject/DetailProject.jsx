@@ -498,8 +498,8 @@ const DetailProject = ({ match, username }) => {
               Статистика
             </Button>
 
-            <Drawer width={500} visible={openStatisticDrawer} onClose={closeStatisticDrawer}>
-              <StatisticProject />
+            <Drawer width={700} visible={openStatisticDrawer} onClose={closeStatisticDrawer}>
+              <StatisticProject projectId={ID} work_Id={dataProject.project_workgroup_id} />
             </Drawer>
           </div>
 

@@ -118,3 +118,13 @@ def tasks_project(req, id):
     data = serializers.serialize('json', data, fields=('task_id', 'task_name', 'task_stage', 'task_setter_login', 'task_developer_login', 'parent', 'start_date', 'finish_date', 'start_date_fact', 'finish_date_fact', ))
 
     return HttpResponse(data, content_type="application/json")
+
+
+def statstic(req, id):
+    with connection.cursor() as cursor:
+        cursor.execute(''' select count(*) as "inProgress", (select count(*) from tasks where project_task_id = %s) as "allCount" from tasks where project_task_id = %s and now() between start_date and finish_date ''', [id, id])
+
+        data = dict_fetch_all(cursor)
+        data = JSONRenderer().render(data)
+
+    return HttpResponse(data, content_type="application/json")
