@@ -1,13 +1,10 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models.base import Model
-from django.db.models.query_utils import Q
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, post_save
+from django.core.mail import send_mail
 from django.dispatch import receiver
 from django.utils import timezone
-from treebeard.mp_tree import MP_Node
-from treebeard.al_tree import AL_Node
 from mptt.models import MPTTModel
 from django.conf import settings
 
@@ -363,6 +360,7 @@ class Tasks(MPTTModel):
     task_id = models.AutoField(primary_key=True)
     task_name = models.CharField(max_length=255, verbose_name="Название задачи")
     # task_stage = models.ForeignKey(Stages, models.DO_NOTHING, default=1, null=False, verbose_name="Название этапа")
+    task_status = models.ForeignKey(Status, models.CASCADE, default=1, null=False, verbose_name="Статус задачи")
     project_task = models.ForeignKey(Projects, models.CASCADE, default=1, null=False, verbose_name="К какому проекту относиться")
     task_setter_login = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, null=False, default=1, verbose_name="Поставил задачу")
     task_developer_login = models.ForeignKey('Developers', models.DO_NOTHING, db_column='task_developer_login',
@@ -430,6 +428,19 @@ def submission_delete(sender, instance, **kwargs):
 # @receiver(post_delete, sender=Projects)
 # def submission_delete_projects(sender, instance, **kwargs):
 #     instance.docs_path.delete(False)
+
+
+@receiver(post_save, sender=Tasks)
+def notofication_user(sender, instance, created, **kwargs):
+
+    subject = 'Для вас назначили новую задачу' if created == True else 'В вашей задаче, что-то поменяли'
+    sender_from = 'i_a.n.litkin@mpt.ru'
+    message = 'Название задачи: ' + str(instance.task_name) + '. В проекте: ' + str(instance.project_task) + '.'
+
+    user = Users.objects.filter(username = instance.task_developer_login)
+    recipients = [str(user[0].email)]
+    
+    send_mail(subject, message, sender_from, recipients)
 
 
 @receiver(post_delete, sender=Organisations)

@@ -11,6 +11,7 @@ import {
   Select,
   DatePicker,
   Spin,
+  Dropdown,
 } from 'antd';
 import { Footer } from 'antd/es/layout/layout';
 import { Link } from 'react-router-dom';
@@ -50,8 +51,8 @@ const Master = (props) => {
 
   return (
     <Layout>
-      <Offline>
-        <h1 style={{ color: 'red' }}>Проверьте подключеие к интернету!!!</h1>
+      <Offline polling={{ url: `http://localhost:8000/` }}>
+        <h1 style={{ color: 'red' }}>Проверьте подключение к интернету!!!</h1>
       </Offline>
       <Header className="header">
         <div className="logo" />
@@ -70,6 +71,7 @@ const Master = (props) => {
               <Menu.Item key="3">
                 <Link to="/projects">Проекты</Link>
               </Menu.Item>
+
               <Menu.Item style={{ float: 'right' }} key="6" onClick={props.onLogout}>
                 <Link to="/">Выход</Link>
               </Menu.Item>
