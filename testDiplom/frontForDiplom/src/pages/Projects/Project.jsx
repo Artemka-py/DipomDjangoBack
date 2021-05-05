@@ -460,7 +460,8 @@ const Project = (props) => {
               </Select>
 
               <DatePicker.RangePicker
-                format="DD.MM.YYYY"
+                format="YYYY.MM.DD"
+                allowClear={false}
                 style={{ width: '100%' }}
                 onChange={(e) => {
                   setDateFilterValue(e);
