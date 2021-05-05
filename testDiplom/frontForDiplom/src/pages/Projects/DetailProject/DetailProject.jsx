@@ -23,13 +23,14 @@ import {
   CheckCircleTwoTone,
   CloseSquareTwoTone,
   EditOutlined,
+  PieChartOutlined,
   SaveOutlined,
 } from '@ant-design/icons';
 import classes from './DetailProject.module.css';
-import { logout } from '../../../store/actions/auth';
 import { Link } from 'react-router-dom';
 import { formatForDate } from '../../../common/date';
 import StatisticProject from './StatisticProject/StatisticProject';
+import XLSX from 'xlsx';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -37,12 +38,17 @@ const { Option } = Select;
 let realTimeFetch;
 const dateFormat = 'YYYY-MM-DD';
 let dataForTree = [];
+let dataForExport = [];
 const toast = (type, message) =>
   notification[type]({
     message: message,
     placement: 'bottomLeft',
     duration: 2,
   });
+const headersForExport = [
+  { label: 'Название задачи', key: 'task_name' },
+  { label: 'Исполнитель', key: 'task_developer' },
+];
 const columnsForTask = [
   {
     title: 'Название задачи',
@@ -147,7 +153,7 @@ function TreeDataUi(data) {
   let newData = transformDataToTree(data);
   return (
     <>
-      <Table columns={columnsForTask} dataSource={newData} />
+      <Table id="data-table" columns={columnsForTask} dataSource={newData} />
     </>
   );
 }
@@ -449,6 +455,9 @@ const DetailProject = ({ match, username }) => {
       .get(`http://localhost:8000/tasks-projects/${ID}/`)
       .then((res) => {
         dataForTree = res.data;
+        for (let idx = 0; idx < dataForTree.length; idx++) {
+          dataForExport.push(dataForTree[idx].fields);
+        }
       })
       .catch((err) => console.error(err));
   };
@@ -458,6 +467,46 @@ const DetailProject = ({ match, username }) => {
   };
 
   const closeStatisticDrawer = () => setOpenStatisticDrawer(false);
+
+  const handleExportExcel = () => {
+    console.log(dataForTree);
+    let completed = 0;
+
+    for (let idx = 0; idx < dataForTree.length; idx++)
+      if (dataForTree[idx].fields.task_status === 3) completed++;
+
+    if (completed === 0) {
+      return toast('warning', 'Извините, но выполненных задач еще нет!');
+    }
+
+    const fileName = `Project-${ID}.xlsx`;
+    const wb = XLSX.utils.book_new();
+
+    const tempTasks = [];
+
+    dataForExport.forEach((row) => {
+      if (row.task_status === 3) {
+        let tempTask = {};
+
+        tempTask['Название задачи'] = row.task_name;
+        tempTask['Постановитель'] = row.task_setter_login;
+        tempTask['Исполнитель'] = row.task_developer_login;
+        tempTask['Главная задача'] = row.parent;
+        tempTask['Статус'] = 'Завершен';
+
+        tempTasks.push(tempTask);
+      }
+    });
+
+    const wsName = 'Завершенные задачи';
+    const ws = XLSX.utils.json_to_sheet(tempTasks);
+
+    XLSX.utils.book_append_sheet(wb, ws, wsName);
+
+    XLSX.writeFile(wb, fileName);
+
+    console.log(dataForExport);
+  };
 
   return (
     <div>
@@ -495,6 +544,7 @@ const DetailProject = ({ match, username }) => {
               style={{ float: 'right', marginTop: '7px', marginRight: '10px' }}
               type="primary"
             >
+              <PieChartOutlined />
               Статистика
             </Button>
 
@@ -669,6 +719,14 @@ const DetailProject = ({ match, username }) => {
           <hr />
 
           <Title level={3}>Задачи (только просмотр):</Title>
+          {dataForTree.length > 0 && (
+            <>
+              <Button onClick={handleExportExcel} type="primary">
+                Создать отчет о выполненных задачах
+              </Button>
+              <hr />
+            </>
+          )}
           {dataForTree.length > 0 ? TreeDataUi(dataForTree) : 'Задач еще нет'}
         </div>
       )}

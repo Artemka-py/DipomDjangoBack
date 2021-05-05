@@ -5,11 +5,13 @@ import axios from 'axios';
 
 const StatisticProject = ({ projectId, username, work_Id }) => {
   const [data, setData] = useState({});
+  const [enable, setEnable] = useState(true);
 
   const fetchStatistic = async () => {
     await axios
       .get(`http://localhost:8000/statistic/${projectId}/`)
       .then((res) => {
+        if (res.data[0].allCount === 0 && res.data[0].inProgress === 0) return setEnable(false);
         setData({
           labels: ['Кол-во свободных сотрудников', 'Кол-во занятых сотрудников'],
           datasets: [
@@ -34,8 +36,18 @@ const StatisticProject = ({ projectId, username, work_Id }) => {
     <>
       <h1>Статистика свободных и занятых разработчиков всего проекта</h1>
       <hr />
-      {data && <Pie data={data} />}
+      {enable && data ? (
+        <>
+          <Pie data={data} />
+        </>
+      ) : (
+        <>
+          <h2>Задач в данном проекте еще нет</h2>
+        </>
+      )}
+
       <hr />
+
       {work_Id}
     </>
   );

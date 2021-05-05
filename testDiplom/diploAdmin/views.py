@@ -115,7 +115,7 @@ def developers_in_project(req, work_id):
 
 def tasks_project(req, id):
     data = Tasks.objects.filter(project_task_id = id)
-    data = serializers.serialize('json', data, fields=('task_id', 'task_name', 'task_stage', 'task_setter_login', 'task_developer_login', 'parent', 'start_date', 'finish_date', 'start_date_fact', 'finish_date_fact', ))
+    data = serializers.serialize('json', data, fields=('task_id', 'task_name', 'task_stage', 'task_setter_login', 'task_developer_login', 'parent', 'start_date', 'finish_date', 'start_date_fact', 'finish_date_fact', 'task_status',))
 
     return HttpResponse(data, content_type="application/json")
 

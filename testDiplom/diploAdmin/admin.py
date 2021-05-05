@@ -45,7 +45,6 @@ def export_xlsx(modeladmin, request, queryset):
         row_num += 1
         row = [
             obj.task_name,
-            str(obj.task_stage),
             str(obj.task_developer_login),
             str(obj.parent),
         ]
@@ -156,6 +155,7 @@ class TaskModel(DraggableMPTTAdmin):
     list_display = (
         'tree_actions',
         'indented_title',
+        'task_status',
         'task_developer_login',
         'task_setter_login',
     )
