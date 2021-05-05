@@ -39,16 +39,12 @@ let realTimeFetch;
 const dateFormat = 'YYYY-MM-DD';
 let dataForTree = [];
 let dataForExport = [];
-const toast = (type, message) =>
+export const toast = (type, message) =>
   notification[type]({
     message: message,
     placement: 'bottomLeft',
     duration: 2,
   });
-const headersForExport = [
-  { label: 'Название задачи', key: 'task_name' },
-  { label: 'Исполнитель', key: 'task_developer' },
-];
 const columnsForTask = [
   {
     title: 'Название задачи',
@@ -484,14 +480,15 @@ const DetailProject = ({ match, username }) => {
 
     const tempTasks = [];
 
-    dataForExport.forEach((row) => {
-      if (row.task_status === 3) {
+    dataForTree.forEach((row) => {
+      if (row.fields.task_status === 3) {
         let tempTask = {};
 
-        tempTask['Название задачи'] = row.task_name;
-        tempTask['Постановитель'] = row.task_setter_login;
-        tempTask['Исполнитель'] = row.task_developer_login;
-        tempTask['Главная задача'] = row.parent;
+        tempTask['Номер задачи'] = row.pk;
+        tempTask['Название задачи'] = row.fields.task_name;
+        tempTask['Постановитель'] = row.fields.task_setter_login;
+        tempTask['Исполнитель'] = row.fields.task_developer_login;
+        tempTask['Главная задача'] = row.fields.parent;
         tempTask['Статус'] = 'Завершен';
 
         tempTasks.push(tempTask);

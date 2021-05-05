@@ -20,6 +20,8 @@ import { Link } from 'react-router-dom';
 import { formatForDate } from '../../common/date';
 import getCookie from '../../common/parseCookies';
 import DetailDrawer from './DetailDrawer/DetailDrawer';
+import moment from 'moment';
+import { toast } from './DetailProject/DetailProject';
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 let realTimeFetch;
@@ -42,6 +44,10 @@ const Project = (props) => {
   const [idPictures, setIdPictures] = useState([]);
   const [delTables, setDelTables] = useState([]);
   const [disableDelButton, setDisableDelButton] = useState(true);
+  const [filterData, setFilterData] = useState(null);
+  const [filtersProjectName, setFiltersProjectName] = useState(null);
+  const [statusFilterValue, setStatusFilterValue] = useState(null);
+  const [dateFilterValue, setDateFilterValue] = useState(null);
   let errorMessage = [];
   let CSRF;
 
@@ -51,6 +57,9 @@ const Project = (props) => {
       dataIndex: 'project_name',
       key: 'name',
       align: 'center',
+      filters: filtersProjectName,
+      onFilter: (value, record) => record.project_name.indexOf(value) === 0,
+      sorter: (a, b) => a.project_name.length - b.project_name.length,
       render: (text, row, index) => {
         return <Link to={`/project-detail/${row.project_id}`}>{text}</Link>;
       },
@@ -60,6 +69,7 @@ const Project = (props) => {
       dataIndex: 'project_info',
       key: 'project_info',
       align: 'center',
+      sorter: (a, b) => a.project_info.length - b.project_info.length,
       ellipsis: {
         showTitle: false,
       },
@@ -83,12 +93,14 @@ const Project = (props) => {
       dataIndex: 'start_date_plan',
       key: 'start_date_plan',
       align: 'center',
+      sorter: (a, b) => moment(a.start_date_plan) - moment(b.start_date_plan),
     },
     {
       title: 'Дата окончания проекта',
       dataIndex: 'finish_date_plan',
       key: 'finish_date_plan',
       align: 'center',
+      sorter: (a, b) => moment(a.finish_date_plan) - moment(b.finish_date_plan),
     },
     {
       title: 'Рабочая группа',
@@ -104,7 +116,19 @@ const Project = (props) => {
     axios
       .get(`http://localhost:8000/project-login/${props.username}/`)
       .then((res) => {
+        if (filterData) return;
         setData(res.data);
+
+        let tempFilterPN = [];
+        res.data.forEach((row) => {
+          let temp = {};
+          temp.text = row.project_name;
+          temp.value = row.project_name;
+
+          tempFilterPN.push(temp);
+        });
+
+        setFiltersProjectName(tempFilterPN);
       })
       .catch((err) => console.error(err));
 
@@ -119,7 +143,9 @@ const Project = (props) => {
   useEffect(() => {
     setLoading(true);
 
-    fetchData().then(() => setLoading(false));
+    fetchData()
+      .then(() => statusesFetch())
+      .then(() => setLoading(false));
 
     realTimeFetch = setInterval(fetchData, 10000);
     return () => {
@@ -143,7 +169,6 @@ const Project = (props) => {
   };
 
   const onAddNewProject = async (formData) => {
-    console.log('robit');
     setLoadingForm(true);
     const start_date_plan = formatForDate(formData.dateTime[0]._d.toLocaleString().substr(0, 10));
     const finish_date_plan = formatForDate(formData.dateTime[1]._d.toLocaleString().substr(0, 10));
@@ -395,8 +420,92 @@ const Project = (props) => {
         bordered={true}
         rowSelection={{ ...rowSelection }}
         rowKey={(record) => record.project_id}
-        dataSource={data}
+        dataSource={filterData ? filterData : data}
         columns={columns}
+        title={() => (
+          <>
+            <h2>Фильтры:</h2>
+            <Space direction="horizontal" size={'large'}>
+              <Select
+                placeholder="Выберите статус"
+                onChange={(_, obj) => {
+                  setStatusFilterValue(_);
+
+                  let tempData = [];
+
+                  if (filterData)
+                    filterData.forEach((row) => {
+                      if (row.status_name === obj.children) tempData.push(row);
+                    });
+                  else
+                    data.forEach((row) => {
+                      if (row.status_name === obj.children) tempData.push(row);
+                    });
+
+                  if (tempData.length) setFilterData(tempData);
+                  else {
+                    setFilterData(null);
+                    toast('warning', 'Извините, но по таким параметрам нет проектов!');
+                  }
+                }}
+                value={statusFilterValue}
+              >
+                {statuses
+                  ? statuses.map((e, index) => (
+                      <Option key={index} value={e.status_id}>
+                        {e.status_name}
+                      </Option>
+                    ))
+                  : null}
+              </Select>
+
+              <DatePicker.RangePicker
+                format="DD.MM.YYYY"
+                style={{ width: '100%' }}
+                onChange={(e) => {
+                  setDateFilterValue(e);
+
+                  let tempData = [];
+
+                  if (filterData)
+                    filterData.forEach((row) => {
+                      if (
+                        moment(row.start_date_plan).isBetween(e[0], e[1]) &&
+                        moment(row.finish_date_plan).isBetween(e[0], e[1])
+                      )
+                        tempData.push(row);
+                    });
+                  else
+                    data.forEach((row) => {
+                      if (
+                        moment(row.start_date_plan).isBetween(e[0], e[1]) &&
+                        moment(row.finish_date_plan).isBetween(e[0], e[1])
+                      )
+                        tempData.push(row);
+                    });
+
+                  if (tempData.length) setFilterData(tempData);
+                  else {
+                    setFilterData(null);
+                    toast('warning', 'Извините, но по таким параметрам нет проектов!');
+                  }
+                }}
+                value={dateFilterValue}
+              />
+
+              <Button
+                onClick={() => {
+                  setStatusFilterValue(null);
+                  setDateFilterValue(null);
+                  setFilterData(null);
+                }}
+                type="primary"
+              >
+                Сбросить фильтры
+              </Button>
+            </Space>
+          </>
+        )}
       />
 
       <Drawer
