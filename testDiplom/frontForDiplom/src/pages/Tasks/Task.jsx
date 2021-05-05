@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import  { Redirect, useParams } from 'react-router-dom';
-import { Drawer, Divider, Col, Row, Button, Spin, Input, DatePicker, Select} from 'antd';
+import { Drawer, Divider, Col, Row, Button, Spin, Input, DatePicker, Select, notification} from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import getCookie from '../../common/parseCookies';
@@ -10,63 +10,33 @@ import { formatForDate } from '../../common/date';
 
 const { Option } = Select;
 const { TextArea } = Input;
-
-// const DatePickers = ({data})=>{
-
-//   // const onChangeStartDate = (date) => {
-//   //   setStartDate(date.format('YYYY-MM-DD'));
-//   //   console.log("Start Date: ", start_date);
-//   // }
-
-//   // const onChangeFinishDate = (date) =>{
-//   //   setFinishDate(date.format('YYYY-MM-DD'));
-//   //   console.log("Finish Date: ", finish_date);
-//   // }
-
-//   return( 
-//     <>
-//             <Col span={6} style={{textAlign: 'center'}}>
-//                 <p>Дата начала:</p>
-//                 <DatePicker 
-//                     allowClear={false}
-//                     // onChange={onChangeStartDate} 
-//                     defaultValue={moment(data.start_date, "YYYY-MM-dd")}
-//                     // defaultPickerValue = {moment(data.start_date, "YYYY-MM-dd")} 
-//                   />
-//               </Col>
-//               <Col span={6} style={{textAlign: 'center'}}>
-//                 <p>Дата окончания: </p>
-//                 <DatePicker
-//                   allowClear={false}  
-//                   // onChange={onChangeFinishDate} 
-//                   defaultValue={moment(data.finish_date, "YYYY-MM-dd")} 
-//                   // defaultPickerValue = {moment(data.finish_date, "YYYY-MM-dd")} 
-//                 />
-//               </Col>
-//       </>
-//   )
-// }
+const dateFormat = 'YYYY-MM-DD';
+const toast = (type, message) =>
+  notification[type]({
+    message: message,
+    placement: 'bottomLeft',
+    duration: 2,
+  });
 
 const Task = (props) => {
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(true);
   const [data, setData] = useState(null);
-  const { task_id }= useParams();
-  const [editable, setEditable] = useState(false);
   const [finish_date, setFinishDate] = useState('');
   const [start_date, setStartDate] = useState('');
+  const { task_id }= useParams();
+  const [editable, setEditable] = useState(false);
   const [task_name, setTaskName] = useState('');
-  const [task_descriptioin, setTaskDescription] = useState();
-  const [task_developer_login, setTaskDeveloper] = useState();
-  const [parent_task, setParentTask] = useState();
+  const [task_description, setTaskDescription] = useState('');
+  const [task_developer_login, setTaskDeveloper] = useState('');
+  const [parent_task, setParentTask] = useState({});
   const [tasks, setTasks] = useState([]);
   const [developers, setDevelopers] = useState([]);
-  const [project_id, setProjectId] = useState();
+  const [project_id, setProjectId] = useState('');
+  const [project, setProject] = useState({});
+  
   let realFetchData;
   let CSRF;
-
-
-  realFetchData =useRef(null);
 
   const showDrawer = () => {
     setVisible(true);
@@ -77,59 +47,83 @@ const Task = (props) => {
     window.location.assign('/tasks');
   };
 
-  const onClickEdit = async() => {
-
+  const onClickEdit = async () => {
     await fetchTasks(project_id);
     await fetchDevelopers(project_id);
-
     setEditable(true);
+  }
+
+  const onChangeStartDate = (date) => {
+    setStartDate(date.format('YYYY-MM-DD'));
+  }
+
+  const onChangeFinishDate = (date) =>{
+    setFinishDate(date.format('YYYY-MM-DD'));
   }
 
   const onEditTask = () => {
     console.log("Update data: ");
     CSRF = getCookie('csrftoken');
-    
-    // console.log(values);
+
+    let updatedValues =  {
+      task_name: task_name || data.task_name,
+      task_developer_login:  task_developer_login || data.task_developer_login,
+      start_date: start_date || data.start_date ,
+      finish_date: finish_date || data.finish_date,
+      parent: parent_task || data.parent,
+      description: task_description || data.description,
+    };
+    console.log(updatedValues);
     
     axios
       .patch(`http://localhost:8000/api/tasks/${task_id}/`,
         {
-          task_name: data.task_name | task_name,
-          task_developer_login: data.task_developer_login |task_developer_login,
-          start_date: data.start_date | start_date,
-          finish_date: data.finish_date | finish_date,
-          parent: data.parent | parent_task,
-        },
-        {
-          headers: {
-            'X-CSRFToken': CSRF,
-          },
-        },
-      )
-      .catch((err) => console.error(err));
-    setEditable(false);
+          task_name: task_name || data.task_name,
+          task_developer_login:  task_developer_login || data.task_developer_login,
+          start_date: start_date || data.start_date ,
+          finish_date: finish_date || data.finish_date,
+          parent: parent_task || data.parent,
+          description: task_description || data.description,
+        }).then(async (res) => {
+          await fetchData();
+          toast('success', 'Данные успешно изменены!');
+        })
+        .catch((err) => {
+          toast('error', 'Произошла ошибка попробуйте еще раз! ' + err.message);
+        });
+
+      setEditable(false);
   }
 
   const fetchData = async () => {
     await axios
       .get(`http://localhost:8000/api/tasks/${task_id}/`)
-      .then(async (res) => {
-        // console.log(res.data);
+      .then((res) => {
         setData(res.data);
         setProjectId(res.data.project_task);
-        setStartDate(res.dara.start_date);
+        fetchProjectData(res.data.project_task)
         setFinishDate(res.data.finish_date);
-        // console.log("local value: ", data.project_task);
+        setStartDate(res.data.start_date);
+        if(res.data.parent){
+          fetchParentTask(res.data.parent);
+        }
       })
       .catch((err) => console.error(err));
-      
+  }
+
+  const fetchProjectData = async (project_id)=>{
+    await axios
+      .get(`http://localhost:8000/api/projects/${project_id}/`)
+      .then((res) => {
+        setProject(res.data);
+      })
+      .catch((err) => console.error(err));
   }
 
   const fetchTasks = async(project_id)=>{
     await axios
       .get(`http://localhost:8000/tasks-projects/${project_id}/`)
       .then((res) => {
-        console.log(res.data);
         setTasks(res.data);
       })
       .catch((err) => console.error(err));
@@ -145,49 +139,35 @@ const Task = (props) => {
           .catch((err) => console.error(err));
   }
 
+  const fetchParentTask = async (task_id) => {
+    await axios
+      .get(`http://localhost:8000/api/tasks/${task_id}/`)
+      .then((res) => {
+        setParentTask(res.data);
+      })
+      .catch((err) => console.error(err));
+  }
   const onTaskDeveloperChange = (e) =>{
     setTaskDeveloper(e.value);
   }
   const selectParentTaskHandler = (e) =>{
     setParentTask(e.value);
   }
+  const onTaskNameChange = (e) =>{
+    setTaskName(e.target.value);
+  }
+  const onTaskDescriptionChange = (e) =>{
+    console.log('Description: ', e.target.value);
+    setTaskDescription(e.target.value);
+  }
 
-  const renderTasksList= ()=>{
-    return (
-      <> 
-         {!tasks ? 
-            (<Option><Spin /></Option>) :  
-            (tasks.map((val)=> {return
-              <Option value={val.developer_login}>{val.developer_login}</Option>
-            }
-            ))
-          }
-      </>
-    );
-  };
-
-  const renderDevelopersList= ()=>{
-    return (
-      <> 
-         {!developers ? 
-            (<Option><Spin /></Option>) :  
-            (developers.map((val)=>{
-               <Option value={val.developer_login}>{val.developer_login}</Option>
-              }
-            ))
-          }
-      </>
-    );
-  };
 
   useEffect(() => {
     setLoading(true);
     
     fetchData().then(()=>setLoading(false));
-    
-    realFetchData = setInterval(fetchData, 10000);
-
-    return () => clearInterval(realFetchData);
+    // let realFetchData = setInterval(fetchData, 10000);
+    // return () => clearInterval(realFetchData);
   },[]);
 
   return (
@@ -200,14 +180,15 @@ const Task = (props) => {
           visible={visible}
           // editable = {editable}
         >
-          {!loading ? (<Spin />) : (
+          {loading ? (<Spin />) : (
           <>
             {editable ? (
               <>
               <Row>
                 <Col span={16}>
                   <Input 
-                      defaultValue={data.task_name}
+                      defaultValue={data && data.task_name}
+                      onChange={onTaskNameChange}
                   />
                 </Col>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
                 <Col span={8}>
@@ -234,30 +215,32 @@ const Task = (props) => {
                 </p>
                 <TextArea 
                     rows={6}
+                    onChange={onTaskDescriptionChange}
                 />
               </Row>
               <Row>
                 <p>
                   <span>Задача для проекта:  </span>
                   <b>
-                    {data.project_task}
+                    {project && project.project_name}
                   </b>
                 </p>
               </Row>
               <Row>
                 <span>Родительская задача:  </span>
-                {/* <Select
-                showSearch
-                style={{ width: 200 }}
-                // optionFilterProp="children"
-                defaultValue={{value: data.parent}} 
-                onChange={selectParentTaskHandler}
-                prefix={<UserOutlined/>} 
-                // filterOption={(input, option) =>
-                // option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            >
-               { {renderTasksList} }
-            </Select> */}
+                <Select
+                  showSearch
+                  style={{ marginLeft: 15, width: 200 }}
+                  optionFilterProp="children"
+                  defaultValue={data && data.parent}
+                  onChange={selectParentTaskHandler}
+                  filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                >
+                  {tasks && tasks.map((val, idx)=> (
+                    <Option value={val.pk} key={idx}>{val.fields.task_name}</Option>
+                  ))}
+                </Select> 
               </Row>
               <Divider />
               <Row>
@@ -268,39 +251,42 @@ const Task = (props) => {
                   </p>
                     <Input 
                       disabled
-                      // defaultValue={data.task_setter_login} 
+                      defaultValue={data && data.task_setter_login} 
                       prefix={<UserOutlined/>} 
                     />
                 </Col>
                 <Col span={6} style={{textAlign: 'center'}}>
-                  <p>Исполнитель: <br></br>
-                  </p>
-                    {/* <Select 
+                  <p>Исполнитель: </p>
+                    <Select 
+                      prefix={<UserOutlined/>} 
                       onChange = {onTaskDeveloperChange}
-                      // defaultValue={{ value: data.task_developer_login }}
+                      defaultValue={data && data.task_developer_login}
                     >
-                    {{renderDevelopersList} 
-                    </Select> */}
+                    {developers && developers.map((val, idx)=>(
+                        <Option value={val.developer_login} key={idx}>{val.developer_login}</Option>
+                      ))
+                    }
+                    </Select>
                 </Col>
-                {/* <DatePickers data={data} /> */}
-                  <Col span={6} style={{textAlign: 'center'}}>
+                {data && (
+                <>
+                <Col span={6} style={{textAlign: 'center'}}>
                   <p>Дата начала:</p>
                   <DatePicker 
                       allowClear={false}
-                      // onChange={onChangeStartDate} 
-                      defaultValue={moment(data.start_date, "YYYY-MM-dd")}
-                      // defaultPickerValue = {moment(data.start_date, "YYYY-MM-dd")} 
+                      onChange={onChangeStartDate} 
+                      defaultValue={start_date && moment(data.start_date, "YYYY-MM-DD")}
                     />
                 </Col>
                 <Col span={6} style={{textAlign: 'center'}}>
                   <p>Дата окончания: </p>
                   <DatePicker
                     allowClear={false}  
-                    // onChange={onChangeFinishDate} 
-                    defaultValue={moment(data.finish_date, "YYYY-MM-dd")} 
-                    // defaultPickerValue = {moment(data.finish_date, "YYYY-MM-dd")} 
+                    onChange={onChangeFinishDate} 
+                    defaultValue={finish_date && moment(data.finish_date, "YYYY-MM-DD")}
                   />
                 </Col>
+                </>)}
               </Row>
               <Divider />
               <Row>
@@ -318,7 +304,7 @@ const Task = (props) => {
                       fontSize: '24px',
                       fontWeight: 'bold'}}
                     >
-                      {data.task_name}
+                      {data && data.task_name}
                   </p>
                 </Col>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
                 <Col span={8}>
@@ -343,43 +329,45 @@ const Task = (props) => {
                   Описание
                 </p>
                 <p style={{ marginBottom: 24}}>
-                {data.description}
+                {data && data.description}
                 </p>
               </Row>
               <Row>
-                <span>Задача для проекта:</span>
-                <b>{data.project_task}</b>
+                <p>
+                  Задача для проекта: <b>{project && project.project_name}</b>
+                </p>
               </Row>
               <Row>
-                <span>Родительская задача:</span>
-                <b>{data.parent}</b>
+                <p>
+                  Родительская задача: <b>{parent_task && parent_task.task_name}</b>
+                </p>
               </Row>
               <Divider />
               <Row>
                 <Col 
                   span={6} 
                   style={{textAlign: 'center'}}>
-                  <p>Постановщик:<br></br> 
+                  <p>Постановщик: <br></br> 
                    <b>
-                      {data.task_setter_login}
+                      {data && data.task_setter_login}
                     </b>
                   </p>
                 </Col>
                 <Col span={6} style={{textAlign: 'center'}}>
                   <p>Исполнитель: <br></br> 
                     <b>
-                      {data.task_developer_login}
+                      { data && data.task_developer_login}
                     </b>
                   </p>
                 </Col>
                 <Col span={6} style={{textAlign: 'center'}}>
                   <p>Дата начала: <br></br>
-                    <b>{data.start_date}</b>
+                    <b>{data && data.start_date}</b>
                   </p>
                 </Col>
                 <Col span={6} style={{textAlign: 'center'}}>
                   <p>Дата окончания: <br></br>
-                    <b>{data.finish_date}</b>
+                    <b>{data && data.finish_date}</b>
                   </p>
                 </Col>
               </Row>
