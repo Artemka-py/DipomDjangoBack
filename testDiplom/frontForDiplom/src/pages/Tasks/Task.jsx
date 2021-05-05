@@ -41,6 +41,7 @@ const Task = (props) => {
   const [task_description, setTaskDescription] = useState(null);
   const [task_developer_login, setTaskDeveloper] = useState(null);
   const [parent_task, setParentTask] = useState(null);
+  const [parent_task_id, setParentTaskId] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [developers, setDevelopers] = useState([]);
   const [project_id, setProjectId] = useState(null);
@@ -92,7 +93,7 @@ const Task = (props) => {
         task_developer_login: task_developer_login || data.task_developer_login,
         start_date: start_date || data.start_date,
         finish_date: finish_date || data.finish_date,
-        parent: parent_task || data.parent,
+        parent: parent_task_id || data.parent,
         description: task_description || data.description,
       })
       .then(async (res) => {
@@ -111,6 +112,7 @@ const Task = (props) => {
       .get(`http://localhost:8000/api/tasks/${task_id}/`)
       .then((res) => {
         setData(res.data);
+        console.log(res.data);
         setProjectId(res.data.project_task);
         fetchProjectData(res.data.project_task);
         setFinishDate(res.data.finish_date);
@@ -136,6 +138,7 @@ const Task = (props) => {
       .get(`http://localhost:8000/tasks-projects/${project_id}/`)
       .then((res) => {
         setTasks(res.data);
+        console.log(res.data);
       })
       .catch((err) => console.error(err));
   };
@@ -158,11 +161,13 @@ const Task = (props) => {
       })
       .catch((err) => console.error(err));
   };
-  const onTaskDeveloperChange = (e) => {
-    setTaskDeveloper(e.value);
+  const onTaskDeveloperChange = (value) => {
+    setTaskDeveloper(value);
+    console.log('Developer: ', value);
   };
-  const selectParentTaskHandler = (e) => {
-    setParentTask(e.value);
+  const selectParentTaskHandler = (value) => {
+    setParentTaskId(value);
+    console.log('Parent task: ', value);
   };
   const onTaskNameChange = (e) => {
     setTaskName(e.target.value);
@@ -233,11 +238,12 @@ const Task = (props) => {
                 </Row>
                 <Row>
                   <span>Родительская задача: </span>
+                  {data &&
                   <Select
                     showSearch
                     style={{ marginLeft: 15, width: 200 }}
                     optionFilterProp="children"
-                    defaultValue={data && data.parent}
+                    defaultValue={data.parent}
                     onChange={selectParentTaskHandler}
                     filterOption={(input, option) =>
                       option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -249,7 +255,7 @@ const Task = (props) => {
                           {val.fields.task_name}
                         </Option>
                       ))}
-                  </Select>
+                  </Select>}
                 </Row>
                 <Divider />
                 <Row>
