@@ -75,99 +75,78 @@ if (!Array.prototype.last) {
     return this[this.length - 1];
   };
 }
-// transform data to treeObject
-// function transformDataToTree(data) {
-//   let treeData = [];
-//   let cur_lvls = [];
-//   data.map(function (item, i, arr) {
-//     let treeItem = {
-//       key: item.pk,
-//       task_name: item.fields.task_name,
-//       task_developer: item.fields.task_developer_login,
-//       task_setter: item.fields.task_developer_login,
-//       start_date_plan: item.fields.start_date,
-//       finish_date_plan: item.fields.finish_date,
-//       children: [],
-//     };
-
-//     let parent_key = item.fields.parent;
-//     if (parent_key == null) {
-//       treeData.push(treeItem);
-//       if (cur_lvls.length === 0) cur_lvls[0] = 0;
-//       else {
-//         cur_lvls[0] += 1;
-//       }
-//     } else {
-//       let lvl_down = 0;
-//       let copy = treeData[cur_lvls[0]];
-//       while (parent_key !== copy.key) {
-//         copy = copy.children[cur_lvls[lvl_down]];
-//         lvl_down += 1;
-//       }
-//       lvl_down += 1;
-//       if (cur_lvls[lvl_down] === undefined) {
-//         cur_lvls[lvl_down] = 0;
-//       } else {
-//         cur_lvls[lvl_down] += 1;
-//       }
-//       copy.children.push(treeItem);
-//     }
-//   });
-
-//   return treeData;
-// }
 function transformData(data){
-  const data_transformed = [];
+  const data_transformed = {};
+  console.log(data);
   data.forEach(item => {
     let dataItem = {
-      key: item.pk,
-      task_name: item.fields.task_name,
-      task_developer: item.fields.task_developer_login,
-      task_setter: item.fields.task_developer_login,
-      start_date_plan: item.fields.start_date,
-      finish_date_plan: item.fields.finish_date
+      key: item.task_id,
+      task_name: item.task_name,
+      task_developer: item.task_developer_login,
+      task_setter: item.task_setter_login_id,
+      start_date_plan: item.start_date,
+      finish_date_plan: item.finish_date
     };
-    data_transformed.push(dataItem);
+    if(!data_transformed[item.project_task_id]){
+      data_transformed[item.project_task_id] = {
+        'project_name': item.project_name,
+        'data': []
+      };
+    }
+    data_transformed[item.project_task_id].data.push(dataItem);
   });
+
+  console.log(data_transformed);
+  
   return data_transformed;
 }
 
 const Tasks_list = (props) => {                                                                                                                 
-  const [data, setData] = useState(null);
+  const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
-  const [statusPage, setStatusPage] = useState(false);
   let getFetchData;
 
-  const fetchData = async () => {
-    if (statusPage === false) setLoading(true);
-
+  const fetchData = async() => {
     await axios
       .get(`http://localhost:8000/tasks-login/${props.username}/`)
       .then((res) => {
-        // setData(transformDataToTree(res.data));
-        console.log(res.data)
-
         setData(transformData(res.data));
+        // return transformData(res.data);
       })
       .catch((err) => console.error(err));
-
-    if (statusPage === false) setLoading(false);
-    if (statusPage === false) setStatusPage(true);
   };
 
   useEffect(() => {
-    fetchData();
-  }, [props.username]);
+    setLoading(true);
+    fetchData().then((data)=>setLoading(false));
+  }, []);
+
+  const projectTitleStyle = {
+    backgroundColor:'grey',
+    fontSize:20,
+    fontWeight:600,
+    paddingLeft:30,
+    paddingTop:10,
+    paddingRight:30,
+    paddingBottom:10,
+    color: 'white',
+    marginBottom: 0,
+  }
 
   return (
     <>
-      <Table
-        columns={columns}
-        rowSelection={{ ...rowSelection}}
-        rowKey={(record) => record.pk}
-        dataSource={data}
-        loading={loading}
-      />
+      {data && Object.entries(data).map(([key, value])=>
+        (<>
+          <p style={projectTitleStyle}>{value.project_name}</p>
+          <Table
+            columns={columns}
+            rowSelection={ {...rowSelection}}
+            rowKey={(record) => record.key}
+            dataSource={value.data}
+            loading={loading}
+          />
+        </>)
+      )}
     </>
   );
 };

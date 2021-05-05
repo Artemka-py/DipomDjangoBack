@@ -69,9 +69,15 @@ def projects_id(req, username):
     return HttpResponse(data, content_type="application/json")
 
 def tasks(req, username):
-    data = Tasks.objects.filter(Q(task_setter_login=username)| Q(task_developer_login=username))
-    data = serializers.serialize('json', data, fields=('task_id', 'task_name', 'task_stage', 'task_setter_login', 'task_developer_login', 'parent', 'start_date', 'finish_date', 'start_date_fact', 'finish_date_fact', ))
+    with connection.cursor() as cursor:
+        cursor.execute('''select task_id, task_name, task_status_id, task_setter_login_id, task_developer_login, parent_id,
+        start_date, finish_date, description, project_task_id, p2.project_name 
+        from tasks t2 inner join projects p2 on p2.project_id = t2.project_task_id 
+        where t2.task_setter_login_id = %s or t2.task_developer_login = %s''', [username, username])
 
+        data = dict_fetch_all(cursor)
+        data = JSONRenderer().render(data)
+    
     return HttpResponse(data, content_type="application/json")
     
 

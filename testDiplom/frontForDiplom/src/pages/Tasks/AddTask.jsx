@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { Drawer, Divider, Col, Row, Button, Spin, Input, DatePicker, Form } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Drawer, Divider, Col, Row, Button, Spin, Input, DatePicker, Form, Select } from 'antd';
 import getCookie from '../../common/parseCookies';
 import { formatForDate } from '../../common/date';
-import SelectUser from './SelectUser';
+// import SelectUser from './SelectUser';
+// import SelectProject from './SelectProject';
+// import SelectTask from './SelectTask';
+import { UserOutlined } from '@ant-design/icons';
 
+
+const { Option } = Select;
 const { TextArea } = Input;
 let realFetchData;
 
 const AddTask = (props) => {
   const [visible, setVisible] = useState(true);
+  const [project_id, setProject] = useState('');
   let CSRF;
 
   const showDrawer = () => {
@@ -39,6 +44,7 @@ const AddTask = (props) => {
           start_date: formatForDate(values.start_date._d.toLocaleString().substr(0, 10)),
           finish_date: formatForDate(values.finish_date._d.toLocaleString().substr(0, 10)),
           parent:null,
+          description: values.task_description,
           task_stage: 1,
         },
         {
@@ -54,8 +60,19 @@ const AddTask = (props) => {
     console.log(date, dateString);
   }
 
-  // useEffect(() => {
-  // }, [props.username]);
+  const onProjectChange = (project)=>{
+    console.log('Project changed', project);
+    setProject(project);
+  }
+
+  const fetchProjectData = () =>{
+
+  }
+
+   useEffect(() => {
+      console.log(project_id);
+      console.log('rerender');
+   }, [project_id]);
 
   return (
     <>
@@ -81,6 +98,7 @@ const AddTask = (props) => {
                     rules={[
                         {
                           required: true,
+                          message: 'Пожалуйста, напишите название задачи',
                         },
                     ]}
                   >
@@ -103,6 +121,7 @@ const AddTask = (props) => {
               </Row>
               <Divider />
               <Row>
+                <Col span={24}>
                 <p 
                   className="site-description-item-profile-p" 
                   style={{ 
@@ -117,11 +136,41 @@ const AddTask = (props) => {
                     rules={[
                         {
                           required: true,
+                          message: 'Пожалуйста, напишите описание задачи',
                         },
                     ]}
                 >
                   <TextArea rows={6} 
                       placeholder="Введите описание задачи"/>
+                </Form.Item>
+                </Col>
+              </Row>
+              <Row>
+                <span>Задача для проекта:</span>
+                <Form.Item 
+                    name="project_id" 
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Пожалуйста, выберите проект',
+                      },
+                    ]}
+                  >
+                    {<Select
+                    onChange = {onProjectChange}/>}
+                </Form.Item>
+              </Row>
+              <Row>
+                <span>Родительская задача:</span>
+                <Form.Item 
+                    name="parent_id" 
+                    rules={[
+                      {
+                        // required: true,
+                      },
+                    ]}
+                  >
+                    {<Select/>}
                 </Form.Item>
               </Row>
               <Divider />
@@ -132,10 +181,11 @@ const AddTask = (props) => {
                   <p>Постановщик:</p>
                     <Form.Item 
                       name="task_setter_login" 
-                      disabled 
+                      disabled={true}
                       rules={[
                         {
                           required: true,
+                          message: 'Пожалуйста, выберите постановщика задачи',
                         },
                       ]}
                     >
@@ -149,12 +199,11 @@ const AddTask = (props) => {
                     rules={[
                       {
                         required: true,
+                        message: 'Пожалуйста выберите исполнителя',
                       },
                     ]}
                   >
-                    {/* <SelectUser 
-                    project_id = {DataCue.project_task_id}
-                    /> */}
+                    {<Select/> }
                   </Form.Item>
                 </Col>
                 <Col span={6} style={{textAlign: 'center'}}>
@@ -164,6 +213,7 @@ const AddTask = (props) => {
                     rules={[
                       {
                         required: true,
+                        message: 'Пожалуйста выберите дату начала задачи',
                       },
                     ]}
                   >
@@ -180,6 +230,7 @@ const AddTask = (props) => {
                     rules={[
                       {
                         required: true,
+                        message: 'Пожалуйста выберите дату окончания задачи',
                       },
                     ]}
                   >

@@ -373,6 +373,7 @@ class Tasks(MPTTModel):
     start_date_fact = models.DateField(verbose_name='Фактическая дата старта задачи', null=True, blank=True)
     finish_date_fact = models.DateField(verbose_name='Фактическая дата конца задачи', null=True, blank=True)
     docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
+    description = models.TextField(verbose_name='Описание задачи', null=True, blank=True)
 
     def __unicode__(self):
         return 'Задача %s' % self.task_name
