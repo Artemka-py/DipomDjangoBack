@@ -1,8 +1,9 @@
 from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib import admin
-from django.urls import path, include
-from diploAdmin.views import index, projects, tasks, clients, projects_id, project_check_rights, workgroup_developers, project_with_orgs, developers_in_project, tasks_project, error, statstic
+from django.urls import path, include, re_path
+from django.conf.urls import url
+from diploAdmin.views import index, projects, tasks, clients, projects_id, project_check_rights, workgroup_developers, project_with_orgs, developers_in_project, tasks_project, error, statstic, verify_email
 from django.db import connections
 from django.db.utils import OperationalError
 
@@ -35,8 +36,9 @@ else:
         path('workgroup-developers/<int:project_id>/', workgroup_developers),
         path('rest-auth/', include('rest_auth.urls')),
         path('statistic/<int:id>/', statstic),
-        path('rest-auth/registration/', include('rest_auth.registration.urls')),
         path('api-auth/', include('rest_framework.urls')),
+        path('rest-auth/registration/', include('rest_auth.registration.urls')),
+        path('verify-email/<str:username>/', verify_email),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

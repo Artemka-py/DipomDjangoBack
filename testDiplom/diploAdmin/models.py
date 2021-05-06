@@ -1,7 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.core.mail import send_mail
 from django.dispatch import receiver
 from django.utils import timezone
@@ -19,6 +19,7 @@ class MyUserManager(BaseUserManager):
         if not email:
             raise ValueError('Пользователи должны иметь E-mail.')
 
+        extra_fields.setdefault('is_Active', False)
         extra_fields.setdefault('is_staff', False)
         user = self.model(
             username=username,
@@ -36,6 +37,7 @@ class MyUserManager(BaseUserManager):
             username, email, password=password, **extra_fields)
         user.is_admin = True
         user.is_staff = True
+        user.is_Active = False
         user.save(using=self._db)
         return user
 
@@ -73,7 +75,7 @@ class Users(AbstractBaseUser):
     ], null=True)
     user_image_src = models.ImageField(max_length=255, upload_to=upload_location, null=True, blank=True,
                                        verbose_name="Путь до аватарки пользователя")
-    is_Active = models.BooleanField(verbose_name="Активированный пользователь", default=True)
+    is_Active = models.BooleanField(verbose_name="Активированный пользователь", default=False)
     latest_login = models.DateTimeField(verbose_name='Последний вход', default=timezone.now)
     date_joined = models.DateTimeField(verbose_name='Дата присоединения', default=timezone.now)
     is_admin = models.BooleanField(default=False, verbose_name="Администратор")
@@ -446,6 +448,12 @@ def notofication_user(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=Organisations)
 def submission_delete_org(sender, instance, **kwargs):
     instance.organisation_image_src.delete(False)
+
+
+@receiver(post_save, sender=Users)
+def user_is_staff_and_verification(sender, instance, created, **kwargs):
+    print(instance, created)
+    print('--------------------->', instance.is_staff)
 
 # @receiver(post_delete, sender=Documents)
 # def submission_delete_doc(sender, instatnce, **kwargs):

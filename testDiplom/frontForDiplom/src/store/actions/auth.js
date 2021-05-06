@@ -45,31 +45,41 @@ export const authLogin = (username, password) => {
     const CSRF = getCookie('csrftoken');
 
     axios
-      .post(
-        'http://127.0.0.1:8000/rest-auth/login/',
-        {
-          username,
-          password,
-        },
-        {
-          headers: {
-            'X-CSRFToken': CSRF,
-          },
-        },
-      )
+      .get(`http://localhost:8000/api/users/${username}/`)
       .then((res) => {
-        const token = res.data.key;
-        const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-        localStorage.setItem('token', token);
-        localStorage.setItem('expirationDate', expirationDate.toString());
-        localStorage.setItem('username', username);
-        dispatch(authSuccess(token, username));
-        dispatch(checkAuthTimeout(3600));
+        console.log(res.data.is_Active === true);
+        if (res.data.is_Active === false) {
+          dispatch(authFail('Пройдите сначала активацию через почту!'));
+        } else {
+          axios
+            .post(
+              'http://127.0.0.1:8000/rest-auth/login/',
+              {
+                username,
+                password,
+              },
+              {
+                headers: {
+                  'X-CSRFToken': CSRF,
+                },
+              },
+            )
+            .then((res) => {
+              const token = res.data.key;
+              const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
+              localStorage.setItem('token', token);
+              localStorage.setItem('expirationDate', expirationDate.toString());
+              localStorage.setItem('username', username);
+              dispatch(authSuccess(token, username));
+              dispatch(checkAuthTimeout(3600));
+            })
+            .catch((err) => {
+              console.log(err);
+              dispatch(authFail(err));
+            });
+        }
       })
-      .catch((err) => {
-        console.log(err);
-        dispatch(authFail(err));
-      });
+      .catch();
   };
 };
 
@@ -95,12 +105,13 @@ export const authSignup = (username, email, password1, password2) => {
         },
       )
       .then((res) => {
-        const token = res.data.key;
-        const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-        localStorage.setItem('token', token);
-        localStorage.setItem('expirationDate', expirationDate.toString());
-        dispatch(authSuccess(token, username));
-        dispatch(checkAuthTimeout(3600));
+        // const token = res.data.key;
+        // const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
+        // localStorage.setItem('token', token);
+        // localStorage.setItem('expirationDate', expirationDate.toString());
+        // dispatch(authSuccess(token, username));
+        // dispatch(checkAuthTimeout(3600));
+        dispatch(authLogin(username, password1));
       })
       .catch((err) => {
         dispatch(authFail(err));

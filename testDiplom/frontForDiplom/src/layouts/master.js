@@ -4,14 +4,13 @@ import {
   Drawer,
   Layout,
   Menu,
-  Form,
-  Col,
-  Row,
   Input,
   Select,
   DatePicker,
+  Upload,
   Spin,
-  Dropdown,
+  Space,
+  Image,
 } from 'antd';
 import { Footer } from 'antd/es/layout/layout';
 import { Link } from 'react-router-dom';
@@ -20,13 +19,40 @@ import { connect } from 'react-redux';
 import * as actions from '../store/actions/auth';
 import axios from 'axios';
 import { Offline } from 'react-detect-offline';
+import {
+  CalendarOutlined,
+  EditOutlined,
+  LoadingOutlined,
+  PhoneOutlined,
+  PlusOutlined,
+  SaveOutlined,
+} from '@ant-design/icons';
+import classes from './master.module.css';
+import getCookie from '../common/parseCookies';
+import { toast } from '../pages/Projects/DetailProject/DetailProject';
+import moment from 'moment';
+import { formatForDate } from '../common/date';
 
 const { Header, Content } = Layout;
 const { Option } = Select;
+const dateFormat = 'YYYY/MM/DD';
 
 const Master = (props) => {
   const [visible, setVisible] = useState(false);
+  const [imgVisible, setImgVisible] = useState(false);
   const [data, setData] = useState(null);
+  const [editable, setEditable] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(false);
+  const [loadingChn, setLoadingChn] = useState(false);
+  const [date, setDate] = useState(null);
+  const [phone, setPhone] = useState(null);
+  const [name, setName] = useState(null);
+  const [middleName, setMiddleName] = useState(null);
+  const [surName, setSurName] = useState(null);
+  const [oldPassword, setOldPassword] = useState('');
+  const [password1, setPassword1] = useState('');
+  const [password2, setPassword2] = useState('');
+  const [uploadData, setUploadData] = useState({ imageUrl: null, loading: false });
 
   const lkHandler = async () => {
     setVisible(true);
@@ -35,6 +61,15 @@ const Master = (props) => {
       .get(`http://localhost:8000/api/users/${props.username}/`)
       .then((res) => {
         setData(res.data);
+        console.log(res.data);
+
+        axios
+          .get(res.data.user_image_src)
+          .then(() => {
+            setImgVisible(true);
+            setUploadData({ imageUrl: res.data.user_image_src, loading: false });
+          })
+          .catch(() => setImgVisible(false));
       })
       .catch((err) => console.error(err));
   };
@@ -44,10 +79,84 @@ const Master = (props) => {
     setData(null);
   };
 
+  const uploadButton = (
+    <div>
+      {uploadData.loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Загрузить</div>
+    </div>
+  );
+
   useEffect(() => {
     if (window.location.pathname) console.log('robit');
-    console.log(window.location.pathname);
   }, [window.location.pathname]);
+
+  const editableHandle = async (e) => {
+    if (e.target.innerText === 'Изменить проект') {
+      setLoadingEdit(true);
+      setEditable(true);
+
+      setDate(moment(data.birth_date, dateFormat));
+      setPhone(data.phone_num);
+      setName(data.first_name);
+      setSurName(data.sur_name);
+      setMiddleName(data.middle_name);
+
+      setLoadingEdit(false);
+    } else {
+      setLoadingEdit(true);
+
+      let newDate;
+      if (date) newDate = formatForDate(date._d.toLocaleString().substr(0, 10));
+
+      await axios
+        .patch(`http://127.0.0.1:8000/api/users/${data.username}/`, {
+          birth_date: newDate || data.birth_date,
+          phone_num: phone || data.phone_num,
+          first_name: name || data.first_name,
+          sur_name: surName || data.sur_name,
+          middle_name: middleName || data.middle_name,
+        })
+        .then(async () => {
+          await lkHandler();
+          toast('success', 'Данные успешно изменены!');
+        });
+
+      setEditable(false);
+      setLoadingEdit(false);
+    }
+  };
+
+  const handlerChangeDate = (e, e2) => {
+    setDate(e);
+    console.log(e);
+  };
+
+  const uploadAction = async (e) => {
+    switch (e.method) {
+      case 'post': {
+        setUploadData({ imageUrl: null, loading: true });
+        const uploadData = new FormData();
+
+        uploadData.append('user_image_src', e.file, e.file.name);
+
+        await axios
+          .patch(`http://127.0.0.1:8000/api/users/${data.username}/`, uploadData)
+          .then((res) => {
+            console.log(res.data);
+            setUploadData({ imageUrl: res.data.user_image_src, loading: false });
+          })
+          .catch((err) => {
+            toast('error', err.message);
+            setUploadData({ imageUrl: data.user_image_src, loading: false });
+          });
+
+        return e.onSuccess();
+      }
+
+      default:
+        return console.log('default');
+    }
+  };
 
   return (
     <Layout>
@@ -55,8 +164,7 @@ const Master = (props) => {
         <h1 style={{ color: 'red' }}>Проверьте подключение к интернету!!!</h1>
       </Offline>
       <Header className="header">
-        <div className="logo" />
-        <Menu theme="dark" style={{ color: '#fff' }} mode="horizontal" defaultSelectedKeys={['1']}>
+        <Menu theme={'dark'} mode="horizontal" defaultSelectedKeys={['1']}>
           <Menu.Item key="1">
             <Link to="/">Главная</Link>
           </Menu.Item>
@@ -115,101 +223,217 @@ const Master = (props) => {
               <Spin />
             ) : (
               <>
-                <Form layout="vertical" hideRequiredMark>
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <Form.Item
-                        name="name"
-                        label="Name"
-                        rules={[{ required: true, message: 'Please enter user name' }]}
+                <>
+                  <Space direction={'horizontal'} size={12}>
+                    {imgVisible && editable === false && (
+                      <Image
+                        width={100}
+                        style={{
+                          width: '100px',
+                          height: '100px',
+                        }}
+                        src={data.user_image_src}
+                        preview={true}
+                      />
+                    )}
+                    {editable && (
+                      <Upload
+                        name="avatar"
+                        listType="picture-card"
+                        className={classes.avatarUploader}
+                        showUploadList={false}
+                        customRequest={uploadAction}
+                        beforeUpload={(file) => {
+                          if (file.type === 'image/jpeg' || 'image/jpg' || 'image/png') {
+                            return true;
+                          }
+                          toast('error', 'Можно загружать только картинки!');
+                          setUploadData({ imageUrl: null, loading: false });
+                          return false;
+                        }}
                       >
-                        <Input placeholder="Please enter user name" />
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item
-                        name="url"
-                        label="Url"
-                        rules={[{ required: true, message: 'Please enter url' }]}
-                      >
+                        {uploadData.imageUrl ? (
+                          <img
+                            src={uploadData.imageUrl}
+                            alt="Аватарка"
+                            style={{ width: '100px', height: '100px' }}
+                          />
+                        ) : (
+                          uploadButton
+                        )}
+                      </Upload>
+                    )}
+
+                    {editable ? (
+                      <>
                         <Input
-                          style={{ width: '100%' }}
-                          addonBefore="http://"
-                          addonAfter=".com"
-                          placeholder="Please enter url"
+                          type={'text'}
+                          onChange={(e) => setMiddleName(e.target.value)}
+                          value={middleName}
+                          placeholder={'Введите фамилию'}
                         />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <Form.Item
-                        name="owner"
-                        label="Owner"
-                        rules={[{ required: true, message: 'Please select an owner' }]}
-                      >
-                        <Select placeholder="Please select an owner">
-                          <Option value="xiao">Xiaoxiao Fu</Option>
-                          <Option value="mao">Maomao Zhou</Option>
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item
-                        name="type"
-                        label="Type"
-                        rules={[{ required: true, message: 'Please choose the type' }]}
-                      >
-                        <Select placeholder="Please choose the type">
-                          <Option value="private">Private</Option>
-                          <Option value="public">Public</Option>
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <Form.Item
-                        name="approver"
-                        label="Approver"
-                        rules={[{ required: true, message: 'Please choose the approver' }]}
-                      >
-                        <Select placeholder="Please choose the approver">
-                          <Option value="jack">Jack Ma</Option>
-                          <Option value="tom">Tom Liu</Option>
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item
-                        name="dateTime"
-                        label="DateTime"
-                        rules={[{ required: true, message: 'Please choose the dateTime' }]}
-                      >
-                        <DatePicker.RangePicker
-                          style={{ width: '100%' }}
-                          getPopupContainer={(trigger) => trigger.parentElement}
+                        <Input
+                          type={'text'}
+                          onChange={(e) => setName(e.target.value)}
+                          value={name}
+                          placeholder={'Введите имя'}
                         />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={24}>
-                      <Form.Item
-                        name="description"
-                        label="Description"
-                        rules={[
+                        <Input
+                          type={'text'}
+                          onChange={(e) => setSurName(e.target.value)}
+                          value={surName}
+                          placeholder={'Введите отчество'}
+                        />
+                      </>
+                    ) : (
+                      <h2>
+                        ФИО:{' '}
+                        {data.middle_name.charAt(0).toUpperCase() +
+                          data.middle_name.slice(1) +
+                          ' ' +
+                          data.first_name.charAt(0).toUpperCase() +
+                          data.first_name.slice(1) +
+                          ' ' +
+                          (data.sur_name !== null
+                            ? data.sur_name.charAt(0).toUpperCase() + data.sur_name.slice(1)
+                            : '')}
+                      </h2>
+                    )}
+
+                    <Button
+                      onClick={editableHandle}
+                      style={{ float: 'right' }}
+                      type="primary"
+                      loading={loadingEdit}
+                    >
+                      {!editable ? <EditOutlined /> : <SaveOutlined />}{' '}
+                      {!editable ? 'Изменить проект' : 'Сохранить изменения'}
+                    </Button>
+                  </Space>
+
+                  <hr />
+
+                  {editable ? (
+                    <>
+                      <Space direction="horizontal" size={12}>
+                        <h3>
+                          <DatePicker
+                            disabledDate={(curDate) => {
+                              return curDate && curDate > moment().endOf('day');
+                            }}
+                            value={date}
+                            onChange={handlerChangeDate}
+                          />
+                        </h3>
+                        <h3>
+                          <Input
+                            type="text"
+                            prefix={<PhoneOutlined />}
+                            value={phone}
+                            max={17}
+                            onChange={(e) => {
+                              if (e.target.value.length > 17) return false;
+                              setPhone(e.target.value.replace(/\D/g, ''));
+                            }}
+                          />
+                        </h3>
+                        <h3>{data.email}</h3>
+                      </Space>
+                    </>
+                  ) : (
+                    <>
+                      <Space direction="horizontal" size={12}>
+                        <h3>
+                          {data.birth_date !== null ? (
+                            <>
+                              <CalendarOutlined /> Дата рождения: {data.birth_date}
+                            </>
+                          ) : (
+                            'Вы еще не указывали свой день рождения.'
+                          )}
+                        </h3>
+                        <h3>
+                          {data.phone_num !== null ? (
+                            <>
+                              <PhoneOutlined /> {data.phone_num}
+                            </>
+                          ) : (
+                            'Вы еще не указывали свой номер телефона.'
+                          )}
+                        </h3>
+                        <h3>{data.email}</h3>
+                      </Space>
+                    </>
+                  )}
+                  <hr />
+                  <h2>Смена пароля: </h2>
+                  <Space direction="horizontal" size={15}>
+                    <Input
+                      type={'password'}
+                      placeholder={'Введите старый пароль'}
+                      value={oldPassword}
+                      onChange={(e) => setOldPassword(e.target.value)}
+                    />
+                    <Input
+                      type={'password'}
+                      placeholder={'Введите новый пароль'}
+                      value={password1}
+                      onChange={(e) => setPassword1(e.target.value)}
+                    />
+                    <Input
+                      type={'password'}
+                      placeholder={'Введите подтвердите новый пароль'}
+                      value={password2}
+                      onChange={(e) => setPassword2(e.target.value)}
+                    />
+                  </Space>
+                  <Button
+                    type="primary"
+                    loading={loadingChn}
+                    onClick={async () => {
+                      setLoadingChn(true);
+                      if (password1 === '' || password2 === '' || oldPassword === '') {
+                        setOldPassword('');
+                        setPassword1('');
+                        setPassword2('');
+                        setLoadingChn(false);
+                        return toast('error', 'Пожалуйста введите значения в поля паролей!');
+                      }
+
+                      let CSRF = getCookie('csrftoken');
+
+                      await axios
+                        .post(
+                          `http://localhost:8000/rest-auth/password/change/`,
                           {
-                            required: true,
-                            message: 'please enter url description',
+                            new_password1: password1,
+                            new_password2: password2,
+                            old_password: oldPassword,
                           },
-                        ]}
-                      >
-                        <Input.TextArea rows={4} placeholder="please enter url description" />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                </Form>
+                          {
+                            headers: {
+                              'X-CSRFToken': CSRF,
+                            },
+                          },
+                        )
+                        .then((res) => {
+                          toast('success', res.data.detail);
+                          setOldPassword('');
+                          setPassword1('');
+                          setPassword2('');
+                        })
+                        .catch((err) => {
+                          for (let key in err.response.data) {
+                            toast('error', err.response.data[key]);
+                          }
+                        });
+                      setLoadingChn(false);
+                    }}
+                    style={{ marginTop: '15px' }}
+                  >
+                    Сменить пароль
+                  </Button>
+                </>
               </>
             )}
           </Drawer>

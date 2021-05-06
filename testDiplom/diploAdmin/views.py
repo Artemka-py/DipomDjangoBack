@@ -1,9 +1,11 @@
 from django.db import connection
 from django.db.models import Q
 from django.http.response import HttpResponse
-from .models import Clients, Projects, Tasks
+from .models import Clients, Projects, Tasks, Users
 from django.shortcuts import render
 from django.core import serializers
+from django.core.mail import send_mail
+import random
 
 def error(req):
     return render(req, 'error.html', {})
@@ -134,3 +136,17 @@ def statstic(req, id):
         data = JSONRenderer().render(data)
 
     return HttpResponse(data, content_type="application/json")
+
+
+def verify_email(req, username):
+    key = random.randint(100000, 99999999)
+
+    subject = 'Подтверждение аккаунта'
+    sender_from = 'i_a.n.litkin@mpt.ru'
+    message = 'Код для подтверждения:' + str(key) + '.'
+
+    user = Users.objects.filter(username = username)
+    recipients = [str(user[0].email)]
+    
+    send_mail(subject, message, sender_from, recipients)
+    return HttpResponse(key, content_type="application/json")
