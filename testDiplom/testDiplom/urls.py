@@ -23,7 +23,6 @@ if (connected == False):
 else:
     urlpatterns = [
         path('admin/', admin.site.urls),
-        path('', index),
         path('api/', include('diploAdmin.api.urls')),
         path('project-login/<str:username>/', projects),
         path('project-orgs/<int:project_id>/', project_with_orgs),
@@ -39,6 +38,7 @@ else:
         path('api-auth/', include('rest_framework.urls')),
         path('rest-auth/registration/', include('rest_auth.registration.urls')),
         path('verify-email/<str:username>/', verify_email),
+        re_path(r'^', index),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
