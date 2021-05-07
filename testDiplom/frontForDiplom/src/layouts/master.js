@@ -5,7 +5,6 @@ import {
   Layout,
   Menu,
   Input,
-  Select,
   DatePicker,
   Upload,
   Spin,
@@ -35,7 +34,6 @@ import moment from 'moment';
 import { formatForDate } from '../common/date';
 
 const { Header, Content } = Layout;
-const { Option } = Select;
 const dateFormat = 'YYYY/MM/DD';
 
 const Master = (props) => {

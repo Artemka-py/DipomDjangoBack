@@ -136,10 +136,6 @@ const Project = (props) => {
     if (statusPage === false) setStatusPage(true);
   };
 
-  const detailDrawer = (nameOfProject, record) => {
-    setDetailVisibleDrawer(true);
-  };
-
   useEffect(() => {
     setLoading(true);
 

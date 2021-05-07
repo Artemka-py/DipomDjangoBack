@@ -7,7 +7,6 @@ import Register from './components/Autentification/Registration/Register';
 import Project from './pages/Projects/Project';
 import Tasks from './pages/Tasks/Tasks';
 import DetailProject from './pages/Projects/DetailProject/DetailProject';
-import StatisticsExport from './pages/StatisticsExportImport/StatisticsExport';
 import HomePage from './pages/HomePage/HomePage';
 
 const customHistory = createBrowserHistory();
@@ -25,7 +24,6 @@ const BaseRouter = ({ username, isAuthenticated }) => (
         <Route path="/projects:cr" component={Project} />
         <Route path="/projects" component={Project} />
         <Route path="/tasks" component={Tasks} />
-        <Route path="/statistic" component={StatisticsExport} />
       </>
     )}
   </div>

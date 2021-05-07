@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Checkbox, Form, Input, Modal, Button } from 'antd';
-import {
-  ExclamationCircleOutlined,
-  EyeInvisibleOutlined,
-  EyeTwoTone,
-  UserOutlined,
-} from '@ant-design/icons';
+import { ExclamationCircleOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { connect } from 'react-redux';
 import classes from './Register.module.css';
 import * as actions from '../../../store/actions/auth';

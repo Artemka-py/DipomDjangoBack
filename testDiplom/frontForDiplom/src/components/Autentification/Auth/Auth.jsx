@@ -6,7 +6,6 @@ import * as actions from '../../../store/actions/auth';
 import { NavLink, useHistory } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import ConfirmEmail from '../ConfirmEmail/ConfirmEmail';
-import moment from 'moment';
 
 const { Countdown } = Statistic;
 

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Col, DatePicker, Drawer, Form, Input, Row, Select, Space, Upload } from 'antd';
-import { LoadingOutlined, UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
-const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 const { Option } = Select;
 
 const DetailDrawer = ({

@@ -12,7 +12,6 @@ import {
   Table,
   Popconfirm,
   Checkbox,
-  Switch,
   Tooltip,
   Drawer,
 } from 'antd';
