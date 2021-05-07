@@ -14,7 +14,7 @@ const customHistory = createBrowserHistory();
 
 const BaseRouter = ({ username, isAuthenticated }) => (
   <div>
-    <Route path="/" component={HomePage} />
+    <Route path="/" exact component={HomePage} />
     <Route path="/about" component={AboutPage} />
     <Route path="/admin" exact render={() => <Redirect to="/admin" />} />
     <Route path="/auth" component={Auth} />
