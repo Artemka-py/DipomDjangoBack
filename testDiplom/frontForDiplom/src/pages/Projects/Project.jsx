@@ -32,7 +32,7 @@ const Project = (props) => {
   const [loading, setLoading] = useState(false);
   const [loadingForm, setLoadingForm] = useState(false);
   const [loadingSelect, setLoadingSelect] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(!!props.match.params.cr);
   const [statusPage, setStatusPage] = useState(false);
   const [statuses, setStatuses] = useState(null);
   const [org, setOrg] = useState(null);

@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Select, Button } from 'antd';
-import { EyeInvisibleOutlined, EyeTwoTone, UserOutlined } from '@ant-design/icons';
+import { Form, Input, Modal, Button } from 'antd';
+import {
+  ExclamationCircleOutlined,
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+  UserOutlined,
+} from '@ant-design/icons';
 import { connect } from 'react-redux';
 import classes from './Register.module.css';
 import * as actions from '../../../store/actions/auth';
@@ -22,9 +27,29 @@ const Register = (props) => {
     props.onRegister(values.username, values.email, values.password1, values.password2);
   };
 
+  function showPromiseConfirm() {
+    Modal.confirm({
+      title: 'Ура вы новый пользователь!!!',
+      icon: <ExclamationCircleOutlined />,
+      width: 700,
+      content:
+        'Теперь предлагаем вам создать новый проект или же попросите своего управляющего проектом добавить вас в уже созданный проект!',
+      okText: 'Да создам новый проект!',
+      cancelText: 'Подожду пока добавят в проект',
+      onOk() {
+        history.push('/projectscr');
+      },
+      onCancel() {
+        history.push('/');
+      },
+    });
+  }
+
   useEffect(() => {
     if (props.loading === false && (props.token || props.error))
-      if (props.error === null) history.push('/');
+      if (props.error === null) {
+        showPromiseConfirm();
+      }
   }, [props.error, props.history, props.loading, props.token]);
 
   useEffect(() => {

@@ -8,12 +8,13 @@ import Project from './pages/Projects/Project';
 import Tasks from './pages/Tasks/Tasks';
 import DetailProject from './pages/Projects/DetailProject/DetailProject';
 import StatisticsExport from './pages/StatisticsExportImport/StatisticsExport';
+import HomePage from './pages/HomePage/HomePage';
 
 const customHistory = createBrowserHistory();
 
 const BaseRouter = ({ username, isAuthenticated }) => (
   <div>
-    <Route path="/" />
+    <Route path="/" component={HomePage} />
     <Route path="/about" component={AboutPage} />
     <Route path="/admin" exact render={() => <Redirect to="/admin" />} />
     <Route path="/auth" component={Auth} />
@@ -21,6 +22,7 @@ const BaseRouter = ({ username, isAuthenticated }) => (
     {isAuthenticated && (
       <>
         <Route path="/project-detail/:id" component={DetailProject} />
+        <Route path="/projects:cr" component={Project} />
         <Route path="/projects" component={Project} />
         <Route path="/tasks" component={Tasks} />
         <Route path="/statistic" component={StatisticsExport} />
