@@ -1,11 +1,11 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import classes from "./AboutPage.module.css";
-import imageView from "./../../images/viewTasks.png";
-import addTaskImage from "./../../images/addTask.png";
-import exportTaskImage from "./../../images/exportTasks.png";
-import importUsersImage from "./../../images/importUsers.png";
-import allImage from "./../../images/all.png";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import classes from './AboutPage.module.css';
+import imageView from './../../images/viewTasks.png';
+import addTaskImage from './../../images/addTask.png';
+import exportTaskImage from './../../images/exportTasks.png';
+import importUsersImage from './../../images/importUsers.png';
+import allImage from './../../images/all.png';
 
 const AboutPage = () => {
   const reloadAdmin = () => {
@@ -17,54 +17,49 @@ const AboutPage = () => {
 
   return (
     <div className={classes.AboutPage}>
-      <h1 class={classes.center + " " + classes.textH}>
+      <h1 className={classes.center + ' ' + classes.textH}>
         Руководство по началу работы c Помоги себе сам
       </h1>
       <h2>Что такое Помоги себе сам</h2>
       <h3>
-        Помоги себе сам - это веб-ресурс направленный на автоматизацию контроля
-        и распределния задач среди для администрации и разработчиков отдела
-        R&amp;D, главной задачей которого является формирование и расспределение
-        задач среди сотрудников информационно технического отдела, а так же учет
-        выполнения поставленных задач, с возможностью экспорта задач
+        Помоги себе сам - это веб-ресурс направленный на автоматизацию контроля и распределния задач
+        среди для администрации и разработчиков отдела R&amp;D, главной задачей которого является
+        формирование и расспределение задач среди сотрудников информационно технического отдела, а
+        так же учет выполнения поставленных задач, с возможностью экспорта задач
       </h3>
       <h3>
-        Создав проект, пользователи данного веб-ресурса: менеджеры, клиенты,
-        разработчики. Могут наблюдать за процессом продвижения выполнения
-        проекта, а разработчики могут удобно наблюдать свои задачи тем самым
-        распределять свое время и видеть замечания или проблемы в задачах после
-        "code review".
+        Создав проект, пользователи данного веб-ресурса: менеджеры, клиенты, разработчики. Могут
+        наблюдать за процессом продвижения выполнения проекта, а разработчики могут удобно наблюдать
+        свои задачи тем самым распределять свое время и видеть замечания или проблемы в задачах
+        после "code review".
       </h3>
       <h3>
-        Данное руководство содержит вводные сведения о программном продукте для
-        веб-ресурса "Помоги себе сам". В нем представлены рекомендации и
-        указания, с помощью которых вы сможете начать работу в программном
-        продукте или перенести существующие задачи.
+        Данное руководство содержит вводные сведения о программном продукте для веб-ресурса "Помоги
+        себе сам". В нем представлены рекомендации и указания, с помощью которых вы сможете начать
+        работу в программном продукте или перенести существующие задачи.
       </h3>
       <h2>С чего начать?</h2>
       <h3>
-        Что бы создать задачу переходим во вкладку Задачи, там есть возможность
-        сформировать задачу, которую затем можно расспределить меджду
-        сотрудниками, формируем (
+        Что бы создать задачу переходим во вкладку Задачи, там есть возможность сформировать задачу,
+        которую затем можно расспределить меджду сотрудниками, формируем (
         <Link to="/admin/diploAdmin/tasks/add" onClick={reloadAdmin}>
           переход на данную страницу
         </Link>
         ):
       </h3>
-      <div class={classes.center}>
+      <div className={classes.center}>
         <img src={addTaskImage} className={classes.imgView} />
       </div>
       <br />
       <h3>
-        Затем данная задача отобразиться в списке всех задач. Если выбрать любую
-        из задач, над ней можно проводить манипуляции, а именно: Изменять,
-        Удалять, смотерть подробности задачи (
+        Затем данная задача отобразиться в списке всех задач. Если выбрать любую из задач, над ней
+        можно проводить манипуляции, а именно: Изменять, Удалять, смотерть подробности задачи (
         <Link to="/admin/diploAdmin/tasks" onClick={reloadAdmin}>
           переход на данную страницу
         </Link>
         ):
       </h3>
-      <div class={classes.center}>
+      <div className={classes.center}>
         <img src={imageView} className={classes.imgView} />
       </div>
       <br />
@@ -75,40 +70,37 @@ const AboutPage = () => {
         </Link>
         ):
       </h3>
-      <div class={classes.center}>
-        <img src={exportTaskImage} style={{ width: "25%" }} />
+      <div className={classes.center}>
+        <img src={exportTaskImage} style={{ width: '25%' }} />
       </div>
       <br />
       <h3>
-        Вдобавок есть импорт пользователей. Импорт можно воспроизводить, в
-        некоторых форматах, данные форматы будут представлены на скриншоте (
+        Вдобавок есть импорт пользователей. Импорт можно воспроизводить, в некоторых форматах,
+        данные форматы будут представлены на скриншоте (
         <Link to="/admin/diploAdmin/users/import" onClick={reloadAdmin}>
           переход на данную страницу
         </Link>
         ):
       </h3>
-      <div class={classes.center}>
+      <div className={classes.center}>
         <img src={importUsersImage} className={classes.imgView} />
       </div>
       <br />
       <h3>
-        Так же стандартные функции по типу: добавление, изменение, удаление,
-        фильтрация, поиск. Представлены на следующих страницах, которые служат
-        для заполнения контента и данных (
+        Так же стандартные функции по типу: добавление, изменение, удаление, фильтрация, поиск.
+        Представлены на следующих страницах, которые служат для заполнения контента и данных (
         <Link to="/admin" onClick={reloadAdmin}>
           переход на данную страницу
         </Link>
         ):
       </h3>
-      <div class={classes.center}>
-        <img src={allImage} style={{ height: "50% !important" }} />
+      <div className={classes.center}>
+        <img src={allImage} style={{ height: '50% !important' }} />
       </div>
       <br />
-      <h2 style={{ fontSize: "180%", textAlign: "center" }}>
-        Системные характеристики
-      </h2>
+      <h2 style={{ fontSize: '180%', textAlign: 'center' }}>Системные характеристики</h2>
       <br />
-      <table class="table">
+      <table className="table">
         <thead>
           <tr>
             <th>Название</th>
@@ -139,12 +131,10 @@ const AboutPage = () => {
         </tbody>
       </table>
       <br />
-      <h2 style={{ fontSize: "180%", textAlign: "center" }}>
-        Сравнение с аналогами
-      </h2>
+      <h2 style={{ fontSize: '180%', textAlign: 'center' }}>Сравнение с аналогами</h2>
       <br />
       <div>
-        <table class="zebra" style={{ width: "50vw" }}>
+        <table className="zebra" style={{ width: '50vw' }}>
           <thead>
             <tr>
               <th>Критерии</th>
@@ -155,7 +145,7 @@ const AboutPage = () => {
           </thead>
           <tbody>
             <tr>
-              <td class="round-top">Разработчик</td>
+              <td className="round-top">Разработчик</td>
               <td>Лыткин А.Н., Билл Гейтс</td>
               <td>Atlassian</td>
               <td>Atlassian</td>
@@ -203,7 +193,7 @@ const AboutPage = () => {
               <td>Да</td>
             </tr>
             <tr>
-              <td class="round-bottom">Импорт ресурсов</td>
+              <td className="round-bottom">Импорт ресурсов</td>
               <td>Да</td>
               <td>Нет</td>
               <td>Нет</td>
@@ -213,12 +203,9 @@ const AboutPage = () => {
       </div>
       <br />
       <h3>
-        Данный веб-ресурс до сих пор находится в разработке. Если увидите
-        замечания или найдете ошибки или есть{" "}
-        <a href="mailto:i_a.n.litkin@mpt.ru">
-          предложения пишите на электронную почту
-        </a>
-        .
+        Данный веб-ресурс до сих пор находится в разработке. Если увидите замечания или найдете
+        ошибки или есть{' '}
+        <a href="mailto:i_a.n.litkin@mpt.ru">предложения пишите на электронную почту</a>.
       </h3>
     </div>
   );

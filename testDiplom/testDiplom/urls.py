@@ -38,7 +38,11 @@ else:
         path('api-auth/', include('rest_framework.urls')),
         path('rest-auth/registration/', include('rest_auth.registration.urls')),
         path('verify-email/<str:username>/', verify_email),
-        re_path(r'^', index),
+        path(r'^', index),
+        path(r'tasks', index),
+        path(r'projects', index),
+        path(r'about', index),
+        re_path(r'^project-detail/', index),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
