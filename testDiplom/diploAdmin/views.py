@@ -6,6 +6,9 @@ from django.shortcuts import render
 from django.core import serializers
 from django.core.mail import send_mail
 import random
+from mixpanel import Mixpanel
+
+mp = Mixpanel('087836e72b7918aa48ee6cee520596da')
 
 def error(req):
     return render(req, 'error.html', {})
@@ -45,6 +48,8 @@ def projects(req, username):
         data = dict_fetch_all(cursor)
         data = JSONRenderer().render(data)
 
+    mp.track(username, 'Take the projects')
+
     return HttpResponse(data, content_type="application/json")
 
 
@@ -68,6 +73,8 @@ def projects_id(req, username):
         data = dict_fetch_all(cursor)
         data = JSONRenderer().render(data)
 
+    mp.track(username, 'Take the project detail')
+
     return HttpResponse(data, content_type="application/json")
 
 def tasks(req, username):
@@ -80,6 +87,8 @@ def tasks(req, username):
         data = dict_fetch_all(cursor)
         data = JSONRenderer().render(data)
     
+    mp.track(username, 'Take the tasks')
+
     return HttpResponse(data, content_type="application/json")
     
 
@@ -87,6 +96,8 @@ def clients(req, org_id):
     data = Clients.objects.filter(client_organisation=org_id).all()
     data = serializers.serialize('json', data, fields=())
     
+    mp.track(org_id, 'Take the clients')
+
     return HttpResponse(data, content_type="application/json")
 
 def workgroup_developers(req, project_id):
@@ -98,6 +109,8 @@ def workgroup_developers(req, project_id):
         data = dict_fetch_all(cursor)
         data = JSONRenderer().render(data)
     
+    mp.track(project_id, 'Take the workgroup developers')
+
     return HttpResponse(data, content_type="application/json")
 
 
@@ -125,6 +138,8 @@ def tasks_project(req, id):
     data = Tasks.objects.filter(project_task_id = id)
     data = serializers.serialize('json', data, fields=('task_id', 'task_name', 'task_stage', 'task_setter_login', 'task_developer_login', 'parent', 'start_date', 'finish_date', 'start_date_fact', 'finish_date_fact', 'task_status',))
 
+    mp.track(id, 'Take the tasks project')
+
     return HttpResponse(data, content_type="application/json")
 
 
@@ -134,6 +149,8 @@ def statstic(req, id):
 
         data = dict_fetch_all(cursor)
         data = JSONRenderer().render(data)
+
+    mp.track(id, 'Take the statistic')
 
     return HttpResponse(data, content_type="application/json")
 
@@ -148,5 +165,6 @@ def verify_email(req, username):
     user = Users.objects.filter(username = username)
     recipients = [str(user[0].email)]
     
+    mp.track(username, 'Verifying email')
     send_mail(subject, message, sender_from, recipients)
     return HttpResponse(key, content_type="application/json")

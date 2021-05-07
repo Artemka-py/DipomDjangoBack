@@ -2,3 +2,11 @@
     width: 128px;
     height: 128px;
 }
+
+.inverted {
+    filter: invert(100%);
+}
+
+.nonInverted {
+    filter: invert(0%);
+}

@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 
     'diploAdmin',
+    'django_extensions',
 ]
 
 SITE_ID = 1
@@ -130,6 +131,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/

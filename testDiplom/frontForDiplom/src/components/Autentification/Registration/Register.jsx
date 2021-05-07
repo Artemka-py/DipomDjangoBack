@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Modal, Button } from 'antd';
+import { Checkbox, Form, Input, Modal, Button } from 'antd';
 import {
   ExclamationCircleOutlined,
   EyeInvisibleOutlined,
@@ -163,6 +163,33 @@ const Register = (props) => {
             <Input.Password
               iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
             />
+          </Form.Item>
+          <Form.Item
+            name="agreement"
+            valuePropName="checked"
+            rules={[
+              {
+                validator: (_, value) =>
+                  value
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(
+                          'Извините, но вы должны согласиться с обработкой персональных данных для дальнейшей работы!',
+                        ),
+                      ),
+              },
+            ]}
+          >
+            <Checkbox>
+              Я согласен с{' '}
+              <a
+                href="https://www.severstal.com/pdf/rus/about/privacy/"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                обработкой персональных данных
+              </a>
+            </Checkbox>
           </Form.Item>
           <Form.Item>
             <Button

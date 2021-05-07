@@ -12,6 +12,7 @@
     "bugbattle": "^3.2.3",
     "chart.js": "^3.2.0",
     "history": "^5.0.0",
+    "mixpanel-browser": "^2.41.0",
     "moment": "^2.29.1",
     "react": "^17.0.1",
     "react-chartjs-2": "^3.0.3",

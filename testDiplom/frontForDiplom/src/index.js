@@ -11,6 +11,9 @@ import reportWebVitals from './reportWebVitals';
 import App from './App';
 import { ConfigProvider } from 'antd';
 import locale from 'antd/lib/locale/ru_RU';
+import mixpanel from 'mixpanel-browser';
+
+mixpanel.init('087836e72b7918aa48ee6cee520596da');
 
 BugBattle.initialize('zLjvOGurHVEfdYBvQrXAEBTAd6Cl2I0T', BugBattle.FEEDBACK_BUTTON);
 BugBattle.enableCrashDetector(true);

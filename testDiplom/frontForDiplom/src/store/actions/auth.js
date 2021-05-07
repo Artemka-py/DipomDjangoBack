@@ -1,6 +1,7 @@
 import * as actionTypes from './actionsTypes';
 import axios from 'axios';
 import getCookie from '../../common/parseCookies';
+import mixpanel from 'mixpanel-browser';
 
 export const authStart = () => {
   return {
@@ -111,6 +112,7 @@ export const authSignup = (username, email, password1, password2) => {
         // localStorage.setItem('expirationDate', expirationDate.toString());
         // dispatch(authSuccess(token, username));
         // dispatch(checkAuthTimeout(3600));
+        mixpanel.track('Sign up');
         dispatch(authLogin(username, password1));
       })
       .catch((err) => {

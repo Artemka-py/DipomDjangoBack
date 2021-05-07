@@ -11,6 +11,7 @@ import {
   Spin,
   Space,
   Image,
+  Switch,
 } from 'antd';
 import { Footer } from 'antd/es/layout/layout';
 import { Link } from 'react-router-dom';
@@ -53,6 +54,7 @@ const Master = (props) => {
   const [password1, setPassword1] = useState('');
   const [password2, setPassword2] = useState('');
   const [uploadData, setUploadData] = useState({ imageUrl: null, loading: false });
+  const [checked, setChecked] = useState(false);
 
   const lkHandler = async () => {
     setVisible(true);
@@ -159,7 +161,7 @@ const Master = (props) => {
   };
 
   return (
-    <Layout>
+    <Layout className={checked ? classes.inverted : classes.nonInverted}>
       <Offline polling={{ url: `http://localhost:8000/` }}>
         <h1 style={{ color: 'red' }}>Проверьте подключение к интернету!!!</h1>
       </Offline>
@@ -179,6 +181,16 @@ const Master = (props) => {
               <Menu.Item key="3">
                 <Link to="/projects">Проекты</Link>
               </Menu.Item>
+
+              <Switch
+                checked={checked}
+                onChange={(e) => {
+                  setChecked(e);
+                }}
+                style={{ float: 'right', marginTop: '20px', backgroundColor: 'gray' }}
+                checkedChildren="Черная тема"
+                unCheckedChildren="Белая тема"
+              />
 
               <Menu.Item style={{ float: 'right' }} key="6" onClick={props.onLogout}>
                 <Link to="/">Выход</Link>
