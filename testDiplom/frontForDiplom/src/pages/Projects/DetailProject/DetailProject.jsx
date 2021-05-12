@@ -124,7 +124,7 @@ function transformDataToTree(data) {
       let lvl_down = 0;
       let copy = treeData[cur_lvls[0]];
       while (parent_key !== copy.key) {
-        copy = copy.children[cur_lvls[lvl_down]];
+        copy = copy.children[cur_lvls[lvl_down]-1];
         lvl_down += 1;
       }
 
@@ -322,7 +322,6 @@ const DetailProject = ({ match, username }) => {
       await fetchManagers();
       await fetchStatuses();
       await fetchDevelopers();
-      console.log(dataProject);
 
       setEditable(true);
       setLoadingEdit(false);
@@ -500,8 +499,6 @@ const DetailProject = ({ match, username }) => {
     XLSX.utils.book_append_sheet(wb, ws, wsName);
 
     XLSX.writeFile(wb, fileName);
-
-    console.log(dataForExport);
   };
 
   return (

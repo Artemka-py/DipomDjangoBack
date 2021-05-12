@@ -1,22 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { Drawer, Divider, Col, Row, Button, Spin, Input, DatePicker, Form, Select } from 'antd';
+import { Drawer, Divider, Col, 
+  Row, Button, Spin, Input, 
+  DatePicker, Form, Select, 
+  notification, 
+} from 'antd';
 import getCookie from '../../common/parseCookies';
 import { formatForDate } from '../../common/date';
-// import SelectUser from './SelectUser';
-// import SelectProject from './SelectProject';
-// import SelectTask from './SelectTask';
 import { UserOutlined } from '@ant-design/icons';
 
 
 const { Option } = Select;
 const { TextArea } = Input;
-let realFetchData;
+const toast = (type, message) =>
+  notification[type]({
+    message: message,
+    placement: 'bottomLeft',
+    duration: 2,
+  });
 
 const AddTask = (props) => {
+  const [loading, setLoading] = useState(true);
   const [visible, setVisible] = useState(true);
-  const [project_id, setProject] = useState('');
+  const [finish_date, setFinishDate] = useState(null);
+  const [start_date, setStartDate] = useState(null);
+  const [task_name, setTaskName] = useState(null);
+  const [task_description, setTaskDescription] = useState(null);
+  const [task_developer_login, setTaskDeveloper] = useState(null);
+  const [parent_task, setParentTask] = useState(null);
+  const [tasks, setTasks] = useState([]);
+  const [developers, setDevelopers] = useState([]);
+  const [project_id, setProjectId] = useState(null);
+  const [projects, setProjects] = useState([]);
+
   let CSRF;
 
   const showDrawer = () => {
@@ -29,49 +46,105 @@ const AddTask = (props) => {
   };
 
   const onAddTask = (values) => {
-    console.log("Create data: ");
-    console.log(values);
     CSRF = getCookie('csrftoken');
 
     axios
       .post(`http://localhost:8000/api/tasks/`,
         {
-          parent_id: null,
-          project_task_id: null,
+          parent: values.parent_id || null,
+          project_task: values.project_id,
           task_name: values.task_name,
           task_developer_login: values.task_developer_login,
           task_setter_login: values.task_setter_login,
           start_date: formatForDate(values.start_date._d.toLocaleString().substr(0, 10)),
           finish_date: formatForDate(values.finish_date._d.toLocaleString().substr(0, 10)),
-          parent:null,
           description: values.task_description,
-          task_stage: 1,
+          task_status: 1,
         },
         {
           headers: {
             'X-CSRFToken': CSRF,
           },
         }
-      )
-      .catch((err) => console.error(err));
+      ).then((res) => {
+        console.log(res);
+        toast('success', 'Данные успешно сохранены!');
+      })
+      .catch((err) => {
+        toast('error', 'Произошла ошибка попробуйте еще раз! ' + err.message);
+      });
   }
 
-  function onChangeDate(date, dateString) {
-    console.log(date, dateString);
+  const fetchTasks = async (project_id) => {
+    await axios
+      .get(`http://localhost:8000/tasks-projects/${project_id}/`)
+      .then((res) => {
+        setTasks(res.data);
+        console.log(res.data);
+      })
+      .catch((err) => console.error(err));
+  };
+
+  const fetchDevelopers = async (project_id) => {
+    await axios
+      .get(`http://localhost:8000/workgroup-developers/${project_id}/`)
+      .then(async (res) => {
+        console.log(res.data);
+        setDevelopers(res.data);
+      })
+      .catch((err) => console.error(err));
+  };
+
+  const fetchProjects = () =>{
+    setLoading(true);
+
+    axios
+      .get(`http://localhost:8000/project-login/${props.username}/`)
+      .then((res) => {
+        console.log(res.data);
+        setProjects(res.data);
+      })
+      .catch((err) => console.error(err));
+
+    setLoading(false);
   }
+
+  const onChangeStartDate = (date) => {
+    setStartDate(date.format('YYYY-MM-DD'));
+  };
+
+  const onChangeFinishDate = (date) => {
+    setFinishDate(date.format('YYYY-MM-DD'));
+  };
 
   const onProjectChange = (project)=>{
     console.log('Project changed', project);
-    setProject(project);
+    setProjectId(project);
+    fetchTasks(project);
+    fetchDevelopers(project);
   }
 
-  const fetchProjectData = () =>{
+  const onTaskDeveloperChange = (e) => {
+    setTaskDeveloper(e.value);
+  };
+  // const selectParentTaskHandler = (e) => {
+  //   setParentTask(e.value);
+  // };
+  const onTaskNameChange = (e) => {
+    setTaskName(e.target.value);
+  };
+  const onTaskDescriptionChange = (e) => {
+    console.log('Description: ', e.target.value);
+    setTaskDescription(e.target.value);
+  };
 
-  }
+
+  
 
    useEffect(() => {
-      console.log(project_id);
-      console.log('rerender');
+      setLoading(true);
+      fetchProjects();
+      setLoading(false);
    }, [project_id]);
 
   return (
@@ -103,6 +176,7 @@ const AddTask = (props) => {
                     ]}
                   >
                     <Input
+                      onChange = {onTaskNameChange}
                       placeholder="Название задачи"
                     />
                   </Form.Item>
@@ -140,8 +214,11 @@ const AddTask = (props) => {
                         },
                     ]}
                 >
-                  <TextArea rows={6} 
-                      placeholder="Введите описание задачи"/>
+                  <TextArea 
+                    rows={6} 
+                    placeholder="Введите описание задачи"
+                    onChange={onTaskDescriptionChange}
+                  />
                 </Form.Item>
                 </Col>
               </Row>
@@ -157,20 +234,54 @@ const AddTask = (props) => {
                     ]}
                   >
                     {<Select
-                    onChange = {onProjectChange}/>}
+                    showSearch
+                    style={{ marginLeft: 15, width: 200 }}
+                    optionFilterProp="children"
+                    onChange={onProjectChange}
+                    filterOption={(input, option) =>
+                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }
+                  >
+                    {projects &&
+                      projects.map((val, idx) => (
+                        <Option value={val.project_id} key={idx}>
+                          {val.project_name}
+                        </Option>
+                      ))}
+                  </Select> }
                 </Form.Item>
               </Row>
               <Row>
                 <span>Родительская задача:</span>
                 <Form.Item 
                     name="parent_id" 
-                    rules={[
-                      {
-                        // required: true,
-                      },
-                    ]}
+                    // rules={[
+                    //   {
+                    //     // required: true,
+                    //   },
+                    // ]}
                   >
-                    {<Select/>}
+                    {<Select
+                    // showSearch
+                    disabled={!project_id}
+                    style={{ marginLeft: 15, width: 200 }}
+                    // optionFilterProp="children"
+                    // // onChange={selectParentTaskHandler}
+                    // filterOption={(input, option) =>
+                    //   option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    // }
+                  >
+                    {/* {!tasks ? (
+                      <Option value={-1} key={-1}>
+                        <Spin />
+                      </Option>
+                    ) :( */}
+                      {tasks && tasks.map((val, idx) => (
+                        <Option value={val.pk} key={idx}>
+                          {val.fields.task_name}
+                        </Option>
+                      ))}
+                  </Select> }
                 </Form.Item>
               </Row>
               <Divider />
@@ -203,7 +314,23 @@ const AddTask = (props) => {
                       },
                     ]}
                   >
-                    {<Select/> }
+                    {<Select
+                    showSearch
+                    disabled={!project_id}
+                    style={{ marginLeft: 15, width: 200 }}
+                    optionFilterProp="children"
+                    onChange={onTaskDeveloperChange}
+                    filterOption={(input, option) =>
+                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }
+                  >
+                    {developers &&
+                      developers.map((val, idx) => (
+                        <Option value={val.developer_login} key={idx}>
+                          {val.developer_login}
+                        </Option>
+                      ))}
+                  </Select> }
                   </Form.Item>
                 </Col>
                 <Col span={6} style={{textAlign: 'center'}}>
@@ -219,7 +346,7 @@ const AddTask = (props) => {
                   >
                     <DatePicker 
                       allowClear="false" 
-                      onChange={onChangeDate} 
+                      onChange={onChangeStartDate} 
                     />
                   </Form.Item>
                 </Col>
@@ -234,7 +361,7 @@ const AddTask = (props) => {
                       },
                     ]}
                   >
-                    <DatePicker onChange={onChangeDate}/>
+                    <DatePicker onChange={onChangeFinishDate}/>
                   </Form.Item>
                 </Col>
               </Row>
