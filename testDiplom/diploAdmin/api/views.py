@@ -3,8 +3,8 @@ from rest_framework import serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .serializers import ClientsSerializer, DocsSerializer, ManagerSerializer, OrganisationsSerializer, ProjectSerializer, StatusSerializer, TasksSerializer, UsersSerializer, WorkgroupsSerializer, WorkingDeveloperListSerializer, DevelopersSerializer
-from ..models import Clients, Documents, Managers, Organisations, Projects, Status, Tasks, Users, Workgroups, WorkingDeveloperList, Developers
+from .serializers import ClientsSerializer, DocsSerializer, ManagerSerializer, OrganisationsSerializer, ProjectSerializer, StatusSerializer, TasksSerializer, UsersSerializer, WorkgroupsSerializer, WorkingDeveloperListSerializer, DevelopersSerializer, NotesSerializer, IssuesSerializer
+from ..models import Clients, Documents, Issues, Managers, Notes, Organisations, Projects, Status, Tasks, Users, Workgroups, WorkingDeveloperList, Developers
 
 class ProjectsViewSet(viewsets.ModelViewSet):
 
@@ -69,3 +69,13 @@ class DevelopersViewSet(viewsets.ModelViewSet):
 
   queryset = Developers.objects.all()
   serializer_class = DevelopersSerializer
+
+class NotesViewSet(viewsets.ModelViewSet):
+
+  queryset = Notes.objects.all()
+  serializer_class = NotesSerializer
+
+class IssuesViewSet(viewsets.ModelViewSet):
+
+  queryset = Issues.objects.all()
+  serializer_class = IssuesSerializer

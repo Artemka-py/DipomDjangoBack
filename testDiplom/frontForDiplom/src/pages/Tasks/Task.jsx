@@ -13,6 +13,10 @@ import {
   DatePicker,
   Select,
   notification,
+  Tabs,
+  Comment,
+  Avatar,
+  List,
 } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import moment from 'moment';
@@ -21,6 +25,7 @@ import { formatForDate } from '../../common/date';
 
 const { Option } = Select;
 const { TextArea } = Input;
+const { TabPane } = Tabs;
 const dateFormat = 'YYYY-MM-DD';
 const toast = (type, message) =>
   notification[type]({
@@ -43,6 +48,10 @@ const Task = (props) => {
   const [parent_task, setParentTask] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [developers, setDevelopers] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [issues, setIssues] = useState([]);
+  const [newComment, setNewComment] = useState(null);
+  const [newIssue, setNewIssue] =useState({});
   const [project_id, setProjectId] = useState(null);
   const [project, setProject] = useState({});
 
@@ -113,6 +122,8 @@ const Task = (props) => {
         setData(res.data);
         setProjectId(res.data.project_task);
         fetchProjectData(res.data.project_task);
+        fetchComments(task_id);
+        fetchIssues(task_id);
         setFinishDate(res.data.finish_date);
         setStartDate(res.data.start_date);
         if (res.data.parent) {
@@ -158,6 +169,25 @@ const Task = (props) => {
       })
       .catch((err) => console.error(err));
   };
+
+  const fetchComments = async (task_id) =>{
+    await axios
+      .get(`http://localhost:8000/comments-task/${task_id}/`)
+      .then((res) => {
+        setComments(res.data);
+      })
+      .catch((err) => console.error(err));
+  };
+
+  const fetchIssues = async (task_id) => {
+    await axios
+      .get(`http://localhost:8000/issues-task/${task_id}/`)
+      .then((res) => {
+        setIssues(res.data);
+      })
+      .catch((err) => console.error(err));
+  };
+
   const onTaskDeveloperChange = (e) => {
     setTaskDeveloper(e.value);
   };
@@ -168,8 +198,68 @@ const Task = (props) => {
     setTaskName(e.target.value);
   };
   const onTaskDescriptionChange = (e) => {
-    console.log('Description: ', e.target.value);
     setTaskDescription(e.target.value);
+  };
+
+  const onChangeComment = (e)=>{
+    setNewComment(e.target.value);
+  }
+
+  const onChangeIssue = (e)=>{
+    setNewIssue(e.target.value);
+  }
+
+  const onAddComment = ()=>{
+    CSRF = getCookie('csrftoken');
+    console.log('task_id: ', task_id);
+    console.log('comment_text: ', newComment);
+
+    axios
+      .post(`http://localhost:8000/api/notes/`,
+        {
+          note_task_id: task_id,
+          note_desc: newComment,
+          note_name: 'Default comment',
+          note_client_login: props.username,
+          note_date: Date.now(),
+        },
+        {
+          headers: {
+            'X-CSRFToken': CSRF,
+          },
+        }
+      ).then((res) => {
+        toast('success', 'Comment Successfuly Added!');
+        fetchComments(task_id);
+      })
+      .catch((err) => {
+        toast('error', 'Произошла ошибка попробуйте еще раз! ' + err.message);
+      });
+  };
+
+  const onAddIssue = ()=>{
+    CSRF = getCookie('csrftoken');
+
+    axios
+      .post(`http://localhost:8000/api/issues/`,
+        {
+          issue_task: task_id,
+          note_description: newIssue,
+          issue_name: 'Default comment',
+          issue_date: Date.now(),
+        },
+        {
+          headers: {
+            'X-CSRFToken': CSRF,
+          },
+        }
+      ).then((res) => {
+        toast('success', 'Comment Successfuly Added!');
+        fetchIssues(task_id);
+      })
+      .catch((err) => {
+        toast('error', 'Произошла ошибка попробуйте еще раз! ' + err.message);
+      });
   };
 
   useEffect(() => {
@@ -300,9 +390,6 @@ const Task = (props) => {
                   )}
                 </Row>
                 <Divider />
-                <Row>
-                  <p>Comments</p>
-                </Row>
               </>
             ) : (
               <>
@@ -378,7 +465,80 @@ const Task = (props) => {
                 </Row>
                 <Divider />
                 <Row>
-                  <p>Comments</p>
+                  <Tabs tabPosition="left">
+                    <TabPane tab="Comments" key="1">
+                      <Row>
+                        <p>Comments</p>
+                        <TextArea rows={6} placeholder="Leave a Comment" style={{marginBottom: 15}} onChange={onChangeComment}/>
+                        <button type="button" onClick={onAddComment} disabled={!newComment}> Add Comment</button>
+                        <Divider></Divider>
+                        {/* {comments && comments.map((item, idx)=>(
+                        <Comment
+                          author={<a>{item.fields.note_client_login}</a>}
+                          avatar={
+                            <Avatar
+                              src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
+                              alt="Han Solo"
+                            />
+                          }
+                          content={
+                            <p>
+                              {item.fields.note_desc}
+                            </p>
+                          }
+                          datetime={
+                              <span>{moment(item.fields.note_date, 'YYYY-MM-DD').fromNow()}</span>
+                          }
+                        />))} */}
+                        {<List
+                          className="comment-list"
+                          header={`${comments.length} replies`}
+                          itemLayout="horizontal"
+                          dataSource={comments}
+                          renderItem={item => (
+                            <li>
+                              <Comment
+                                author={<a>{item.fields.note_client_login}</a>}
+                                avatar={
+                                  <Avatar
+                                    src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
+                                    alt="Han Solo"
+                                  />
+                                }
+                                content={
+                                  <p>
+                                    {item.fields.note_desc}
+                                  </p>
+                                }
+                                datetime={
+                                    <span>{moment(item.fields.note_date, 'YYYY-MM-DD').fromNow()}</span>
+                                }
+                              />
+                            </li>
+                          )}
+                        />}
+                      </Row>
+                    </TabPane>
+                    <TabPane tab="Issues" key="2">
+                      <Row>
+                        <TextArea rows={6} placeholder="Add an Issue" style={{marginBottom: 15}} onChange={onChangeIssue}/>
+                        <button type="button" onClick={onAddIssue} disabled={!newIssue}> Add Issue</button>
+                        <Divider></Divider>
+                        <p>Issues</p>
+                        {/* {issues && issues.map((item, idx)=>(
+                        <Comment
+                          content={
+                            <p>
+                              {item.fields.issue_description}
+                            </p>
+                          }
+                          datetime={
+                              <span>{moment(item.fields.issue_date, 'YYYY-MM-DD').fromNow()}</span>
+                          }
+                        />))} */}
+                      </Row>
+                    </TabPane>
+                  </Tabs>
                 </Row>
               </>
             )}

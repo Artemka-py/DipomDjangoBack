@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf.urls import url
-from diploAdmin.views import index, projects, tasks, clients, projects_id, project_check_rights, workgroup_developers, project_with_orgs, developers_in_project, tasks_project, error, statstic, verify_email
+from diploAdmin.views import index, projects, tasks, clients, projects_id, project_check_rights, workgroup_developers, project_with_orgs, developers_in_project, tasks_project, error, statstic, verify_email, task_comments, task_issues
 from django.db import connections
 from django.db.utils import OperationalError
 
@@ -38,6 +38,8 @@ else:
         path('api-auth/', include('rest_framework.urls')),
         path('rest-auth/registration/', include('rest_auth.registration.urls')),
         path('verify-email/<str:username>/', verify_email),
+        path('comments-task/<int:task_id>/', task_comments),
+        path('issues-task/<int:task_id>/', task_issues),
         path(r'^', index),
         path(r'tasks', index),
         path(r'projects', index),
