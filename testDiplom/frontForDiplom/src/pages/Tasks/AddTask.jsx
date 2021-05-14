@@ -69,10 +69,14 @@ const AddTask = (props) => {
       ).then((res) => {
         console.log(res);
         toast('success', 'Данные успешно сохранены!');
+        setVisible(false);
+        window.location.assign('/tasks');
       })
       .catch((err) => {
         toast('error', 'Произошла ошибка попробуйте еще раз! ' + err.message);
       });
+
+
   }
 
   const fetchTasks = async (project_id) => {

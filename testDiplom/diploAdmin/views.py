@@ -1,7 +1,7 @@
 from django.db import connection
 from django.db.models import Q
 from django.http.response import HttpResponse
-from .models import Clients, Projects, Tasks, Users
+from .models import Clients, Issues, Projects, Tasks, Users, Notes
 from django.shortcuts import render
 from django.core import serializers
 from django.core.mail import send_mail
@@ -168,3 +168,15 @@ def verify_email(req, username):
     mp.track(username, 'Verifying email')
     send_mail(subject, message, sender_from, recipients)
     return HttpResponse(key, content_type="application/json")
+
+def task_comments(req,task_id):
+    data = Notes.objects.filter(note_task_id = task_id)
+    data = serializers.serialize('json', data)
+
+    return HttpResponse(data, content_type="application/json")
+
+def task_issues(req, task_id):
+    data = Issues.objects.filter(issue_task = task_id)
+    data = serializers.serialize('json', data)
+
+    return HttpResponse(data, content_type="application/json")
