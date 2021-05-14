@@ -10,6 +10,7 @@ import getCookie from '../../common/parseCookies';
 import { formatForDate } from '../../common/date';
 import { UserOutlined } from '@ant-design/icons';
 
+const dateFormat = 'YYYY-MM-DD';
 
 const { Option } = Select;
 const { TextArea } = Input;

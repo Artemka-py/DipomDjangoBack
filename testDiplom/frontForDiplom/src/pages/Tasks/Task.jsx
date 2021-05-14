@@ -18,7 +18,7 @@ import {
   Avatar,
   List,
 } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import moment from 'moment';
 import getCookie from '../../common/parseCookies';
 import { formatForDate } from '../../common/date';
@@ -51,7 +51,8 @@ const Task = (props) => {
   const [comments, setComments] = useState([]);
   const [issues, setIssues] = useState([]);
   const [newComment, setNewComment] = useState(null);
-  const [newIssue, setNewIssue] =useState({});
+  const [newIssue, setNewIssue] =useState(null);
+  const [issueName, setIssueName] = useState(null);
   const [project_id, setProjectId] = useState(null);
   const [project, setProject] = useState({});
 
@@ -209,10 +210,19 @@ const Task = (props) => {
     setNewIssue(e.target.value);
   }
 
+  const onChangeIssueName = (e)=>{
+    setIssueName(e.target.value);
+  }
+
   const onAddComment = ()=>{
     CSRF = getCookie('csrftoken');
-    console.log('task_id: ', task_id);
-    console.log('comment_text: ', newComment);
+    let date = new Date();
+    let YYYY = date.getFullYear();
+    let mm = date.getMonth() + 1;
+    if(mm<10) mm = '0' + mm;
+    let dd = date.getDate();
+    if(dd<10) dd='0' + dd;
+    let dateFormated = YYYY + '-'+ mm + '-' + dd; 
 
     axios
       .post(`http://localhost:8000/api/notes/`,
@@ -221,7 +231,7 @@ const Task = (props) => {
           note_desc: newComment,
           note_name: 'Default comment',
           note_client_login: props.username,
-          note_date: Date.now(),
+          note_date: dateFormated,
         },
         {
           headers: {
@@ -239,14 +249,21 @@ const Task = (props) => {
 
   const onAddIssue = ()=>{
     CSRF = getCookie('csrftoken');
+    let date = new Date();
+    let YYYY = date.getFullYear();
+    let mm = date.getMonth() + 1;
+    if(mm<10) mm = '0' + mm;
+    let dd = date.getDate();
+    if(dd<10) dd='0' + dd;
+    let dateFormated = YYYY + '-'+ mm + '-' + dd; 
 
     axios
       .post(`http://localhost:8000/api/issues/`,
         {
           issue_task: task_id,
-          note_description: newIssue,
-          issue_name: 'Default comment',
-          issue_date: Date.now(),
+          issue_description: newIssue,
+          issue_name: issueName,
+          issue_date: dateFormated,
         },
         {
           headers: {
@@ -254,7 +271,7 @@ const Task = (props) => {
           },
         }
       ).then((res) => {
-        toast('success', 'Comment Successfuly Added!');
+        toast('success', 'Issue Successfuly Added!');
         fetchIssues(task_id);
       })
       .catch((err) => {
@@ -466,11 +483,11 @@ const Task = (props) => {
                 <Divider />
                 <Row>
                   <Tabs tabPosition="left">
-                    <TabPane tab="Comments" key="1">
+                    <TabPane tab="Комментарии" key="1">
                       <Row>
-                        <p>Comments</p>
-                        <TextArea rows={6} placeholder="Leave a Comment" style={{marginBottom: 15}} onChange={onChangeComment}/>
-                        <button type="button" onClick={onAddComment} disabled={!newComment}> Add Comment</button>
+                        <p>Комментарии</p>
+                        <TextArea rows={6} placeholder="Написать комментарий" style={{marginBottom: 15}} onChange={onChangeComment}/>
+                        <button type="button" onClick={onAddComment} disabled={!newComment}> Отправить</button>
                         <Divider></Divider>
                         {/* {comments && comments.map((item, idx)=>(
                         <Comment
@@ -519,12 +536,13 @@ const Task = (props) => {
                         />}
                       </Row>
                     </TabPane>
-                    <TabPane tab="Issues" key="2">
+                    <TabPane tab="Замечания" key="2">
                       <Row>
-                        <TextArea rows={6} placeholder="Add an Issue" style={{marginBottom: 15}} onChange={onChangeIssue}/>
-                        <button type="button" onClick={onAddIssue} disabled={!newIssue}> Add Issue</button>
+                        <p>Замечания</p>
+                        <Input placeholder="Введите название проблемы" onChange={onChangeIssueName} style={{marginBottom: 15}}/>
+                        <TextArea rows={6} placeholder="Описание проблемы" style={{marginBottom: 15}} onChange={onChangeIssue}/>
+                        <button type="button" onClick={onAddIssue} disabled={!newIssue}> Отправить</button>
                         <Divider></Divider>
-                        <p>Issues</p>
                         {/* {issues && issues.map((item, idx)=>(
                         <Comment
                           content={
@@ -536,6 +554,32 @@ const Task = (props) => {
                               <span>{moment(item.fields.issue_date, 'YYYY-MM-DD').fromNow()}</span>
                           }
                         />))} */}
+                        {
+                          <List
+                          className="comment-list"
+                          header={`${issues.length} replies`}
+                          itemLayout="horizontal"
+                          dataSource={issues}
+                          renderItem={item => (
+                            <li>
+                              <Comment
+                                avatar={ item.fields.issue_close_status ? (
+                                  <CheckCircleFilled style={{ color: 'green', fontSize: '32px'}}/>) : (
+                                  <CloseCircleFilled style={{ color: 'red', fontSize: '32px'}}/>)
+                                }
+                                content={
+                                  <p>
+                                    {item.fields.issue_description}
+                                  </p>
+                                }
+                                datetime={
+                                    <span>{moment(item.fields.issue_date, 'YYYY-MM-DD').fromNow()}</span>
+                                }
+                              />
+                            </li>
+                          )}
+                        />
+                        }
                       </Row>
                     </TabPane>
                   </Tabs>
