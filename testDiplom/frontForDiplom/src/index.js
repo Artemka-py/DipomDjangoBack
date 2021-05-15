@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
@@ -8,10 +8,11 @@ import { createStore, compose, applyMiddleware } from 'redux';
 import BugBattle from 'bugbattle';
 import reducer from './store/reducers/auth';
 import reportWebVitals from './reportWebVitals';
-import App from './App';
 import { ConfigProvider } from 'antd';
 import locale from 'antd/lib/locale/ru_RU';
 import mixpanel from 'mixpanel-browser';
+import PreLoader from './components/PreLoader/PreLoader.jsx';
+const App = lazy(() => import('./App'));
 
 mixpanel.init('087836e72b7918aa48ee6cee520596da');
 
@@ -24,13 +25,15 @@ const composeEnhances = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export const store = createStore(reducer, composeEnhances(applyMiddleware(thunk)));
 
 const app = (
-  <Provider store={store}>
-    <BrowserRouter>
-      <ConfigProvider locale={locale}>
-        <App />
-      </ConfigProvider>
-    </BrowserRouter>
-  </Provider>
+  <Suspense fallback={<PreLoader />}>
+    <Provider store={store}>
+      <BrowserRouter>
+        <ConfigProvider locale={locale}>
+          <App />
+        </ConfigProvider>
+      </BrowserRouter>
+    </Provider>
+  </Suspense>
 );
 
 ReactDOM.render(app, document.getElementById('root'));

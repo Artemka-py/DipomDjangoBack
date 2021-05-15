@@ -61,7 +61,6 @@ const Master = (props) => {
       .get(`http://localhost:8000/api/users/${props.username}/`)
       .then((res) => {
         setData(res.data);
-        console.log(res.data);
 
         axios
           .get(res.data.user_image_src)
