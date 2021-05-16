@@ -40,7 +40,7 @@ else:
         path('verify-email/<str:username>/', verify_email),
         path('comments-task/<int:task_id>/', task_comments),
         path('issues-task/<int:task_id>/', task_issues),
-        path(r'^', index),
+        path(r'', index),
         path(r'tasks', index),
         path(r'projects', index),
         path(r'about', index),

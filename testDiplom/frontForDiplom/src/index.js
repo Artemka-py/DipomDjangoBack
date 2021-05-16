@@ -12,6 +12,7 @@ import { ConfigProvider } from 'antd';
 import locale from 'antd/lib/locale/ru_RU';
 import mixpanel from 'mixpanel-browser';
 import PreLoader from './components/PreLoader/PreLoader.jsx';
+import { toast } from './pages/Projects/DetailProject/DetailProject';
 const App = lazy(() => import('./App'));
 
 mixpanel.init('087836e72b7918aa48ee6cee520596da');
@@ -23,6 +24,33 @@ BugBattle.setMainColor('#3c94e5');
 const composeEnhances = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 export const store = createStore(reducer, composeEnhances(applyMiddleware(thunk)));
+
+var browser = (function () {
+  var test = function (regexp) {
+    return regexp.test(window.navigator.userAgent);
+  };
+  switch (true) {
+    case test(/edg/i):
+      toast('warning', 'Извините, но наш сайт может не правильно отрабатывать в вашем бразуере!');
+      return 'edge';
+    case test(/opr/i) && (!!window.opr || !!window.opera):
+      toast('warning', 'Извините, но наш сайт может не правильно отрабатывать в вашем бразуере!');
+      return 'opera';
+    case test(/chrome/i) && !!window.chrome:
+      return 'chrome';
+    case test(/trident/i):
+      toast('warning', 'Извините, но наш сайт может не правильно отрабатывать в вашем бразуере!');
+      return 'ie';
+    case test(/firefox/i):
+      toast('warning', 'Извините, но наш сайт может не правильно отрабатывать в вашем бразуере!');
+      return 'firefox';
+    case test(/safari/i):
+      toast('warning', 'Извините, но наш сайт может не правильно отрабатывать в вашем бразуере!');
+      return 'safari';
+    default:
+      return 'other';
+  }
+})();
 
 const app = (
   <Suspense fallback={<PreLoader />}>

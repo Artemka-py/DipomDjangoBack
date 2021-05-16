@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios'; 
+import axios from 'axios';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Table, Tooltip} from 'antd';
+import { Table, Tooltip } from 'antd';
 
 const columns = [
   {
@@ -26,7 +26,7 @@ const columns = [
     ellipsis: {
       showTitle: false,
     },
-    render: task_developer => (
+    render: (task_developer) => (
       <Tooltip placement="topLeft" title={task_developer}>
         {task_developer}
       </Tooltip>
@@ -75,42 +75,43 @@ if (!Array.prototype.last) {
     return this[this.length - 1];
   };
 }
-function transformData(data){
+function transformData(data) {
   const data_transformed = {};
   console.log(data);
-  data.forEach(item => {
+  data.forEach((item) => {
     let dataItem = {
       key: item.task_id,
       task_name: item.task_name,
       task_developer: item.task_developer_login,
       task_setter: item.task_setter_login_id,
       start_date_plan: item.start_date,
-      finish_date_plan: item.finish_date
+      finish_date_plan: item.finish_date,
     };
-    if(!data_transformed[item.project_task_id]){
+    if (!data_transformed[item.project_task_id]) {
       data_transformed[item.project_task_id] = {
-        'project_name': item.project_name,
-        'data': []
+        project_name: item.project_name,
+        data: [],
       };
     }
     data_transformed[item.project_task_id].data.push(dataItem);
   });
 
   console.log(data_transformed);
-  
+
   return data_transformed;
 }
 
-const Tasks_list = (props) => {                                                                                                                 
+const Tasks_list = (props) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
   let getFetchData;
 
-  const fetchData = async() => {
+  const fetchData = async () => {
     await axios
       .get(`http://localhost:8000/tasks-login/${props.username}/`)
       .then((res) => {
         setData(transformData(res.data));
+        console.log('data', res.data);
         // return transformData(res.data);
       })
       .catch((err) => console.error(err));
@@ -118,35 +119,43 @@ const Tasks_list = (props) => {
 
   useEffect(() => {
     setLoading(true);
-    fetchData().then((data)=>setLoading(false));
+    fetchData().then((data) => setLoading(false));
   }, []);
 
   const projectTitleStyle = {
-    backgroundColor:'grey',
-    fontSize:20,
-    fontWeight:600,
-    paddingLeft:30,
-    paddingTop:10,
-    paddingRight:30,
-    paddingBottom:10,
+    backgroundColor: 'grey',
+    fontSize: 20,
+    fontWeight: 600,
+    paddingLeft: 30,
+    paddingTop: 10,
+    paddingRight: 30,
+    paddingBottom: 10,
     color: 'white',
     marginBottom: 0,
-  }
+  };
 
   return (
     <>
-      {data && Object.entries(data).map(([key, value])=>
-        (<>
-          <p style={projectTitleStyle}>{value.project_name}</p>
-          <Table
-            columns={columns}
-            rowSelection={ {...rowSelection}}
-            rowKey={(record) => record.key}
-            dataSource={value.data}
-            loading={loading}
-          />
-        </>)
-      )}
+      {data &&
+        Object.entries(data).map(([key, value]) => (
+          <>
+            <p style={projectTitleStyle}>
+              <a
+                style={{ textDecoration: 'none', color: '#fff' }}
+                href={`http://localhost:3006/project-detail/${key}`}
+              >
+                {value.project_name}
+              </a>
+            </p>
+            <Table
+              columns={columns}
+              rowSelection={{ ...rowSelection }}
+              rowKey={(record) => record.key}
+              dataSource={value.data}
+              loading={loading}
+            />
+          </>
+        ))}
     </>
   );
 };
