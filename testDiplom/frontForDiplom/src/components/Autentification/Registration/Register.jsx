@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Checkbox, Form, Input, Modal, Button } from 'antd';
 import { ExclamationCircleOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { connect } from 'react-redux';
+import { Prompt } from 'react-router';
 import classes from './Register.module.css';
 import * as actions from '../../../store/actions/auth';
 import ConfirmEmail from '../ConfirmEmail/ConfirmEmail';
@@ -13,12 +14,14 @@ const Register = (props) => {
   const [confirm, setConfirm] = useState(false);
   const [username, setUsername] = useState(null);
   const [password, setPassword] = useState(null);
+  const [shouldBlockNavigation, setShouldBlockNavigation] = useState(false);
   let errorMessage = [];
 
   const onFinish = (values) => {
     console.log('Received values of form: ', values);
     setUsername(values.username);
     setPassword(values.password1);
+    setShouldBlockNavigation(false);
     props.onRegister(values.username, values.email, values.password1, values.password2);
   };
 
@@ -41,21 +44,32 @@ const Register = (props) => {
   }
 
   useEffect(() => {
-    if (props.loading === false && (props.token || props.error))
+    if (props.loading === false && (props.token || props.error)) {
+      setShouldBlockNavigation(true);
       if (props.error === null) {
         showPromiseConfirm();
       }
+    }
   }, [props.error, props.history, props.loading, props.token]);
 
   useEffect(() => {
     if (props.error === 'Пройдите сначала активацию через почту!') {
       setConfirm(true);
+      setShouldBlockNavigation(false);
     }
   }, [props.error, errorMessage]);
 
   const authLogic = async (username, password) => {
     await props.onAuth(username, password);
   };
+
+  useEffect(() => {
+    if (!shouldBlockNavigation) {
+      window.onbeforeunload = () => true;
+    } else {
+      window.onbeforeunload = undefined;
+    }
+  }, []);
 
   if (props.error || errorMessage.length !== 0) {
     if (typeof props.error.response === 'undefined') {
@@ -74,6 +88,7 @@ const Register = (props) => {
           {e}
         </p>
       ))}
+
       {confirm ? (
         <ConfirmEmail
           username={username}

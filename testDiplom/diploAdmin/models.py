@@ -8,12 +8,12 @@ from django.utils import timezone
 from mptt.models import MPTTModel
 from django.conf import settings
 
-
+#Создание пути сохранения файла
 def upload_location(instatnce, filename):
     file_path = 'avatars/{username}/{filename}'.format(username=str(instatnce.username), filename=filename)
     return file_path
 
-
+#Создания пользователь-менеджера для таблицы пользователей 
 class MyUserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
         if not email:
@@ -41,11 +41,12 @@ class MyUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-
+#Регулярное выражения для логина пользователя
 USERNAME_REGEX = '^[a-zA-Z0-9.+-]*$'
 
-
+#Таблицы пользователя
 class Users(AbstractBaseUser):
+    #Поле логина пользователя
     username = models.CharField(
         max_length=300,
         validators=[
@@ -57,6 +58,7 @@ class Users(AbstractBaseUser):
         primary_key=True,
         verbose_name="Логин"
     )
+    #Поле почты пользователя
     email = models.EmailField(
         max_length=255,
         unique=True,
@@ -118,11 +120,12 @@ class Users(AbstractBaseUser):
     image_img.short_description = 'Картинка'
     image_img.allow_tags = True
 
-
+#Создание пути сохранения файла
 def upload_location_documents(instatnce, filename):
     file_path = 'documents/{login_user}/{filename}'.format(login_user=str(instatnce.login_user), filename=filename)
     return file_path
 
+#Модель таблицы документов
 class Documents(models.Model):
     login_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Загрузил документ")
     path_file = models.FileField(verbose_name='Путь до документов', null=True, blank=True,
@@ -135,7 +138,7 @@ class Documents(models.Model):
     def __str__(self):
         return str(self.path_file.url)
 
-
+#Модель таблицы клиентов
 class Clients(models.Model):
     client_login = models.OneToOneField(settings.AUTH_USER_MODEL, db_column='client_login', primary_key=True,
                                         on_delete=models.DO_NOTHING, verbose_name="Логин клиента")
@@ -150,7 +153,7 @@ class Clients(models.Model):
         verbose_name = 'Клиент'
         verbose_name_plural = 'Клиенты'
 
-
+#Модель таблицы разработчиков
 class Developers(models.Model):
     developer_login = models.OneToOneField(settings.AUTH_USER_MODEL, models.DO_NOTHING, db_column='developer_login', primary_key=True,
                                            verbose_name="Логин разработчика")
@@ -164,7 +167,7 @@ class Developers(models.Model):
         verbose_name = 'Разработчик'
         verbose_name_plural = 'Разработчики'
 
-
+#Модель таблицы проблем задач
 class Issues(models.Model):
     issue_id = models.AutoField(primary_key=True)
     issue_name = models.CharField(max_length=255, verbose_name="Название проблемы")
@@ -184,7 +187,7 @@ class Issues(models.Model):
         verbose_name = 'Проблема'
         verbose_name_plural = 'Проблемы'
 
-
+#Модель таблицы менеджеров
 class Managers(models.Model):
     manager_login = models.OneToOneField(settings.AUTH_USER_MODEL, models.DO_NOTHING, db_column='manager_login', primary_key=True,
                                          verbose_name="Логин менеджера")
@@ -200,25 +203,7 @@ class Managers(models.Model):
         verbose_name = 'Менеджер'
         verbose_name_plural = 'Менеджеры'
 
-
-# class Modules(models.Model):
-#     module_id = models.AutoField(primary_key=True)
-#     module_name = models.CharField(max_length=255, verbose_name="Название модуля")
-#     module_project = models.ForeignKey('Projects', models.DO_NOTHING, default=1, null=False,
-#                                        verbose_name="Название проекта")
-#     module_status = models.ForeignKey('Status', models.DO_NOTHING, db_column='module_status', default=1, null=False,
-#                                       verbose_name="Статус модуля")
-#     docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
-
-#     def __str__(self):
-#         return str(self.module_name)
-
-#     class Meta:
-#         db_table = 'modules'
-#         verbose_name = 'Модуль'
-#         verbose_name_plural = 'Модули'
-
-
+#Модель таблицы заметок задач
 class Notes(models.Model):
     note_id = models.AutoField(primary_key=True)
     note_name = models.CharField(max_length=255, verbose_name="Название")

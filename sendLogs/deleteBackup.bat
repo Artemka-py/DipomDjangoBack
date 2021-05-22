@@ -1,0 +1,1 @@
+forfiles /p "C:\Users\User\Desktop\DipomDjangoBack\sendLogs\Backup" /S /C "cmd /c del /f /a /q @file"

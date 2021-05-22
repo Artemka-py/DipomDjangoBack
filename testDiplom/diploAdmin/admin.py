@@ -13,7 +13,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from .forms import UserCreationForm
 
-
+#Эксопрт в эксель всех задач
 def export_xlsx(modeladmin, request, queryset):
     import openpyxl
     from openpyxl.utils import get_column_letter
@@ -64,7 +64,7 @@ def export_xlsx(modeladmin, request, queryset):
 
 export_xlsx.short_description = "Экспорт в excel"
 
-
+#Экспорт в csv формат всех задач
 def export_to_csv(modeladmin, request, queryset):
     opts = modeladmin.model._meta
     response = HttpResponse(content_type='text/csv')
@@ -87,21 +87,21 @@ def export_to_csv(modeladmin, request, queryset):
 
 export_to_csv.short_description = 'Экспорт в CSV'
 
-
+#Изменение статуса лог-удаления на правду
 def log_del_True(modeladmin, request, queryset):
     queryset.filter(logical_delete_status=False).update(logical_delete_status=True)
 
 
 log_del_True.short_description = 'Поменять статус логического удаления на правда'
 
-
+#Изменение статуса лог-удаления на ложь
 def log_del_False(modeladmin, request, queryset):
     queryset.filter(logical_delete_status=True).update(logical_delete_status=False)
 
 
 log_del_False.short_description = 'Поменять статус логического удаления на ложь'
 
-
+#Класс для импорта и экспорта
 class WorkGroupsResource(resources.ModelResource):
     class Meta:
         model = models.Workgroups
@@ -113,7 +113,7 @@ class WorkGroupsResource(resources.ModelResource):
         if dataset.headers:
             dataset.headers = [str(header).lower().strip() for header in dataset.headers]
 
-
+#Класс для импорта и экспорта
 class UserResource(resources.ModelResource):
     class Meta:
         model = models.Users
@@ -150,7 +150,7 @@ class UsersModel(BaseUserAdmin, ImportExportModelAdmin):
     class Media:
         pass
 
-
+#Класс для отображения в древовидной структуре плюс доп функции
 class TaskModel(DraggableMPTTAdmin):
     list_display = (
         'tree_actions',
@@ -161,32 +161,27 @@ class TaskModel(DraggableMPTTAdmin):
     )
     actions = [export_to_csv, export_xlsx]
 
-
+#Для регистрации модели в админке
 class WorkgroupsModel(ImportExportModelAdmin):
     resources = WorkGroupsResource
 
-
+#Для регистрации модели в админке
 @admin.register(models.Status)
 class Test(admin.ModelAdmin):
     list_display = ['status_name']
 
-
-# @admin.register(models.Stages)
-# class StagesAdmin(admin.ModelAdmin):
-#     exclude = ['stage_id']
-
-
+#Для регистрации модели в админке
 @admin.register(models.Projects)
 class ProjectsAdmin(admin.ModelAdmin):
     list_display = ('project_name', 'project_status', 'start_date_plan', 'finish_date_plan')
 
-
+#Для регистрации модели в админке
 @admin.register(models.Documents)
 class DocumentsAdmin(admin.ModelAdmin):
     list_display = ('login_user', 'path_file' )
     
 
-# Register your models here.
+#Для регистрации моделей в админке
 admin.site.register(models.Users, UsersModel)
 admin.site.register(models.Tasks, TaskModel)
 admin.site.register(models.Managers, list_display=('manager_login', 'outsource_spec',))

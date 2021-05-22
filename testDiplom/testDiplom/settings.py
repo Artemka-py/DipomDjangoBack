@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'gltv83z_1@j^39s-n#($5qy3ky%w6s#5$x*6vx=39f3g*ab(!)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -103,16 +103,29 @@ WSGI_APPLICATION = 'testDiplom.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'testhelpmeimportexport',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'PORT': '5432',
-        'HOST': '185.43.4.30'
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'testhelpmeimportexport',
+            'USER': 'postgres',
+            'PASSWORD': 'postgres',
+            'PORT': '5432',
+            'HOST': '185.43.4.30'
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'testhelpmeimportexportprod',
+            'USER': 'postgres',
+            'PASSWORD': 'postgres',
+            'PORT': '5432',
+            'HOST': '185.43.4.30'
+        }
+    }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

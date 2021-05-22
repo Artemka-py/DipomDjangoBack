@@ -7,6 +7,7 @@ from diploAdmin.views import index, projects, tasks, clients, projects_id, proje
 from django.db import connections
 from django.db.utils import OperationalError
 
+#Проверка подключения к БД
 connected = True
 db_conn = connections['default']
 try:
@@ -17,10 +18,12 @@ else:
     connected = True
 
 if (connected == False):
+    #Ендпоинты если нт подключения к БД
     urlpatterns = [
         path(r'*', error)
     ]
 else:
+    #Ендпоинты бэкенд сервиса
     urlpatterns = [
         path('admin/', admin.site.urls),
         path('api/', include('diploAdmin.api.urls')),

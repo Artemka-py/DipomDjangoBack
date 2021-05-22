@@ -7,15 +7,27 @@ from django.core import serializers
 from django.core.mail import send_mail
 import random
 from mixpanel import Mixpanel
+from loguru import logger
+from rest_framework import fields, serializers as ser
+from rest_framework.renderers import JSONRenderer
 
+#Включение логирования
+logger.add('errors.log', format="{time} {level} {message}", level="ERROR", rotation="10 KB")
+
+#Подключение мониторинга в реальном времени
 mp = Mixpanel('087836e72b7918aa48ee6cee520596da')
 
+#Ендпоинт для вывода шаблона ошибок
 def error(req):
+    logger.error(req)
     return render(req, 'error.html', {})
 
+#Ендпоинт главной страницы
 def index(req):
+    # logger.info('Пользователь открыл сайт.')
     return render(req, 'index.html', {})
 
+#Преобразование результатов запросов в json формат
 def dict_fetch_all(cursor):
     columns = [col[0] for col in cursor.description]
     return [
@@ -23,16 +35,7 @@ def dict_fetch_all(cursor):
         for row in cursor.fetchall()
     ]
 
-import json
-
-from rest_framework import fields, serializers as ser
-from rest_framework.renderers import JSONRenderer
-
-class CommentSerializer(ser.Serializer):
-    email = ser.EmailField()
-    content = ser.CharField(max_length=200)
-    created = ser.DateTimeField()
-
+#Ендпоинт для получения данных о проекте
 def projects(req, username):
     with connection.cursor() as cursor:
         cursor.execute(''' select distinct project_id, project_name, project_info, start_date_plan, finish_date_plan,
@@ -52,13 +55,13 @@ def projects(req, username):
 
     return HttpResponse(data, content_type="application/json")
 
-
+#Ендпоинт для получение прав пользователя к проекту
 def project_check_rights(_, manager_login, project_id):
     data = Projects.objects.filter(project_id=project_id, project_manager_login=manager_login).count()
 
     return HttpResponse(data, content_type="application/json")
 
-
+#Ендпоинт для получения данных о проекте
 def projects_id(req, username):
     with connection.cursor() as cursor:
         cursor.execute(''' select project_id
@@ -77,6 +80,7 @@ def projects_id(req, username):
 
     return HttpResponse(data, content_type="application/json")
 
+#Ендпоинт для получения задач
 def tasks(req, username):
     with connection.cursor() as cursor:
         cursor.execute('''select task_id, task_name, task_status_id, task_setter_login_id, task_developer_login, parent_id,
@@ -91,7 +95,7 @@ def tasks(req, username):
 
     return HttpResponse(data, content_type="application/json")
     
-
+#Ендпоинт для получения клиентов
 def clients(req, org_id):
     data = Clients.objects.filter(client_organisation=org_id).all()
     data = serializers.serialize('json', data, fields=())
@@ -100,6 +104,7 @@ def clients(req, org_id):
 
     return HttpResponse(data, content_type="application/json")
 
+#Ендпоинт для получения групп разработчиков
 def workgroup_developers(req, project_id):
     with connection.cursor() as cursor:
         cursor.execute('''select developer_login from working_developer_list wdl 
@@ -113,7 +118,7 @@ def workgroup_developers(req, project_id):
 
     return HttpResponse(data, content_type="application/json")
 
-
+#Ендпоинт для получния проектов с организациями
 def project_with_orgs(req, project_id):
     with connection.cursor() as cursor:
         cursor.execute('''select * from projects inner JOIN clients c on projects.project_client_login = c.client_login inner join organisations o on c.client_organisation_id = o.organisation_id inner join status s on projects.project_status_id = s.status_id where project_id = %s''', [project_id])
@@ -123,7 +128,7 @@ def project_with_orgs(req, project_id):
 
     return HttpResponse(data, content_type="application/json")
 
-
+# Ендпоинт для получения разработчкиов в проекте
 def developers_in_project(req, work_id):
     with connection.cursor() as cursor:
         cursor.execute('''select * from working_developer_list where workgroup_id = %s''', [work_id])
@@ -133,7 +138,7 @@ def developers_in_project(req, work_id):
 
     return HttpResponse(data, content_type="application/json")
 
-
+#Ендпоинт для получения задач проекта
 def tasks_project(req, id):
     data = Tasks.objects.filter(project_task_id = id)
     data = serializers.serialize('json', data, fields=('task_id', 'task_name', 'task_stage', 'task_setter_login', 'task_developer_login', 'parent', 'start_date', 'finish_date', 'start_date_fact', 'finish_date_fact', 'task_status',))
@@ -142,7 +147,7 @@ def tasks_project(req, id):
 
     return HttpResponse(data, content_type="application/json")
 
-
+#Ендпоинт для получения статистики по проекту
 def statstic(req, id):
     with connection.cursor() as cursor:
         cursor.execute(''' select count(*) as "inProgress", (select count(*) from tasks where project_task_id = %s) as "allCount" from tasks where project_task_id = %s and now() between start_date and finish_date ''', [id, id])
@@ -154,7 +159,7 @@ def statstic(req, id):
 
     return HttpResponse(data, content_type="application/json")
 
-
+#Ендпоинт для верификации e-mail пользователя
 def verify_email(req, username):
     key = random.randint(100000, 99999999)
 
@@ -169,12 +174,14 @@ def verify_email(req, username):
     send_mail(subject, message, sender_from, recipients)
     return HttpResponse(key, content_type="application/json")
 
+#Ендпоинт для получения комментариев для задачи
 def task_comments(req,task_id):
     data = Notes.objects.filter(note_task_id = task_id)
     data = serializers.serialize('json', data)
 
     return HttpResponse(data, content_type="application/json")
 
+#Кндпоинт для получения проблем для задачи
 def task_issues(req, task_id):
     data = Issues.objects.filter(issue_task = task_id)
     data = serializers.serialize('json', data)

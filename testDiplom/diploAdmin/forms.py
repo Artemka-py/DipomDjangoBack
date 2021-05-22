@@ -5,7 +5,7 @@ from django import forms
 
 User = get_user_model()
 
-
+#Форма для создания пользователя
 class UserCreationForm(forms.ModelForm):
     password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Подтверждение пароля', widget=forms.PasswordInput)
@@ -15,6 +15,7 @@ class UserCreationForm(forms.ModelForm):
         fields = ['username', 'email', 'first_name', 'middle_name', 'sur_name', 'birth_date', 'phone_num',
                 'user_image_src']
 
+    #Проверка паролей
     def clean_password(self):
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
@@ -22,6 +23,7 @@ class UserCreationForm(forms.ModelForm):
             raise forms.ValidationError("Пароли не совпадают")
         return password2
 
+    #Сохранение пользователя
     def save(self, commit=True):
         user = super(UserCreationForm, self).save(commit=False)
         user.set_password(self.cleaned_data['password1'])
@@ -30,7 +32,7 @@ class UserCreationForm(forms.ModelForm):
             user.save()
         return user
 
-
+#Форма для входа пользователя
 class UserLoginForm(forms.Form):
     query = forms.CharField(label='Логин или E-mail')
     password = forms.CharField(label='Пароль')
