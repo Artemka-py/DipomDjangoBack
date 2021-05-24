@@ -5,6 +5,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework import routers
 from .views import ClientsViewSet, DocsViewSet, ManagersViewSet, OrganizationsViewSet, ProjectsViewSet, StatusViewSet, TasksViewSet, UsersViewSet, WorkgroupsViewSet, WorkingDeveloperListViewSet, DevelopersViewSet, NotesViewSet, IssuesViewSet
 
+#Ендпоинты для отдачи данных из БД
 router = routers.SimpleRouter()
 router.register('projects', ProjectsViewSet, basename='projects')
 router.register('tasks', TasksViewSet, basename='tasks')

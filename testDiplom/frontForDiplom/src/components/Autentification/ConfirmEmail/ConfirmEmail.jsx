@@ -4,6 +4,15 @@ import { Button, Input } from 'antd';
 import { toast } from '../../../pages/Projects/DetailProject/DetailProject';
 import axios from 'axios';
 
+/**
+ * Подтверждение почты пользователя
+ *
+ * @param {string} username
+ * @param {string} password
+ * @param {function} authLogic
+ * @param {boolean} loading
+ * @return возвращает разметку.
+ */
 const ConfirmEmail = ({ username, password, authLogic, loading }) => {
   const [key, setKey] = useState('');
   const [keyData, setKeyData] = useState(null);
@@ -12,6 +21,7 @@ const ConfirmEmail = ({ username, password, authLogic, loading }) => {
     setKey(e.target.value);
   };
 
+  // Проверка ключа пользователя
   const handleSubmitKey = () => {
     if (key == keyData)
       axios
@@ -28,6 +38,7 @@ const ConfirmEmail = ({ username, password, authLogic, loading }) => {
     }
   };
 
+  // Отправка письма
   const sendEmail = () => {
     axios
       .get(`http://localhost:8000/verify-email/${username}/`)

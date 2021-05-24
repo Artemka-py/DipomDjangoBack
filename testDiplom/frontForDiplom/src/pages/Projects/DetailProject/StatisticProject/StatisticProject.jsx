@@ -3,10 +3,18 @@ import { Pie } from 'react-chartjs-2';
 import { connect } from 'react-redux';
 import axios from 'axios';
 
-const StatisticProject = ({ projectId, username, work_Id }) => {
+/**
+ * Страница о сайте.
+ *
+ * @param {number} projectId
+ * @param {number} work_Id
+ * @return возвращает разметку.
+ */
+const StatisticProject = ({ projectId, work_Id }) => {
   const [data, setData] = useState({});
   const [enable, setEnable] = useState(true);
 
+  // Получение статистики
   const fetchStatistic = async () => {
     await axios
       .get(`http://localhost:8000/statistic/${projectId}/`)

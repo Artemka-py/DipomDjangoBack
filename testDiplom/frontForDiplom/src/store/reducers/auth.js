@@ -1,6 +1,7 @@
 import * as actionTypes from '../actions/actionsTypes';
 import updateObject from '../utility';
 
+// Создание начального состояния
 const initialState = {
   token: null,
   error: null,
@@ -8,6 +9,8 @@ const initialState = {
   username: null,
   confirmed: false,
 };
+
+// Логика изменения стэйта.
 
 const authStart = (state, action) => {
   return updateObject(state, {
@@ -43,6 +46,7 @@ const authLogout = (state, action) => {
   });
 };
 
+// Вызывает логику и изменяет глобальный стейт в зависимости от события.
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.AUTH_START:

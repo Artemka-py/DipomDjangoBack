@@ -11,7 +11,13 @@ import HomePage from './pages/HomePage/HomePage';
 
 const customHistory = createBrowserHistory();
 
-const BaseRouter = ({ username, isAuthenticated }) => (
+/**
+ * Роутер всего приложения.
+ *
+ * @param {boolean} isAuthenticated Авторизован ли пользователь.
+ * @return возвращает логику работы роутера.
+ */
+const BaseRouter = ({ isAuthenticated }) => (
   <div>
     <Route path="/" exact component={HomePage} />
     <Route path="/about" component={AboutPage} />

@@ -36,6 +36,11 @@ import { formatForDate } from '../common/date';
 const { Header, Content } = Layout;
 const dateFormat = 'YYYY/MM/DD';
 
+/**
+ * Мастер страница.
+ *
+ * @return возвращает разметку.
+ */
 const Master = (props) => {
   const [visible, setVisible] = useState(false);
   const [imgVisible, setImgVisible] = useState(false);
@@ -54,6 +59,7 @@ const Master = (props) => {
   const [uploadData, setUploadData] = useState({ imageUrl: null, loading: false });
   const [checked, setChecked] = useState(false);
 
+  // Логика личного кабинета
   const lkHandler = async () => {
     setVisible(true);
 
@@ -78,6 +84,7 @@ const Master = (props) => {
     setData(null);
   };
 
+  // Логика загрузки аватарки
   const uploadButton = (
     <div>
       {uploadData.loading ? <LoadingOutlined /> : <PlusOutlined />}
@@ -89,6 +96,7 @@ const Master = (props) => {
     if (window.location.pathname) console.log('robit');
   }, [window.location.pathname]);
 
+  // Логика изменения
   const editableHandle = async (e) => {
     if (e.target.innerText === 'Изменить проект') {
       setLoadingEdit(true);
@@ -125,11 +133,13 @@ const Master = (props) => {
     }
   };
 
+  // Контроль изменения даты
   const handlerChangeDate = (e, e2) => {
     setDate(e);
     console.log(e);
   };
 
+  // Логика загрузки картинки
   const uploadAction = async (e) => {
     switch (e.method) {
       case 'post': {

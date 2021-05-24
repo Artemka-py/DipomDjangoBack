@@ -1,3 +1,4 @@
+// Логика парсинга CSRF токена для запросов
 export default function getCookie(cname) {
   let name = cname + '=';
   let decodedCookie = decodeURIComponent(document.cookie);

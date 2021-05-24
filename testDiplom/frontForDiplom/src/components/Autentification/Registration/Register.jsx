@@ -8,6 +8,11 @@ import * as actions from '../../../store/actions/auth';
 import ConfirmEmail from '../ConfirmEmail/ConfirmEmail';
 import { useHistory } from 'react-router-dom';
 
+/**
+ * Страница регистрации.
+ *
+ * @return возвращает разметку.
+ */
 const Register = (props) => {
   const history = useHistory();
   const [form] = Form.useForm();
@@ -17,6 +22,7 @@ const Register = (props) => {
   const [shouldBlockNavigation, setShouldBlockNavigation] = useState(false);
   let errorMessage = [];
 
+  // Логика завершения регистрации
   const onFinish = (values) => {
     console.log('Received values of form: ', values);
     setUsername(values.username);
@@ -25,6 +31,7 @@ const Register = (props) => {
     props.onRegister(values.username, values.email, values.password1, values.password2);
   };
 
+  // Предварительная настройка ПП
   function showPromiseConfirm() {
     Modal.confirm({
       title: 'Ура вы новый пользователь!!!',

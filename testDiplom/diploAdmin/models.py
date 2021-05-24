@@ -223,12 +223,12 @@ class Notes(models.Model):
         verbose_name = 'Правка'
         verbose_name_plural = 'Правки'
 
-
+#Создание пути сохранения файла
 def upload_location_org(instatnce, filename):
     file_path = 'org/{full_name}/{filename}'.format(full_name=str(instatnce.organisation_id), filename=filename)
     return file_path
 
-
+#Модель таблицы организации
 class Organisations(models.Model):
     organisation_id = models.AutoField(primary_key=True)
     full_name = models.CharField(max_length=255, verbose_name="Полное наименование организации")
@@ -258,12 +258,12 @@ class Organisations(models.Model):
         verbose_name = 'Организация'
         verbose_name_plural = 'Организации'
 
-
+#Создание пути сохранения файла
 def upload_location_tasks(instatnce, filename):
     file_path = 'tasks/{project_name}/{filename}'.format(project_name=str(instatnce.project_name), filename=filename)
     return file_path
 
-
+#Модель таблицы проектов
 class Projects(models.Model):
     project_id = models.AutoField(primary_key=True)
     project_name = models.CharField(default='Плохой проект', null=False, max_length=255,
@@ -284,8 +284,6 @@ class Projects(models.Model):
     finish_date_fact = models.DateField(verbose_name='Фактическая дата конца проекта')
 
     docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
-    # tech_task_path = models.FileField(verbose_name='Путь до экспортированных задач', null=True, blank=True,
-    #                                   upload_to=upload_location_tasks)
 
     def __str__(self):
         return str(self.project_name)
@@ -295,41 +293,7 @@ class Projects(models.Model):
         verbose_name = 'Проект'
         verbose_name_plural = 'Проекты'
 
-    
-    # def get_queryset(self):
-    #     login = self.request.query_params.get('login')
-
-    #     # qs = WorkingDeveloperList.objects.filter(developer_login = login)
-    #     # for i in qs:
-    #     #     qs2 = Workgroups.objects.filter()
-
-    #     queryset = Model.objects.filter(Q(project_client_login=login) | Q(project_manager_login=login))
-    #     # if (queryset)
-
-
-    #     return queryset
-
-
-# class Stages(models.Model):
-#     stage_id = models.AutoField(primary_key=True)
-#     stage_name = models.CharField(max_length=255, verbose_name='Название этапа')
-#     stage_module = models.ForeignKey(Modules, models.DO_NOTHING, default=1, null=False, verbose_name='Название модуля')
-#     stage_status = models.ForeignKey('Status', models.DO_NOTHING, db_column='stage_status', default=1, null=False, verbose_name='Статус')
-#     docs_path = models.ManyToManyField(Documents, verbose_name="Документы", null=True, blank=True)
-#     start_date = models.DateField(verbose_name='Дата старта этапа', auto_now_add=True, null=False, blank=False)
-#     finish_date = models.DateField(verbose_name='Дата окончания этапа')
-#     start_date_fact = models.DateField(verbose_name='Фактическая дата старта этапа')
-#     finish_date_fact = models.DateField(verbose_name='Фактическая дата конца этапа')
-
-#     def __str__(self):
-#         return self.stage_name
-
-#     class Meta:
-#         db_table = 'stages'
-#         verbose_name = 'Этап'
-#         verbose_name_plural = 'Этапы'
-
-
+#Модель таблицы статусов
 class Status(models.Model):
     status_id = models.AutoField(primary_key=True)
     status_name = models.CharField(unique=True, max_length=255, verbose_name="Наименование")
@@ -342,7 +306,7 @@ class Status(models.Model):
         verbose_name = 'Статус'
         verbose_name_plural = 'Статусы'
 
-
+#Модель таблицы задач
 class Tasks(MPTTModel):
     task_id = models.AutoField(primary_key=True)
     task_name = models.CharField(max_length=255, verbose_name="Название задачи")
@@ -377,7 +341,7 @@ class Tasks(MPTTModel):
     def __str__(self):
         return self.task_name
 
-
+#Модель таблицы рабочих групп
 class Workgroups(models.Model):
     workgroup_id = models.AutoField(primary_key=True, verbose_name="Код группы")
     workgroup_name = models.CharField(unique=True, max_length=255, verbose_name="Название группы")
@@ -390,7 +354,7 @@ class Workgroups(models.Model):
         verbose_name = 'Рабочая группа'
         verbose_name_plural = 'Рабочие группы'
 
-
+#Модель таблицы разработчиков присоединенных к рабочим группам
 class WorkingDeveloperList(models.Model):
     list_id = models.AutoField(primary_key=True)
     developer_login = models.ForeignKey(Developers, models.DO_NOTHING, db_column='developer_login', default=1,
@@ -406,17 +370,12 @@ class WorkingDeveloperList(models.Model):
         verbose_name = 'Список группы'
         verbose_name_plural = 'Список групп'
 
-
+#Триггер на удаление
 @receiver(post_delete, sender=Users)
 def submission_delete(sender, instance, **kwargs):
     instance.user_image_src.delete(False)
 
-
-# @receiver(post_delete, sender=Projects)
-# def submission_delete_projects(sender, instance, **kwargs):
-#     instance.docs_path.delete(False)
-
-
+#Триггер на сохранение
 @receiver(post_save, sender=Tasks)
 def notofication_user(sender, instance, created, **kwargs):
 
@@ -429,17 +388,13 @@ def notofication_user(sender, instance, created, **kwargs):
     
     send_mail(subject, message, sender_from, recipients)
 
-
+#Триггер на удаление
 @receiver(post_delete, sender=Organisations)
 def submission_delete_org(sender, instance, **kwargs):
     instance.organisation_image_src.delete(False)
 
-
+#Триггер на сохранение
 @receiver(post_save, sender=Users)
 def user_is_staff_and_verification(sender, instance, created, **kwargs):
     print(instance, created)
     print('--------------------->', instance.is_staff)
-
-# @receiver(post_delete, sender=Documents)
-# def submission_delete_doc(sender, instatnce, **kwargs):
-#     instatnce.path_file.delete(False)

@@ -101,11 +101,17 @@ function transformData(data) {
   return data_transformed;
 }
 
+/**
+ * Страница с задачами.
+ *
+ * @return возвращает разметку.
+ */
 const Tasks_list = (props) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
   let getFetchData;
 
+  // Получение задач
   const fetchData = async () => {
     await axios
       .get(`http://localhost:8000/tasks-login/${props.username}/`)
@@ -122,6 +128,7 @@ const Tasks_list = (props) => {
     fetchData().then((data) => setLoading(false));
   }, []);
 
+  // Стили блока
   const projectTitleStyle = {
     backgroundColor: 'grey',
     fontSize: 20,

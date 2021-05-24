@@ -1,6 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
+/**
+ * Главная страница.
+ *
+ * @param {string} username Логин пользователя.
+ * @return возвращает разметку.
+ */
 const HomePage = ({ username }) => {
   console.log(username + '');
   return (

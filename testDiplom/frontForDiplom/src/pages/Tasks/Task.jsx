@@ -34,6 +34,11 @@ const toast = (type, message) =>
     duration: 2,
   });
 
+/**
+ * Детали задачи.
+ *
+ * @return возвращает разметку.
+ */
 const Task = (props) => {
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(true);
@@ -51,7 +56,7 @@ const Task = (props) => {
   const [comments, setComments] = useState([]);
   const [issues, setIssues] = useState([]);
   const [newComment, setNewComment] = useState(null);
-  const [newIssue, setNewIssue] =useState(null);
+  const [newIssue, setNewIssue] = useState(null);
   const [issueName, setIssueName] = useState(null);
   const [project_id, setProjectId] = useState(null);
   const [project, setProject] = useState({});
@@ -59,20 +64,25 @@ const Task = (props) => {
   let realFetchData;
   let CSRF;
 
+  // Логика открытия деталей задачи
   const showDrawer = () => {
     setVisible(true);
   };
 
+  // Логика закрытие деталей задачи
   const onClose = () => {
     setVisible(false);
     window.location.assign('/tasks');
   };
 
+  // Логика изменения
   const onClickEdit = async () => {
     await fetchTasks(project_id);
     await fetchDevelopers(project_id);
     setEditable(true);
   };
+
+  // Контроль изменения данных на форме
 
   const onChangeStartDate = (date) => {
     setStartDate(date.format('YYYY-MM-DD'));
@@ -82,6 +92,7 @@ const Task = (props) => {
     setFinishDate(date.format('YYYY-MM-DD'));
   };
 
+  // Логика изменения задачи
   const onEditTask = () => {
     console.log('Update data: ');
     CSRF = getCookie('csrftoken');
@@ -116,6 +127,7 @@ const Task = (props) => {
     setEditable(false);
   };
 
+  // Получения данных задач
   const fetchData = async () => {
     await axios
       .get(`http://localhost:8000/api/tasks/${task_id}/`)
@@ -134,6 +146,7 @@ const Task = (props) => {
       .catch((err) => console.error(err));
   };
 
+  // Получения данных о проекте
   const fetchProjectData = async (project_id) => {
     await axios
       .get(`http://localhost:8000/api/projects/${project_id}/`)
@@ -143,6 +156,7 @@ const Task = (props) => {
       .catch((err) => console.error(err));
   };
 
+  // Получение данных задач
   const fetchTasks = async (project_id) => {
     await axios
       .get(`http://localhost:8000/tasks-projects/${project_id}/`)
@@ -152,6 +166,7 @@ const Task = (props) => {
       .catch((err) => console.error(err));
   };
 
+  // Получение разработчиков
   const fetchDevelopers = async (project_id) => {
     await axios
       .get(`http://localhost:8000/workgroup-developers/${project_id}/`)
@@ -162,6 +177,7 @@ const Task = (props) => {
       .catch((err) => console.error(err));
   };
 
+  // Получени главной задачи
   const fetchParentTask = async (task_id) => {
     await axios
       .get(`http://localhost:8000/api/tasks/${task_id}/`)
@@ -171,7 +187,8 @@ const Task = (props) => {
       .catch((err) => console.error(err));
   };
 
-  const fetchComments = async (task_id) =>{
+  // Получение коментов
+  const fetchComments = async (task_id) => {
     await axios
       .get(`http://localhost:8000/comments-task/${task_id}/`)
       .then((res) => {
@@ -180,6 +197,7 @@ const Task = (props) => {
       .catch((err) => console.error(err));
   };
 
+  // Получение проблем
   const fetchIssues = async (task_id) => {
     await axios
       .get(`http://localhost:8000/issues-task/${task_id}/`)
@@ -188,6 +206,8 @@ const Task = (props) => {
       })
       .catch((err) => console.error(err));
   };
+
+  // Контроль изменения данных на форме
 
   const onTaskDeveloperChange = (e) => {
     setTaskDeveloper(e.value);
@@ -202,30 +222,32 @@ const Task = (props) => {
     setTaskDescription(e.target.value);
   };
 
-  const onChangeComment = (e)=>{
+  const onChangeComment = (e) => {
     setNewComment(e.target.value);
-  }
+  };
 
-  const onChangeIssue = (e)=>{
+  const onChangeIssue = (e) => {
     setNewIssue(e.target.value);
-  }
+  };
 
-  const onChangeIssueName = (e)=>{
+  const onChangeIssueName = (e) => {
     setIssueName(e.target.value);
-  }
+  };
 
-  const onAddComment = ()=>{
+  // Логика добавления комментов
+  const onAddComment = () => {
     CSRF = getCookie('csrftoken');
     let date = new Date();
     let YYYY = date.getFullYear();
     let mm = date.getMonth() + 1;
-    if(mm<10) mm = '0' + mm;
+    if (mm < 10) mm = '0' + mm;
     let dd = date.getDate();
-    if(dd<10) dd='0' + dd;
-    let dateFormated = YYYY + '-'+ mm + '-' + dd; 
+    if (dd < 10) dd = '0' + dd;
+    let dateFormated = YYYY + '-' + mm + '-' + dd;
 
     axios
-      .post(`http://localhost:8000/api/notes/`,
+      .post(
+        `http://localhost:8000/api/notes/`,
         {
           note_task_id: task_id,
           note_desc: newComment,
@@ -237,8 +259,9 @@ const Task = (props) => {
           headers: {
             'X-CSRFToken': CSRF,
           },
-        }
-      ).then((res) => {
+        },
+      )
+      .then((res) => {
         toast('success', 'Comment Successfuly Added!');
         fetchComments(task_id);
       })
@@ -247,18 +270,20 @@ const Task = (props) => {
       });
   };
 
-  const onAddIssue = ()=>{
+  // Логика добавления проблем
+  const onAddIssue = () => {
     CSRF = getCookie('csrftoken');
     let date = new Date();
     let YYYY = date.getFullYear();
     let mm = date.getMonth() + 1;
-    if(mm<10) mm = '0' + mm;
+    if (mm < 10) mm = '0' + mm;
     let dd = date.getDate();
-    if(dd<10) dd='0' + dd;
-    let dateFormated = YYYY + '-'+ mm + '-' + dd; 
+    if (dd < 10) dd = '0' + dd;
+    let dateFormated = YYYY + '-' + mm + '-' + dd;
 
     axios
-      .post(`http://localhost:8000/api/issues/`,
+      .post(
+        `http://localhost:8000/api/issues/`,
         {
           issue_task: task_id,
           issue_description: newIssue,
@@ -269,8 +294,9 @@ const Task = (props) => {
           headers: {
             'X-CSRFToken': CSRF,
           },
-        }
-      ).then((res) => {
+        },
+      )
+      .then((res) => {
         toast('success', 'Issue Successfuly Added!');
         fetchIssues(task_id);
       })
@@ -486,8 +512,16 @@ const Task = (props) => {
                     <TabPane tab="Комментарии" key="1">
                       <Row>
                         <p>Комментарии</p>
-                        <TextArea rows={6} placeholder="Написать комментарий" style={{marginBottom: 15}} onChange={onChangeComment}/>
-                        <button type="button" onClick={onAddComment} disabled={!newComment}> Отправить</button>
+                        <TextArea
+                          rows={6}
+                          placeholder="Написать комментарий"
+                          style={{ marginBottom: 15 }}
+                          onChange={onChangeComment}
+                        />
+                        <button type="button" onClick={onAddComment} disabled={!newComment}>
+                          {' '}
+                          Отправить
+                        </button>
                         <Divider></Divider>
                         {/* {comments && comments.map((item, idx)=>(
                         <Comment
@@ -507,78 +541,84 @@ const Task = (props) => {
                               <span>{moment(item.fields.note_date, 'YYYY-MM-DD').fromNow()}</span>
                           }
                         />))} */}
-                        {<List
-                          className="comment-list"
-                          header={`${comments.length} replies`}
-                          itemLayout="horizontal"
-                          dataSource={comments}
-                          renderItem={item => (
-                            <li>
-                              <Comment
-                                author={<a>{item.fields.note_client_login}</a>}
-                                avatar={
-                                  <Avatar
-                                    src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-                                    alt="Han Solo"
-                                  />
-                                }
-                                content={
-                                  <p>
-                                    {item.fields.note_desc}
-                                  </p>
-                                }
-                                datetime={
-                                    <span>{moment(item.fields.note_date, 'YYYY-MM-DD').fromNow()}</span>
-                                }
-                              />
-                            </li>
-                          )}
-                        />}
+                        {
+                          <List
+                            className="comment-list"
+                            header={`${comments.length} replies`}
+                            itemLayout="horizontal"
+                            dataSource={comments}
+                            renderItem={(item) => (
+                              <li>
+                                <Comment
+                                  author={<a>{item.fields.note_client_login}</a>}
+                                  avatar={
+                                    <Avatar
+                                      src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
+                                      alt="Han Solo"
+                                    />
+                                  }
+                                  content={<p>{item.fields.note_desc}</p>}
+                                  datetime={
+                                    <span>
+                                      {moment(item.fields.note_date, 'YYYY-MM-DD').fromNow()}
+                                    </span>
+                                  }
+                                />
+                              </li>
+                            )}
+                          />
+                        }
                       </Row>
                     </TabPane>
                     <TabPane tab="Замечания" key="2">
                       <Row>
                         <p>Замечания</p>
-                        <Input placeholder="Введите название проблемы" onChange={onChangeIssueName} style={{marginBottom: 15}}/>
-                        <TextArea rows={6} placeholder="Описание проблемы" style={{marginBottom: 15}} onChange={onChangeIssue}/>
-                        <button type="button" onClick={onAddIssue} disabled={!newIssue}> Отправить</button>
+                        <Input
+                          placeholder="Введите название проблемы"
+                          onChange={onChangeIssueName}
+                          style={{ marginBottom: 15 }}
+                        />
+                        <TextArea
+                          rows={6}
+                          placeholder="Описание проблемы"
+                          style={{ marginBottom: 15 }}
+                          onChange={onChangeIssue}
+                        />
+                        <button type="button" onClick={onAddIssue} disabled={!newIssue}>
+                          {' '}
+                          Отправить
+                        </button>
                         <Divider></Divider>
-                        {/* {issues && issues.map((item, idx)=>(
-                        <Comment
-                          content={
-                            <p>
-                              {item.fields.issue_description}
-                            </p>
-                          }
-                          datetime={
-                              <span>{moment(item.fields.issue_date, 'YYYY-MM-DD').fromNow()}</span>
-                          }
-                        />))} */}
                         {
                           <List
-                          className="comment-list"
-                          header={`${issues.length} replies`}
-                          itemLayout="horizontal"
-                          dataSource={issues}
-                          renderItem={item => (
-                            <li>
-                              <Comment
-                                avatar={ item.fields.issue_close_status ? (
-                                  <CheckCircleFilled style={{ color: 'green', fontSize: '32px'}}/>) : (
-                                  <CloseCircleFilled style={{ color: 'red', fontSize: '32px'}}/>)
-                                }
-                                content={
-                                  <p>
-                                    {item.fields.issue_description}
-                                  </p>
-                                }
-                                datetime={
-                                    <span>{moment(item.fields.issue_date, 'YYYY-MM-DD').fromNow()}</span>
-                                }
-                              />
-                            </li>
-                          )}
-                        />
+                            className="comment-list"
+                            header={`${issues.length} replies`}
+                            itemLayout="horizontal"
+                            dataSource={issues}
+                            renderItem={(item) => (
+                              <li>
+                                <Comment
+                                  avatar={
+                                    item.fields.issue_close_status ? (
+                                      <CheckCircleFilled
+                                        style={{ color: 'green', fontSize: '32px' }}
+                                      />
+                                    ) : (
+                                      <CloseCircleFilled
+                                        style={{ color: 'red', fontSize: '32px' }}
+                                      />
+                                    )
+                                  }
+                                  content={<p>{item.fields.issue_description}</p>}
+                                  datetime={
+                                    <span>
+                                      {moment(item.fields.issue_date, 'YYYY-MM-DD').fromNow()}
+                                    </span>
+                                  }
+                                />
+                              </li>
+                            )}
+                          />
                         }
                       </Row>
                     </TabPane>

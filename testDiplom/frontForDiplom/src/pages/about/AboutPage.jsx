@@ -7,6 +7,11 @@ import exportTaskImage from './../../images/exportTasks.png';
 import importUsersImage from './../../images/importUsers.png';
 import allImage from './../../images/all.png';
 
+/**
+ * Страница о сайте.
+ *
+ * @return возвращает разметку.
+ */
 const AboutPage = () => {
   const reloadAdmin = () => {
     setTimeout(() => {

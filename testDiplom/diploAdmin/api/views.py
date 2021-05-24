@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from .serializers import ClientsSerializer, DocsSerializer, ManagerSerializer, OrganisationsSerializer, ProjectSerializer, StatusSerializer, TasksSerializer, UsersSerializer, WorkgroupsSerializer, WorkingDeveloperListSerializer, DevelopersSerializer, NotesSerializer, IssuesSerializer
 from ..models import Clients, Documents, Issues, Managers, Notes, Organisations, Projects, Status, Tasks, Users, Workgroups, WorkingDeveloperList, Developers
 
+#Логика отдачи данных
+
 class ProjectsViewSet(viewsets.ModelViewSet):
 
   queryset = Projects.objects.all()

@@ -1,6 +1,11 @@
 import React, { useRef, useState } from 'react';
 import './preloader.css';
 
+/**
+ * Логотип загрузки, пока не загрузиться сайт.
+ *
+ * @return возвращает разметку.
+ */
 const PreLoader = () => {
   const viewRef = useRef();
 

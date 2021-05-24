@@ -4,6 +4,8 @@ from rest_framework import fields
 
 from ..models import Clients, Documents, Issues, Notes, Organisations, Projects, Status, Tasks, Users, Workgroups, WorkingDeveloperList, Managers, Developers, Notes
 
+#Сериалайзеры описывающие какие данные возвращают ендпоинты
+
 class ProjectSerializer(serializers.ModelSerializer):
 
   class Meta:

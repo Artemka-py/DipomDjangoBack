@@ -6,6 +6,12 @@ import { connect } from 'react-redux';
 import BaseRouter from './routes';
 import { BrowserRouter as Router } from 'react-router-dom';
 
+/**
+ * Роутер всего приложения.
+ *
+ * @param {any} props Прокинутые переменные.
+ * @return возвращает логику работы, оболочку и сами компоненты приложения.
+ */
 const App = (props) => {
   props.onTryAutoSignup();
 
@@ -20,12 +26,15 @@ const App = (props) => {
   );
 };
 
+// Подключение store хранилища данных и забор нужных данных
 const mapStateToProps = (state) => ({
   isAuthenticated: state.token !== null,
 });
 
+// Использование общей логики всего приложения
 const mapDispatchToProps = (dispatch) => ({
   onTryAutoSignup: () => dispatch(actions.authCheckState()),
 });
 
+// Эксопрт компонента
 export default connect(mapStateToProps, mapDispatchToProps)(App);

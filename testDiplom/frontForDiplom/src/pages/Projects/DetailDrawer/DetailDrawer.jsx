@@ -5,6 +5,21 @@ import axios from 'axios';
 
 const { Option } = Select;
 
+/**
+ * Выезжающая панель с деталями проекта.
+ *
+ * @param {boolean} onClose
+ * @param {boolean} visible
+ * @param {object} infoForDetail
+ * @param {boolean} username
+ * @param {object} statuses
+ * @param {function} removeUploadAction
+ * @param {function} uploadAction
+ * @param {function} onOrgChange
+ * @param {function} statusesFetch
+ * @param {object} org
+ * @return возвращает разметку.
+ */
 const DetailDrawer = ({
   onClose,
   visible,
@@ -21,6 +36,7 @@ const DetailDrawer = ({
   const [loading, setLoading] = useState(false);
   console.log(infoForDetail);
 
+  // Проверка прав пользователя
   const checkRights = async () => {
     await axios
       .get(`http://127.0.0.1:8000/project-check-rights/${username}/${infoForDetail.project_id}/`)
@@ -32,6 +48,7 @@ const DetailDrawer = ({
       .catch((err) => console.error(err));
   };
 
+  // Закрытие панели
   const handlerOnClose = () => {
     setRights(false);
     onClose();
@@ -41,8 +58,6 @@ const DetailDrawer = ({
     statusesFetch();
     checkRights();
   }, []);
-
-  const onChangeFinish = () => {};
 
   const renderStatuses = () => {
     return (
@@ -87,22 +102,8 @@ const DetailDrawer = ({
         </div>
       }
     >
-      <Form layout="vertical" hideRequiredMark onFinish={onChangeFinish}>
+      <Form layout="vertical" hideRequiredMark>
         <Row gutter={16}>
-          {/*<Col span={12}>*/}
-          {/*  <Form.Item*/}
-          {/*    name="project_name"*/}
-          {/*    label="Название проекта"*/}
-          {/*    rules={[*/}
-          {/*      {*/}
-          {/*        required: true,*/}
-          {/*        message: 'Пожалуйста напишите название проекта',*/}
-          {/*      },*/}
-          {/*    ]}*/}
-          {/*  >*/}
-          {/*    <Input placeholder="Пожалуйста напишите название проекта" />*/}
-          {/*  </Form.Item>*/}
-          {/*</Col>*/}
           <Col span={12}>
             <Form.Item name="status_name" label="Статус проекта">
               <Select placeholder="Выберите статус" defaultValue={infoForDetail.status_name}>
@@ -134,28 +135,6 @@ const DetailDrawer = ({
               </Select>
             </Form.Item>
           </Col>
-          {/*<Col span={12}>*/}
-          {/*  <Form.Item*/}
-          {/*    name="project_client_login"*/}
-          {/*    label="Логин клиента"*/}
-          {/*    rules={[*/}
-          {/*      {*/}
-          {/*        required: true,*/}
-          {/*        message: 'Пожалуйста выберите клиента',*/}
-          {/*      },*/}
-          {/*    ]}*/}
-          {/*  >*/}
-          {/*    <Select loading={loadingSelect} disabled={statusOrg} placeholder="Выберите клиента">*/}
-          {/*      {clients*/}
-          {/*        ? clients.map((e, index) => (*/}
-          {/*            <Option key={index} value={e.pk}>*/}
-          {/*              {e.pk}*/}
-          {/*            </Option>*/}
-          {/*          ))*/}
-          {/*        : null}*/}
-          {/*    </Select>*/}
-          {/*  </Form.Item>*/}
-          {/*</Col>*/}
         </Row>
         <Row gutter={16}>
           <Col span={12}>

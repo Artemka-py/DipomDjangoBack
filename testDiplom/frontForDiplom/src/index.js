@@ -15,16 +15,21 @@ import PreLoader from './components/PreLoader/PreLoader.jsx';
 import { toast } from './pages/Projects/DetailProject/DetailProject';
 const App = lazy(() => import('./App'));
 
+// Подключение мониторинга в реальном времени
 mixpanel.init('087836e72b7918aa48ee6cee520596da');
 
+// Подключение и инициализация багрепорта для пользователей
 BugBattle.initialize('zLjvOGurHVEfdYBvQrXAEBTAd6Cl2I0T', BugBattle.FEEDBACK_BUTTON);
 BugBattle.enableCrashDetector(true);
 BugBattle.setMainColor('#3c94e5');
 
+// Подключение плагина для разработки
 const composeEnhances = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
+// Создание общего хранилища данных
 export const store = createStore(reducer, composeEnhances(applyMiddleware(thunk)));
 
+// Функция проверяющая браузер, на котором запустился сайт
 var browser = (function () {
   var test = function (regexp) {
     return regexp.test(window.navigator.userAgent);
@@ -52,6 +57,11 @@ var browser = (function () {
   }
 })();
 
+/**
+ * Роутер всего приложения.
+ *
+ * @return все приложение.
+ */
 const app = (
   <Suspense fallback={<PreLoader />}>
     <Provider store={store}>

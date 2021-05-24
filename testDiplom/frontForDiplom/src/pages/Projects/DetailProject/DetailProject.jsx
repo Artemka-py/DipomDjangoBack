@@ -38,6 +38,7 @@ let realTimeFetch;
 const dateFormat = 'YYYY-MM-DD';
 let dataForTree = [];
 let dataForExport = [];
+// Всплывабщее окно
 export const toast = (type, message) =>
   notification[type]({
     message: message,
@@ -98,7 +99,7 @@ const columnsForTask = [
   },
 ];
 
-// transform data to treeObject
+// Трансформация данных для древовидного отображения
 function transformDataToTree(data) {
   let treeData = [];
   let cur_lvls = [];
@@ -121,14 +122,13 @@ function transformDataToTree(data) {
         cur_lvls[0] += 1;
       }
     } else {
-      let lvl_down = 0;
+      let lvl_down = 1;
       let copy = treeData[cur_lvls[0]];
       while (parent_key !== copy.key) {
-        copy = copy.children[cur_lvls[lvl_down]-1];
+        if(copy.children[cur_lvls[lvl_down]] != undefined)
+          copy = copy.children[cur_lvls[lvl_down]];
         lvl_down += 1;
       }
-
-      lvl_down += 1;
 
       if (cur_lvls[lvl_down] === undefined) {
         cur_lvls[lvl_down] = 0;
@@ -139,6 +139,7 @@ function transformDataToTree(data) {
       if (typeof copy.children === 'undefined') copy.children = [];
       copy.children.push(treeItem);
     }
+    console.log('TreeData : ', treeData);
   });
 
   return treeData;
@@ -153,6 +154,13 @@ function TreeDataUi(data) {
   );
 }
 
+/**
+ * Страница о сайте.
+ *
+ * @param {object} match
+ * @param {string} username
+ * @return возвращает разметку.
+ */
 const DetailProject = ({ match, username }) => {
   const ID = match.params.id;
   const [loading, setLoading] = useState(false);
@@ -217,6 +225,7 @@ const DetailProject = ({ match, username }) => {
     },
   ];
 
+  // Логика удаления разработчика из проекта
   const deleteDeveloperFromProject = async (rec) => {
     await axios
       .delete(`http://localhost:8000/api/workdl/${rec.list_id}/`)
@@ -229,6 +238,7 @@ const DetailProject = ({ match, username }) => {
       });
   };
 
+  // Логика запроса и получения данных
   const fetchData = async () => {
     await axios.get(`http://127.0.0.1:8000/project-orgs/${ID}/`).then(async (res) => {
       setDataProject(res.data[0]);
@@ -247,6 +257,7 @@ const DetailProject = ({ match, username }) => {
     });
   };
 
+  // Проверка прав пользователя
   const checkRights = async () => {
     await axios
       .get(`http://127.0.0.1:8000/project-check-rights/${username}/${ID}/`)
@@ -256,6 +267,7 @@ const DetailProject = ({ match, username }) => {
       .catch((err) => console.error(err));
   };
 
+  // Получение клиентов орагнизации
   const fetchClients = async () => {
     await axios
       .get(`http://127.0.0.1:8000/client-org/${dataProject.organisation_id}/`)
@@ -265,6 +277,7 @@ const DetailProject = ({ match, username }) => {
       .catch((err) => console.error(err));
   };
 
+  // Получение менеджеров
   const fetchManagers = async () => {
     await axios
       .get(`http://127.0.0.1:8000/api/man/`)
@@ -274,6 +287,7 @@ const DetailProject = ({ match, username }) => {
       .catch((err) => console.error(err));
   };
 
+  // Получение всех разработчиков
   const fetchAllDevelopers = async () => {
     await axios
       .get(`http://localhost:8000/api/users/`)
@@ -283,6 +297,7 @@ const DetailProject = ({ match, username }) => {
       .catch((err) => console.error(err));
   };
 
+  // Получение статусов
   const fetchStatuses = async () => {
     await axios
       .get(`http://localhost:8000/api/status/`)
@@ -292,6 +307,7 @@ const DetailProject = ({ match, username }) => {
       .catch((err) => console.error(err));
   };
 
+  // Получение разработчиков
   const fetchDevelopers = async () => {
     await axios
       .get(`http://localhost:8000/developers-in/${dataProject.project_workgroup_id}/`)
@@ -314,6 +330,7 @@ const DetailProject = ({ match, username }) => {
     return () => clearInterval(realTimeFetch);
   }, []);
 
+  // Логика изменения
   const editableHandle = async (e) => {
     if (e.target.innerText === 'Изменить проект') {
       setLoadingEdit(true);
@@ -354,6 +371,8 @@ const DetailProject = ({ match, username }) => {
     }
   };
 
+  // Контроль изменения данных на форме
+
   const changeDateHandler = (e) => {
     setNewFinishDate(e);
   };
@@ -378,10 +397,12 @@ const DetailProject = ({ match, username }) => {
     setNewDeveloper(e.value);
   };
 
+  // Логика превью картинки
   const imagePreview = () => {
     window.open(`http://localhost:8000/media/${dataProject.organisation_image_src}`);
   };
 
+  // Логика добавления пользователя
   const handleAddDeveloper = async () => {
     setLoadingAddDev(true);
 
@@ -417,6 +438,7 @@ const DetailProject = ({ match, username }) => {
     setLoadingAddDev(false);
   };
 
+  // Добавление нового разработчика в группу
   const addNewDevToWorkGroup = async () => {
     await axios
       .post(`http://localhost:8000/api/workdl/`, {
@@ -436,6 +458,8 @@ const DetailProject = ({ match, username }) => {
     setTeamLeadCheck(false);
   };
 
+  // Контроль изменения данных на форме
+
   const changeTeamHandler = (e) => {
     setTeamLeadCheck(e.target.checked);
   };
@@ -444,6 +468,7 @@ const DetailProject = ({ match, username }) => {
     setOutCheck(e.target.checked);
   };
 
+  // Получение задач проекта
   const getTasks = async () => {
     await axios
       .get(`http://localhost:8000/tasks-projects/${ID}/`)
@@ -456,12 +481,14 @@ const DetailProject = ({ match, username }) => {
       .catch((err) => console.error(err));
   };
 
+  // Логика открытия статистики
   const handleOpenStatistic = () => {
     setOpenStatisticDrawer(true);
   };
 
   const closeStatisticDrawer = () => setOpenStatisticDrawer(false);
 
+  // Экспорт ексель
   const handleExportExcel = () => {
     console.log(dataForTree);
     let completed = 0;

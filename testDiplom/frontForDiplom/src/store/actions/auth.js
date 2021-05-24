@@ -3,6 +3,8 @@ import axios from 'axios';
 import getCookie from '../../common/parseCookies';
 import mixpanel from 'mixpanel-browser';
 
+// Глобальные изменения типов для старта работы
+
 export const authStart = () => {
   return {
     type: actionTypes.AUTH_START,
@@ -39,6 +41,13 @@ export const checkAuthTimeout = (expirationDate) => {
   };
 };
 
+/**
+ * Роутер всего приложения.
+ *
+ * @param {string} username Логин пользователя.
+ * @param {string} password Пароль пользователя.
+ * @return проверяет наличие пользователя и авторизует его на сайте.
+ */
 export const authLogin = (username, password) => {
   return (dispatch) => {
     dispatch(authStart());
@@ -84,6 +93,15 @@ export const authLogin = (username, password) => {
   };
 };
 
+/**
+ * Роутер всего приложения.
+ *
+ * @param {string} username Логин пользователя.
+ * @param {string} email Пароль пользователя.
+ * @param {string} password1 Пароль пользователя.
+ * @param {string} password2 Пароль пользователя.
+ * @return проверяет наличие пользователя и регистрирует.
+ */
 export const authSignup = (username, email, password1, password2) => {
   return (dispatch) => {
     dispatch(authStart());
@@ -106,12 +124,6 @@ export const authSignup = (username, email, password1, password2) => {
         },
       )
       .then((res) => {
-        // const token = res.data.key;
-        // const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-        // localStorage.setItem('token', token);
-        // localStorage.setItem('expirationDate', expirationDate.toString());
-        // dispatch(authSuccess(token, username));
-        // dispatch(checkAuthTimeout(3600));
         mixpanel.track('Sign up');
         dispatch(authLogin(username, password1));
       })
@@ -121,6 +133,7 @@ export const authSignup = (username, email, password1, password2) => {
   };
 };
 
+// Проверка авторизован и не просрочен ли токен пользователя.
 export const authCheckState = () => {
   return (dispatch) => {
     const token = localStorage.getItem('token');

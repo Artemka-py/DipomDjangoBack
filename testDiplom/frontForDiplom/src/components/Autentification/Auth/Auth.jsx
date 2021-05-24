@@ -9,6 +9,11 @@ import ConfirmEmail from '../ConfirmEmail/ConfirmEmail';
 
 const { Countdown } = Statistic;
 
+/**
+ * Страница авторизации.
+ *
+ * @return возвращает разметку.
+ */
 const Auth = (props) => {
   const history = useHistory();
   const [confirmEmail, setConfirmEmail] = useState(false);
@@ -17,6 +22,7 @@ const Auth = (props) => {
   const [tryAuth, setTryAuth] = useState(0);
   let errorMessage = [];
 
+  // Логика завершения авторизации
   const onFinish = async (values) => {
     setTryAuth(tryAuth + 1);
     setUsername(values.username);
@@ -33,6 +39,7 @@ const Auth = (props) => {
       if (props.error === null) history.push('/');
   }, [props.error, props.history, props.loading, props.token]);
 
+  // Если ошибка
   const onFinishFailed = (errorInfo) => {
     setTryAuth(tryAuth + 1);
   };
